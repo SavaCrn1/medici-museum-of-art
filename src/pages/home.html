@@ -1,0 +1,109 @@
+<section class="hero">
+  <img class="hero__media" src="{{base}}assets/img/sculpture-garden.jpg" alt="" aria-hidden="true">
+  <div class="hero__inner shell">
+    <p class="eyebrow">Warren, Ohio &middot; Free admission</p>
+    <h1>Medici Museum of Art</h1>
+    <p class="lede">Classic, modern and contemporary art, an outdoor sculpture garden,
+      and a year of workshops and classes &mdash; open to everyone, at no charge.</p>
+    <p><strong>{{hoursLabel}}, {{hoursTime}}</strong></p>
+    <div class="hero__actions">
+      <a class="btn btn--night" href="{{base}}visit/">Plan your visit</a>
+      <a class="btn btn--night" href="{{mapsUrl}}" target="_blank" rel="noopener">Get directions<span class="visually-hidden"> (opens in a new tab)</span></a>
+      <a class="btn btn--night" href="{{phoneHref}}">Call {{phone}}</a>
+    </div>
+  </div>
+</section>
+
+<section class="band" aria-labelledby="on-view">
+  <div class="shell">
+    <p class="eyebrow">On view</p>
+    <h2 id="on-view">Permanent Collection</h2>
+    <ul class="card-grid">
+      <li class="card">
+        <img src="{{base}}assets/img/collection-grohl.png"
+             alt="An abstract Alexander Calder composition from the collection: red and blue lines ruled across cream paper, hung with circles, triangles, a spiral and hourglass shapes in red, orange, blue, yellow and black.">
+        <h3>Renie &amp; James Grohl Collection</h3>
+        <p>The James and Renie Grohl Collection at the Medici Museum of Art is a distinguished assemblage of
+          artworks that reflects a deep appreciation for artistic excellence and cultural significance.
+          Generously gifted by the Grohl family, this collection serves as a testament to their enduring passion
+          for the arts and their commitment to preserving and sharing remarkable works with the public.</p>
+        <a class="card__more" href="{{base}}exhibits/">See the collection<span class="visually-hidden"> &mdash; Renie and James Grohl Collection</span> &rarr;</a>
+      </li>
+      <li class="card">
+        <img src="{{base}}assets/img/artist-feuerman.png"
+             alt="Sculptor Carole A. Feuerman seated beside one of her hyperrealist works: a swimmer in a lime-green bathing cap, arms folded over a grey inflatable tube, water beaded on her skin.">
+        <h3>Carole A. Feuerman</h3>
+        <p>Carole A. Feuerman (born 1945) is an American sculptor and author known as a Superrealist. She is one
+          of the three artists who started the movement in the late 1970s. She is best known for her figurative
+          works of swimmers and dancers. She is the only artist to make realistically painted outdoor sculptures
+          and the only woman to sculpt in this style.</p>
+        <a class="card__more" href="{{base}}exhibits/">About the artist<span class="visually-hidden"> Carole A. Feuerman</span> &rarr;</a>
+      </li>
+      <li class="card">
+        <img src="{{base}}assets/img/sculpture-garden.jpg"
+             alt="Carole A. Feuerman's sculpture Justice in the garden: a gold-toned figure of a woman in a swim cap and gold swimsuit, seated in a lotus pose on a mirror-polished steel sphere, with trees behind her.">
+        <h3>Outdoor Sculpture Garden</h3>
+        <p>The Medici Museum of Art is honoured to feature two remarkable sculptures generously donated by
+          internationally acclaimed artist Carole A. Feuerman, with a combined value of $1.5&nbsp;million.
+          &ldquo;Justice&rdquo; depicts a serene woman in a graceful lotus pose, balanced atop a gleaming,
+          polished stainless steel sphere &mdash; symbolising poise, balance, and inner strength.
+          &ldquo;Poseidon&rdquo;, a striking six-foot bronze sculpture completed in 2023, stands as a bold new
+          permanent installation in the garden.</p>
+        <a class="card__more" href="{{base}}exhibits/">Visit the garden<span class="visually-hidden"> &mdash; outdoor sculpture garden</span> &rarr;</a>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="feature-band" aria-labelledby="free-admission">
+  <div class="feature-band__inner shell">
+    <h2 id="free-admission">Always free to enter</h2>
+    <p class="lede" style="margin-inline:auto">The Medici is committed to giving our community and
+      the wider region access to exceptional art at no cost. Bring a class, a friend, or yourself.</p>
+    <p><a class="btn btn--night" href="{{base}}donate/">Support the museum</a></p>
+  </div>
+</section>
+
+<section class="band" aria-labelledby="events-heading">
+  <div class="shell">
+    <p class="eyebrow">Inspire</p>
+    <h2 id="events-heading">Upcoming Events</h2>
+    <p class="lede">From inspiring educational programs and elegant galas to meaningful fundraisers and vibrant
+      community events, there is always something happening at the Medici.</p>
+
+    <div class="split" style="margin-top:2.5rem">
+      <div>
+        <h3 class="visually-hidden">Event listings</h3>
+        {{eventsRecent}}
+        <p style="margin-top:1.5rem">
+          <a class="btn btn--ghost" href="{{base}}upcomingevents/">All events and classes</a>
+        </p>
+      </div>
+      <div>
+        {{calendar}}
+        <noscript>
+          <div class="notice">
+            <p>The month grid needs JavaScript. Every event is listed as text beside it, with dates, times and
+              booking links.</p>
+          </div>
+        </noscript>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section class="band" aria-labelledby="plan-visit">
+  <div class="shell split">
+    <div>
+      <p class="eyebrow">Plan your visit</p>
+      <h2 id="plan-visit">Come and see us</h2>
+      <p>We are on East Market Street in Warren, a short drive from Youngstown, Cleveland and Pittsburgh.</p>
+      <p><a class="btn" href="{{base}}visit/">Visitor information</a></p>
+    </div>
+    <div>
+      {{contactNoHeading}}
+    </div>
+  </div>
+</section>

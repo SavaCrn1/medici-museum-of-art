@@ -1,0 +1,48 @@
+<section class="band band--tight">
+  <div class="shell">
+    <p class="eyebrow">Inspire</p>
+    <h1>Upcoming Events and Classes</h1>
+    <p class="lede">From educational programs and galas to fundraisers and community events, there is always
+      something happening at the Medici.</p>
+    <p><a class="btn" href="{{eventbrite}}" target="_blank" rel="noopener">Book on Eventbrite<span class="visually-hidden"> (opens in a new tab)</span></a></p>
+  </div>
+</section>
+
+<section class="band band--tight" aria-labelledby="calendar-heading">
+  <div class="shell">
+    <h2 id="calendar-heading">Month at a glance</h2>
+    {{calendar}}
+    <noscript>
+      <div class="notice">
+        <p>The month grid needs JavaScript. Every event is listed below as text, with dates, times and booking
+          links.</p>
+      </div>
+    </noscript>
+  </div>
+</section>
+
+<section class="band" aria-labelledby="all-events">
+  <div class="shell">
+    <h2 id="all-events">All listings</h2>
+    <p>Listed newest first. Times are Eastern Time.</p>
+    {{events}}
+  </div>
+</section>
+
+<section class="band band--warm band--tight" aria-labelledby="stay-posted">
+  <div class="shell split">
+    <div>
+      <h2 id="stay-posted">Never miss a workshop</h2>
+      <p>New classes are announced by email first, and tickets for the popular ones go quickly.</p>
+      <p>
+        <a class="btn" href="{{base}}subscribe/">Join the mailing list</a>
+        <a class="btn btn--ghost" href="{{eventbrite}}" target="_blank" rel="noopener">Eventbrite<span class="visually-hidden"> (opens in a new tab)</span></a>
+      </p>
+    </div>
+    <div>
+      <h3>Questions about a class?</h3>
+      <p><a class="action-link" href="{{phoneHref}}"><span>{{phone}}</span></a></p>
+      <p><a class="action-link" href="{{emailHref}}"><span>{{email}}</span></a></p>
+    </div>
+  </div>
+</section>

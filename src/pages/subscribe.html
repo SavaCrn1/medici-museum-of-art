@@ -1,0 +1,67 @@
+<section class="band band--tight">
+  <div class="shell">
+    <p class="eyebrow">Inspire</p>
+    <h1>Stay In Touch</h1>
+    <p class="lede">Sign up with your email address to receive news and updates.</p>
+  </div>
+</section>
+
+<section class="band band--tight">
+  <div class="shell split">
+    <div>
+      <h2>What you will get</h2>
+      <ul>
+        <li>New exhibition announcements before they open.</li>
+        <li>Workshops and classes &mdash; the popular ones sell out.</li>
+        <li>Invitations to galas, fundraisers and community events.</li>
+      </ul>
+      <p>We send occasional email and nothing else. You can unsubscribe from any message.</p>
+    </div>
+
+    <div>
+      <h2 id="signup">Join the list</h2>
+      {{formNotice}}
+      <form class="form" data-validate method="post" action="#" aria-labelledby="signup">
+        <p class="form__status" role="alert" data-form-status></p>
+
+        <div class="form-row">
+          <div class="field">
+            <label for="s-first">First name</label>
+            <input id="s-first" name="firstName" type="text" autocomplete="given-name"
+                   aria-describedby="s-first-error">
+            <p class="field__error" id="s-first-error"></p>
+          </div>
+          <div class="field">
+            <label for="s-last">Last name</label>
+            <input id="s-last" name="lastName" type="text" autocomplete="family-name"
+                   aria-describedby="s-last-error">
+            <p class="field__error" id="s-last-error"></p>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="s-email">Email address <span class="req" aria-hidden="true">*</span></label>
+          <input id="s-email" name="email" type="email" autocomplete="email" required
+                 aria-describedby="s-email-hint s-email-error">
+          <p class="hint" id="s-email-hint">Required. Format: name@example.com</p>
+          <p class="field__error" id="s-email-error"></p>
+        </div>
+
+        <div>
+          <button class="btn" type="submit">Sign up</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="band band--warm band--tight" aria-labelledby="follow">
+  <div class="shell">
+    <h2 id="follow">Follow us</h2>
+    <p>Day-to-day pictures from the galleries and the sculpture garden.</p>
+    <p>
+      <a class="btn btn--ghost" href="https://www.facebook.com/medicimuseumofart/" target="_blank" rel="noopener">Facebook<span class="visually-hidden"> (opens in a new tab)</span></a>
+      <a class="btn btn--ghost" href="https://www.instagram.com/medicimuseum.art/" target="_blank" rel="noopener">Instagram<span class="visually-hidden"> (opens in a new tab)</span></a>
+    </p>
+  </div>
+</section>

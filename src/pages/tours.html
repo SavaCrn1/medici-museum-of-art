@@ -1,0 +1,165 @@
+<section class="band band--tight">
+  <div class="shell">
+    <p class="eyebrow">Connect</p>
+    <h1>Book a Tour</h1>
+    <p class="lede">Experience the museum with a guide. Whether you are an art enthusiast, a student group, or
+      simply curious, our docents lead you through the galleries with the stories behind the work.</p>
+  </div>
+</section>
+
+<section class="band band--tight" aria-labelledby="options">
+  <div class="shell">
+    <h2 id="options">Tour options</h2>
+    <ul class="card-grid">
+      <li class="card">
+        <h3>General Museum Tour</h3>
+        <p>Highlights from our permanent collection. 30&ndash;60 minutes.</p>
+      </li>
+      <li class="card">
+        <h3>Special Exhibition Tour</h3>
+        <p>A deeper look at the latest featured exhibition. 30&ndash;60 minutes.</p>
+      </li>
+      <li class="card">
+        <h3>Themed Tours</h3>
+        <p>Focused on specific art movements, artists or historical periods. 45 minutes.</p>
+      </li>
+      <li class="card">
+        <h3>School &amp; Group Tours</h3>
+        <p>Tailored experiences for student groups or private events. Customisable.</p>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="band band--warm band--tight" aria-labelledby="how-to-book">
+  <div class="shell split">
+    <div>
+      <h2 id="how-to-book">How to book</h2>
+      <ul>
+        <li><strong>Individuals and small groups (1&ndash;10 people):</strong> use the form below, or call us.</li>
+        <li><strong>Large groups (10+ people):</strong> please use the form at least two weeks in advance.</li>
+        <li><strong>Private tours and accessibility accommodations:</strong> email
+          <a href="{{emailHref}}">{{email}}</a> and tell us what you need.</li>
+      </ul>
+      <p><strong>Availability:</strong> tours are offered {{hoursLabel}}. Advance booking is recommended.</p>
+    </div>
+    <div>
+      <h3>Prefer to talk it through?</h3>
+      <p><a class="action-link" href="{{phoneHref}}"><span>{{phone}}</span></a></p>
+      <p><a class="action-link" href="{{emailHref}}"><span>{{email}}</span></a></p>
+    </div>
+  </div>
+</section>
+
+<section class="band" aria-labelledby="tour-form">
+  <div class="shell">
+    <h2 id="tour-form">Guided tour request</h2>
+    {{formNotice}}
+    <p>Tell us a little more and we will be in touch. Fields marked <span class="req">*</span> are required.</p>
+
+    <form class="form" data-validate method="post" action="#">
+      <p class="form__status" role="alert" data-form-status></p>
+
+      <fieldset>
+        <legend>Your details</legend>
+        <div class="form-row">
+          <div class="field">
+            <label for="tour-first">First name <span class="req" aria-hidden="true">*</span></label>
+            <input id="tour-first" name="firstName" type="text" autocomplete="given-name" required
+                   aria-describedby="tour-first-error">
+            <p class="field__error" id="tour-first-error"></p>
+          </div>
+          <div class="field">
+            <label for="tour-last">Last name <span class="req" aria-hidden="true">*</span></label>
+            <input id="tour-last" name="lastName" type="text" autocomplete="family-name" required
+                   aria-describedby="tour-last-error">
+            <p class="field__error" id="tour-last-error"></p>
+          </div>
+        </div>
+
+        <div class="form-row" style="margin-top:1.35rem">
+          <div class="field">
+            <label for="tour-email">Email <span class="req" aria-hidden="true">*</span></label>
+            <input id="tour-email" name="email" type="email" autocomplete="email" required
+                   aria-describedby="tour-email-hint tour-email-error">
+            <p class="hint" id="tour-email-hint">We reply here, usually within two working days.</p>
+            <p class="field__error" id="tour-email-error"></p>
+          </div>
+          <div class="field">
+            <label for="tour-phone">Phone</label>
+            <input id="tour-phone" name="phone" type="tel" autocomplete="tel"
+                   aria-describedby="tour-phone-hint tour-phone-error">
+            <p class="hint" id="tour-phone-hint">Optional.</p>
+            <p class="field__error" id="tour-phone-error"></p>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:1.35rem">
+          <label for="tour-org">School, business or group name</label>
+          <input id="tour-org" name="organisation" type="text" autocomplete="organization"
+                 aria-describedby="tour-org-error">
+          <p class="field__error" id="tour-org-error"></p>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>About the tour</legend>
+        <div class="field">
+          <label for="tour-type">Which type of tour interests you? <span class="req" aria-hidden="true">*</span></label>
+          <select id="tour-type" name="tourType" required aria-describedby="tour-type-error">
+            <option value="">Choose an option</option>
+            <option>School tour</option>
+            <option>Business event or activity</option>
+            <option>Personal tour</option>
+          </select>
+          <p class="field__error" id="tour-type-error"></p>
+        </div>
+
+        <div class="form-row" style="margin-top:1.35rem">
+          <div class="field">
+            <label for="tour-date">Preferred date <span class="req" aria-hidden="true">*</span></label>
+            <input id="tour-date" name="date" type="date" required aria-describedby="tour-date-error">
+            <p class="field__error" id="tour-date-error"></p>
+          </div>
+          <div class="field">
+            <label for="tour-time">Preferred time <span class="req" aria-hidden="true">*</span></label>
+            <input id="tour-time" name="time" type="time" required aria-describedby="tour-time-hint tour-time-error">
+            <p class="hint" id="tour-time-hint">Eastern Time. We are open {{hoursTime}}.</p>
+            <p class="field__error" id="tour-time-error"></p>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:1.35rem">
+          <label for="tour-message">Anything we should know? <span class="req" aria-hidden="true">*</span></label>
+          <textarea id="tour-message" name="message" required
+                    aria-describedby="tour-message-hint tour-message-error"></textarea>
+          <p class="hint" id="tour-message-hint">Group size, ages, and any access needs we should plan for.</p>
+          <p class="field__error" id="tour-message-error"></p>
+        </div>
+
+        <div class="field" style="margin-top:1.35rem">
+          <label for="tour-heard">How did you hear about us?</label>
+          <select id="tour-heard" name="heard" aria-describedby="tour-heard-error">
+            <option value="">Choose an option</option>
+            <option>Friend or family</option>
+            <option>Attended an event here</option>
+            <option>Advertisement</option>
+            <option>Social media</option>
+            <option>News</option>
+            <option>Other</option>
+          </select>
+          <p class="field__error" id="tour-heard-error"></p>
+        </div>
+
+        <div class="checkbox" style="margin-top:1.35rem">
+          <input id="tour-news" name="newsletter" type="checkbox">
+          <label for="tour-news">Send me news and updates by email</label>
+        </div>
+      </fieldset>
+
+      <div>
+        <button class="btn" type="submit">Send request</button>
+      </div>
+    </form>
+  </div>
+</section>

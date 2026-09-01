@@ -1,0 +1,136 @@
+<section class="band band--tight">
+  <div class="shell">
+    <p class="eyebrow">Connect</p>
+    <h1>Special Events at Medici</h1>
+    <p class="lede">Medici Museum of Art offers an intriguing and distinctive space for private and corporate
+      functions.</p>
+  </div>
+</section>
+
+<section class="band band--tight">
+  <div class="shell split">
+    <div>
+      <h2>Book an event with us</h2>
+      <p>Our staff is here to help you create a remarkable, memorable event. We provide an all-inclusive planning
+        experience. Rentals include event furniture and audiovisual equipment, and we work with exclusive
+        catering companies to create the perfect menu.</p>
+    </div>
+    <div>
+      <h3>Talk to the events team</h3>
+      <p><a class="action-link" href="{{phoneHref}}"><span>{{phone}}</span></a></p>
+      <p><a class="action-link" href="{{emailHref}}"><span>{{email}}</span></a></p>
+      <p><a class="action-link" href="{{mapsUrl}}" target="_blank" rel="noopener"><span>See the location<span class="visually-hidden"> on a map (opens in a new tab)</span></span></a></p>
+    </div>
+  </div>
+</section>
+
+<section class="band band--warm" aria-labelledby="rental-form">
+  <div class="shell">
+    <h2 id="rental-form">Event enquiry</h2>
+    {{formNotice}}
+    <p>Fields marked <span class="req">*</span> are required.</p>
+
+    <form class="form" data-validate method="post" action="#">
+      <p class="form__status" role="alert" data-form-status></p>
+
+      <fieldset>
+        <legend>Your details</legend>
+        <div class="form-row">
+          <div class="field">
+            <label for="r-first">First name <span class="req" aria-hidden="true">*</span></label>
+            <input id="r-first" name="firstName" type="text" autocomplete="given-name" required
+                   aria-describedby="r-first-error">
+            <p class="field__error" id="r-first-error"></p>
+          </div>
+          <div class="field">
+            <label for="r-last">Last name <span class="req" aria-hidden="true">*</span></label>
+            <input id="r-last" name="lastName" type="text" autocomplete="family-name" required
+                   aria-describedby="r-last-error">
+            <p class="field__error" id="r-last-error"></p>
+          </div>
+        </div>
+
+        <div class="form-row" style="margin-top:1.35rem">
+          <div class="field">
+            <label for="r-email">Email <span class="req" aria-hidden="true">*</span></label>
+            <input id="r-email" name="email" type="email" autocomplete="email" required
+                   aria-describedby="r-email-error">
+            <p class="field__error" id="r-email-error"></p>
+          </div>
+          <div class="field">
+            <label for="r-phone">Phone <span class="req" aria-hidden="true">*</span></label>
+            <input id="r-phone" name="phone" type="tel" autocomplete="tel" required
+                   aria-describedby="r-phone-error">
+            <p class="field__error" id="r-phone-error"></p>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>About your event</legend>
+        <div class="field">
+          <label for="r-type">Event type <span class="req" aria-hidden="true">*</span></label>
+          <select id="r-type" name="eventType" required aria-describedby="r-type-error">
+            <option value="">Choose an option</option>
+            <option>Awards ceremony</option>
+            <option>Networking event</option>
+            <option>Birthday party</option>
+            <option>Bridal or baby shower</option>
+            <option>Bar/Bat Mitzvah</option>
+            <option>Corporate event</option>
+            <option>Wedding ceremony only</option>
+            <option>Wedding reception only</option>
+            <option>Wedding ceremony and reception</option>
+            <option>Private dinner</option>
+            <option>Other</option>
+          </select>
+          <p class="field__error" id="r-type-error"></p>
+        </div>
+
+        <div class="form-row" style="margin-top:1.35rem">
+          <div class="field">
+            <label for="r-date">Preferred date <span class="req" aria-hidden="true">*</span></label>
+            <input id="r-date" name="date" type="date" required aria-describedby="r-date-error">
+            <p class="field__error" id="r-date-error"></p>
+          </div>
+          <div class="field">
+            <label for="r-time">Preferred time <span class="req" aria-hidden="true">*</span></label>
+            <input id="r-time" name="time" type="time" required aria-describedby="r-time-error">
+            <p class="field__error" id="r-time-error"></p>
+          </div>
+          <div class="field">
+            <label for="r-guests">Expected guests <span class="req" aria-hidden="true">*</span></label>
+            <input id="r-guests" name="guests" type="number" min="1" inputmode="numeric" required
+                   aria-describedby="r-guests-error">
+            <p class="field__error" id="r-guests-error"></p>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:1.35rem">
+          <label for="r-notes">What else do we need to know?</label>
+          <textarea id="r-notes" name="notes" aria-describedby="r-notes-hint r-notes-error"></textarea>
+          <p class="hint" id="r-notes-hint">Catering, layout, and any access needs for your guests.</p>
+          <p class="field__error" id="r-notes-error"></p>
+        </div>
+
+        <div class="field" style="margin-top:1.35rem">
+          <label for="r-heard">How did you hear about us?</label>
+          <select id="r-heard" name="heard" aria-describedby="r-heard-error">
+            <option value="">Choose an option</option>
+            <option>Friend or family</option>
+            <option>Attended an event here</option>
+            <option>Advertisement</option>
+            <option>Social media</option>
+            <option>News</option>
+            <option>Other</option>
+          </select>
+          <p class="field__error" id="r-heard-error"></p>
+        </div>
+      </fieldset>
+
+      <div>
+        <button class="btn" type="submit">Send enquiry</button>
+      </div>
+    </form>
+  </div>
+</section>
