@@ -529,148 +529,50 @@
   }
 
   /* ---------------------------------------------------------------------------
-     Email chooser
+     Maps
 
-     A bare mailto: on Windows hands the message to Outlook (or to the "choose
-     an app" shell dialog) regardless of what the visitor actually uses. For
-     someone on Gmail that is a dead end: Outlook opens unconfigured, asks them
-     to set up an account, and the enquiry never gets sent.
+     Every address links to Google Maps in the HTML, because that URL resolves
+     everywhere and needs no JavaScript. On an Apple device the href is swapped
+     for maps.apple.com, so an iPhone or Mac opens Maps directly instead of
+     landing in a browser and being asked to pick an app.
 
-     So on desktop the email link opens a small menu instead — Gmail, Outlook
-     on the web, the default mail app, or copy the address. The link keeps its
-     mailto: href, so with JavaScript off, or on a phone (where mailto: reliably
-     opens the mail app the person actually uses), nothing changes.
-
-     Built as a disclosure, not a dialog: aria-expanded on the trigger, arrow
-     keys and Home/End inside, Escape closes and returns focus, clicking away
-     closes.
+     Only the href changes — the link text, the accessible name and the target
+     stay exactly as rendered, so nothing shifts under a screen reader.
      --------------------------------------------------------------------------- */
 
-  function isDesktop() {
-    // Coarse pointer or a narrow screen means a phone or tablet: leave mailto:
-    // alone there, because the OS mail handler is the one the visitor chose.
-    if (window.matchMedia('(pointer: coarse)').matches) return false;
-    if (window.matchMedia('(max-width: 767px)').matches) return false;
-    return true;
+  function isApplePlatform() {
+    var ua = navigator.userAgent || '';
+    if (/iPhone|iPad|iPod/.test(ua)) return true;
+    // iPadOS 13+ reports itself as a Mac; the touch points give it away.
+    if (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) return true;
+    return /Macintosh|Mac OS X/.test(ua);
   }
 
-  function initEmailChooser() {
-    var links = document.querySelectorAll('a[data-email-link]');
-    if (!links.length || !isDesktop()) return;
+  function initMapLinks() {
+    if (!isApplePlatform()) return;
 
-    var counter = 0;
-
-    Array.prototype.forEach.call(links, function (link) {
-      var mailto = link.getAttribute('href');
-      var address = mailto.replace(/^mailto:/, '').split('?')[0];
-      var id = 'email-chooser-' + counter++;
-
-      var menu = document.createElement('div');
-      menu.className = 'email-chooser';
-      menu.id = id;
-      menu.hidden = true;
-      menu.innerHTML =
-        '<p class="email-chooser__heading">Send an email to<br><strong>' +
-        escapeHtml(address) +
-        '</strong></p>' +
-        '<ul>' +
-        '<li><a href="https://mail.google.com/mail/?view=cm&fs=1&to=' +
-        encodeURIComponent(address) +
-        '" target="_blank" rel="noopener">Open in Gmail<span class="visually-hidden"> (opens in a new tab)</span></a></li>' +
-        '<li><a href="https://outlook.office.com/mail/deeplink/compose?to=' +
-        encodeURIComponent(address) +
-        '" target="_blank" rel="noopener">Open in Outlook on the web<span class="visually-hidden"> (opens in a new tab)</span></a></li>' +
-        '<li><a href="' + mailto + '">Use my default mail app</a></li>' +
-        '<li><button type="button" data-copy-email>Copy address</button></li>' +
-        '</ul>' +
-        '<p class="email-chooser__status" role="status" aria-live="polite"></p>';
-
-      var wrap = document.createElement('span');
-      wrap.className = 'email-chooser__wrap';
-      link.parentNode.insertBefore(wrap, link);
-      wrap.appendChild(link);
-      wrap.appendChild(menu);
-
-      link.setAttribute('aria-expanded', 'false');
-      link.setAttribute('aria-controls', id);
-
-      function items() {
-        return menu.querySelectorAll('a, button');
-      }
-
-      function open() {
-        menu.hidden = false;
-        link.setAttribute('aria-expanded', 'true');
-        items()[0].focus();
-      }
-
-      function close(refocus) {
-        menu.hidden = true;
-        link.setAttribute('aria-expanded', 'false');
-        if (refocus) link.focus();
-      }
-
-      link.addEventListener('click', function (event) {
-        // Modified clicks keep their normal browser meaning.
-        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-        event.preventDefault();
-        if (menu.hidden) open();
-        else close(true);
-      });
-
-      menu.addEventListener('keydown', function (event) {
-        var list = Array.prototype.slice.call(items());
-        var index = list.indexOf(document.activeElement);
-
-        if (event.key === 'Escape') {
-          event.preventDefault();
-          close(true);
-        } else if (event.key === 'ArrowDown') {
-          event.preventDefault();
-          list[(index + 1) % list.length].focus();
-        } else if (event.key === 'ArrowUp') {
-          event.preventDefault();
-          list[(index - 1 + list.length) % list.length].focus();
-        } else if (event.key === 'Home') {
-          event.preventDefault();
-          list[0].focus();
-        } else if (event.key === 'End') {
-          event.preventDefault();
-          list[list.length - 1].focus();
-        } else if (event.key === 'Tab') {
-          close(false);
-        }
-      });
-
-      menu.addEventListener('click', function (event) {
-        var copy = event.target.closest('[data-copy-email]');
-        var status = menu.querySelector('.email-chooser__status');
-
-        if (copy) {
-          event.preventDefault();
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(address).then(
-              function () {
-                status.textContent = 'Address copied.';
-              },
-              function () {
-                status.textContent = 'Could not copy. The address is ' + address;
-              }
-            );
-          } else {
-            status.textContent = 'The address is ' + address;
-          }
-          return;
-        }
-
-        if (event.target.closest('a')) close(false);
-      });
-
-      document.addEventListener('click', function (event) {
-        if (!wrap.contains(event.target) && !menu.hidden) close(false);
-      });
+    document.querySelectorAll('a[data-map-query]').forEach(function (link) {
+      var query = link.getAttribute('data-map-query');
+      if (!query) return;
+      link.setAttribute('href', 'https://maps.apple.com/?q=' + encodeURIComponent(query));
     });
   }
+
+  /* ---------------------------------------------------------------------------
+     Email
+
+     There is no JavaScript here any more. An earlier version intercepted the
+     email link on desktop and offered a choice of Gmail, Outlook on the web,
+     the default mail app, or copying the address. Every address on the site now
+     points straight at Gmail's compose window, written into the href at build
+     time from site.email.provider, so the chooser was removed rather than left
+     running alongside it.
+
+     The reason it existed still stands, and is why provider is a config value:
+     a bare mailto: on Windows goes to Outlook whoever the visitor uses, while
+     a Gmail link strands anyone who does not have a Google account. Neither
+     choice suits everybody. Set site.email.provider to 'mail' to go back.
+     --------------------------------------------------------------------------- */
 
   /* ---------------------------------------------------------------------------
      Forms
@@ -731,7 +633,7 @@
     initNav();
     initHours();
     initCalendar();
-    initEmailChooser();
+    initMapLinks();
     initForms();
   }
 

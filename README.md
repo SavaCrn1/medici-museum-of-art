@@ -51,10 +51,23 @@ Output (`index.html`, `visit/index.html`, …) is committed so GitHub Pages can 
 | To change | Edit |
 |---|---|
 | Opening hours, phone, email, address | `src/site.config.js` — every page updates |
+| Where email links go (Gmail vs the device's mail app) | `email.provider` in `src/site.config.js` |
 | Events | `src/events.json`, then rebuild |
 | Exhibitions | `src/exhibitions.json`, then rebuild |
 | Page wording | `src/pages/<page>.html` |
 | Navigation | the `nav` array in `src/site.config.js` |
+
+Addresses and email addresses are written with two build tokens rather than hand-typed URLs:
+
+```
+{{map:9519 East Market St, Warren, OH 44484|Get directions||The Grand Resort}}
+{{email:DTaylor@JetsFBO.com}}
+```
+
+`{{map:query|label|class|context}}` renders a map link — Google Maps in the HTML, swapped to
+Apple Maps on Apple devices by `site.js`. `{{email:address|label|class}}` renders a link to
+whichever mail destination `email.provider` names. Use `SELF` as the query or address to mean the
+museum's own.
 
 Exhibitions sort themselves into **On view now**, **Coming up** and past from their own `start`
 and `end` dates each time you build, and the homepage leads with whichever is most relevant. So

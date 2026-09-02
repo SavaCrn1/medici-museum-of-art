@@ -226,29 +226,68 @@ Changing month clears the panel, so it can never describe a day you are no longe
 
 ---
 
-## 3. The email link on Windows
+## 3. Addresses and email addresses
 
-`mailto:` on Windows is handed to whatever the OS has registered — in practice Outlook, or the
-"How do you want to open this?" shell dialog. For a visitor who uses Gmail in a browser and has
-never configured Outlook, that is a dead end: Outlook opens and asks them to set up an account,
-and the enquiry is simply never sent. The failure is silent; the museum never learns the message
-did not arrive.
+### 3.1 Every address is a map link, and picks the right map app — *done*
 
-**Now**, on desktop the email link opens a small chooser: **Open in Gmail**, Open in Outlook on
-the web, Use my default mail app, or Copy address.
+The old site had **no map link anywhere** (§1.3). Every postal address on the rebuilt site is now
+a link: the museum's own address, and the three on `/visit` that were plain text — JETS at
+Vienna, The Grand Resort, and The Residence Inn. **21 map links across 11 pages**, and the audit
+now fails any `<address>` element that has no map link beside it.
 
-Deliberate constraints:
+The href written into the HTML is always the Google Maps one, because it resolves on every
+platform and needs no JavaScript. Each link also carries `data-map-query`, and on Apple devices
+`site.js` swaps the href for `maps.apple.com` — so an iPhone opens Maps directly instead of
+loading a browser page and asking which app to use.
 
-- The markup is still a plain `<a href="mailto:…">`. With JavaScript off it behaves exactly as
-  before, and its accessible name is still the email address, so 2.5.3 Label in Name still holds.
-- On phones and tablets (coarse pointer or narrow viewport) the chooser is not built at all —
-  there, `mailto:` correctly opens the mail app the person actually chose.
-- Modified clicks (Ctrl, Cmd, Shift, Alt) keep their normal browser behaviour.
+Only the href changes. The link text, accessible name and target stay exactly as rendered, so
+nothing moves under a screen reader.
 
-It is a disclosure, not a trap. Verified: `aria-expanded` toggles, focus moves into the menu on
-open, arrow keys move through the options and wrap, Home/End jump to the ends, Escape closes and
-returns focus to the link, clicking outside closes it, and all four options measure exactly 44px
-tall.
+Detection verified against real user-agent strings:
+
+| Platform | Result |
+|---|---|
+| iPhone Safari | Apple Maps |
+| iPad on iPadOS 17 (reports itself as a Mac) | Apple Maps |
+| macOS Safari / macOS Chrome | Apple Maps |
+| Windows Chrome / Windows Firefox | Google Maps |
+| Android Chrome | Google Maps |
+| Linux Firefox | Google Maps |
+
+And verified end to end: with a spoofed iPhone user agent, all six map links on `/visit` flip
+from `www.google.com` to `maps.apple.com` carrying the correct address, with their text
+unchanged.
+
+Each link's accessible name spells the destination out — "Get directions to The Grand Resort —
+9519 East Market St, Warren, OH 44484 (opens a map in a new tab)" — so it makes sense read out
+of context, which matters when a screen reader user is tabbing through a list of hotels.
+
+### 3.2 Every email address opens Gmail — *done, with a trade-off worth knowing*
+
+`mailto:` on Windows is handed to whatever the OS registered — in practice Outlook, or the "How
+do you want to open this?" shell dialog. For a visitor who uses Gmail in a browser and has never
+configured Outlook, that is a dead end: Outlook opens, asks them to set up an account, and the
+enquiry is never sent. The failure is silent; the museum never learns the message did not arrive.
+
+Every email address on the site — the museum's own and the JETS contact on `/visit`, **27 links
+across 11 pages** — now points at Gmail's compose window. There are no `mailto:` links left.
+
+The visible text is still the address itself, so the accessible name contains it and **2.5.3
+Label in Name** still holds, and the address can still be read and copied by anyone who wants to
+use their own client. Each link says "(opens Gmail in a new tab)" so the destination is not a
+surprise.
+
+> **The trade-off, stated plainly.** This helps Gmail users and hurts everyone else. A visitor
+> without a Google account now meets a sign-in page instead of their own mail app, and on a phone
+> this overrides the mail app they deliberately chose. That is a real cost to a small number of
+> people, and it is a deliberate choice rather than an oversight.
+>
+> It is one value: `email.provider` in `src/site.config.js`. Set it to `'mail'` and every link on
+> the site reverts to `mailto:`.
+
+An earlier version of this rebuild offered a chooser instead — Gmail, Outlook on the web, default
+mail app, or copy — which avoided the trade-off at the cost of an extra click. That code has been
+removed rather than left running alongside the direct links.
 
 ---
 

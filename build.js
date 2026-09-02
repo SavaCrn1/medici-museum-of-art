@@ -61,6 +61,61 @@ const icons = {
 };
 
 /* ---------------------------------------------------------------------------
+   Maps and email
+
+   Every postal address on the site is a link to a map, and every email address
+   opens Gmail's compose window.
+
+   Maps: the href written into the HTML is always the Google Maps one, because
+   it resolves on every platform and needs no JavaScript. Each link also
+   carries data-map-query, and on Apple devices site.js rewrites the href to
+   maps.apple.com — so an iPhone opens Maps rather than bouncing through a
+   browser, and everyone else is unaffected.
+   --------------------------------------------------------------------------- */
+
+function googleMapsUrl(query) {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}
+
+/**
+ * @param query   what to search for — a full postal address
+ * @param label   visible link text
+ * @param cls     class list; an "action-link" gets the pin icon, a button does not
+ * @param context extra words for the accessible name, e.g. the venue being located
+ */
+function mapLink(query, { label = 'Get directions', cls = 'action-link', context = '' } = {}) {
+  const icon = cls.includes('action-link') ? icons.pin : '';
+  const detail = context ? ` to ${context}` : '';
+  return `<a class="${cls}" data-map-query="${esc(query)}" href="${googleMapsUrl(query)}" target="_blank" rel="noopener">${icon}<span>${esc(
+    label
+  )}</span><span class="visually-hidden">${esc(detail)} &mdash; ${esc(query)} (opens a map in a new tab)</span></a>`;
+}
+
+/**
+ * Email links.
+ *
+ * site.email.provider decides the destination: "gmail" opens Gmail's compose
+ * window, "mail" emits a plain mailto:. The visible text is always the address
+ * itself, so the accessible name still contains it and WCAG 2.5.3 Label in
+ * Name holds either way.
+ */
+function emailUrl(address) {
+  return site.email.provider === 'gmail'
+    ? `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(address)}`
+    : `mailto:${address}`;
+}
+
+function emailLink(address, { cls = 'action-link', label } = {}) {
+  const icon = cls.includes('action-link') ? icons.mail : '';
+  const gmail = site.email.provider === 'gmail';
+  const suffix = gmail ? '<span class="visually-hidden"> (opens Gmail in a new tab)</span>' : '';
+  const attrs = gmail ? ' target="_blank" rel="noopener"' : '';
+  return `<a class="${cls}" href="${emailUrl(address)}"${attrs}>${icon}<span>${esc(
+    label || address
+  )}</span>${suffix}</a>`;
+}
+
+/* ---------------------------------------------------------------------------
    Shared blocks
    --------------------------------------------------------------------------- */
 
@@ -173,11 +228,7 @@ function contactBlock({ heading = true } = {}) {
             ${esc(site.address.street)}<br>
             ${esc(site.address.city)}, ${esc(site.address.state)} ${esc(site.address.zip)}
           </address>
-          <a class="action-link" href="${mapsUrl}" target="_blank" rel="noopener">
-            ${icons.pin}Get directions<span class="visually-hidden"> to ${esc(site.address.street)}, ${esc(
-    site.address.city
-  )}, ${esc(site.address.state)} ${esc(site.address.zip)} (opens in a new tab)</span>
-          </a>
+          ${mapLink(site.address.mapQuery, { label: 'Get directions' })}
         </dd>
       </div>
       <div>
@@ -191,13 +242,7 @@ function contactBlock({ heading = true } = {}) {
       <div>
         <dt>Email</dt>
         <dd>
-          <!-- A plain mailto: is the markup, so this works with JavaScript off
-               and is what a screen reader announces. On desktop, site.js turns
-               it into a chooser: Windows sends mailto: to Outlook whether or
-               not the visitor uses Outlook, which strands anyone on Gmail. -->
-          <a class="action-link" data-email-link href="mailto:${site.email.href}">
-            ${icons.mail}<span>${esc(site.email.display)}</span>
-          </a>
+          ${emailLink(site.email.href, { label: site.email.display })}
         </dd>
       </div>
       <div>
@@ -569,7 +614,7 @@ function formNotice() {
       <p><strong>This form is not connected yet.</strong> It is part of a site rebuild and does not send
         anywhere. To reach us today, call
         <a href="tel:${site.phone.href}">${esc(site.phone.display)}</a> or email
-        <a href="mailto:${site.email.href}">${esc(site.email.display)}</a>.</p>
+        ${emailLink(site.email.href, { cls: '', label: site.email.display })}.</p>
     </div>`;
 }
 
@@ -679,6 +724,22 @@ function render(template, page) {
     .replace(/\{\{hoursTime\}\}/g, esc(site.hours.time))
     .replace(/\{\{eventbrite\}\}/g, site.external.eventbrite)
     .replace(/\{\{volunteerApplication\}\}/g, site.external.volunteerApplication)
+    // {{map:<query>|<label>|<class>|<context>}} — query "SELF" means the museum.
+    .replace(/\{\{map:([^}]*)\}\}/g, (_, args) => {
+      const [rawQuery, label, cls, context] = args.split('|').map((s) => (s || '').trim());
+      const query = rawQuery === 'SELF' ? site.address.mapQuery : rawQuery;
+      return mapLink(query, {
+        label: label || 'Get directions',
+        cls: cls || 'action-link',
+        context: context || '',
+      });
+    })
+    // {{email:<address>|<label>|<class>}} — address "SELF" means the museum.
+    .replace(/\{\{email:([^}]*)\}\}/g, (_, args) => {
+      const [rawAddress, label, cls] = args.split('|').map((s) => (s || '').trim());
+      const address = rawAddress === 'SELF' ? site.email.href : rawAddress;
+      return emailLink(address, { cls: cls || 'action-link', label: label || undefined });
+    })
     .replace(/\{\{base\}\}/g, base);
 }
 

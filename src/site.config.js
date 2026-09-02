@@ -36,6 +36,16 @@ const site = {
     // staff inboxes — a WCAG 2.5.3 (Label in Name) failure and a privacy leak.
     display: 'info@medicimuseum.art',
     href: 'info@medicimuseum.art',
+
+    // Where email links go, for every address on the site.
+    //   'gmail' — open Gmail's compose window in a new tab
+    //   'mail'  — a plain mailto:, handled by whatever the device has set
+    //
+    // Gmail is the current choice. The trade-off is real and worth knowing:
+    // a visitor who does not use Gmail meets a Google sign-in page instead of
+    // their own mail app, and on a phone this overrides the mail app they
+    // actually chose. Switch this one value to 'mail' to undo it everywhere.
+    provider: 'gmail',
   },
 
   /**
@@ -118,10 +128,11 @@ const nav = [
     // Donate now sits under Support rather than standing alone. Volunteer moved
     // across with it (out of Connect, so it is not listed in two menus): the
     // museum's own Donate page frames giving time as the other way to help.
-    // `cta: true` keeps the outlined-button treatment the Donate link had, so
-    // the donation route is no less prominent for being one level down.
+    //
+    // No `cta: true` here — the outlined box read as a foreign element next to
+    // the other plain menu items. The mechanism still exists if a boxed
+    // treatment is ever wanted; add `cta: true` to any entry to get it.
     label: 'Support',
-    cta: true,
     children: [
       { label: 'Donate', slug: 'donate' },
       { label: 'Volunteer', slug: 'volunteer' },

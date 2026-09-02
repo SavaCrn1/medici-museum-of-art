@@ -46,7 +46,7 @@
               <li><a href="../contact-us/">Contact Us</a></li>
             </ul>
           </li>
-          <li class="nav__folder nav__cta">
+          <li class="nav__folder">
             <button type="button" aria-expanded="false" aria-controls="nav-support">
               Support<span class="nav__chevron" aria-hidden="true"></span>
             </button>
@@ -103,9 +103,7 @@
             9350 East Market St.<br>
             Warren, OH 44484
           </address>
-          <a class="action-link" href="https://www.google.com/maps/search/?api=1&query=9350%20E%20Market%20St%2C%20Warren%2C%20OH%2044484" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 14.5 9 2.5 2.5 0 0 1 12 11.5z"/></svg>Get directions<span class="visually-hidden"> to 9350 East Market St., Warren, OH 44484 (opens in a new tab)</span>
-          </a>
+          <a class="action-link" data-map-query="9350 E Market St, Warren, OH 44484" href="https://www.google.com/maps/search/?api=1&query=9350%20E%20Market%20St%2C%20Warren%2C%20OH%2044484" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 14.5 9 2.5 2.5 0 0 1 12 11.5z"/></svg><span>Get directions</span><span class="visually-hidden"> &mdash; 9350 E Market St, Warren, OH 44484 (opens a map in a new tab)</span></a>
         </dd>
       </div>
       <div>
@@ -119,13 +117,7 @@
       <div>
         <dt>Email</dt>
         <dd>
-          <!-- A plain mailto: is the markup, so this works with JavaScript off
-               and is what a screen reader announces. On desktop, site.js turns
-               it into a chooser: Windows sends mailto: to Outlook whether or
-               not the visitor uses Outlook, which strands anyone on Gmail. -->
-          <a class="action-link" data-email-link href="mailto:info@medicimuseum.art">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5z"/></svg><span>info@medicimuseum.art</span>
-          </a>
+          <a class="action-link" href="https://mail.google.com/mail/?view=cm&fs=1&to=info%40medicimuseum.art" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5z"/></svg><span>info@medicimuseum.art</span><span class="visually-hidden"> (opens Gmail in a new tab)</span></a>
         </dd>
       </div>
       <div>
@@ -173,7 +165,7 @@
     <div>
       <h2>Getting here</h2>
       <p>The museum sits on East Market Street (OH&#8209;82) in Warren.</p>
-      <p><a class="btn" href="https://www.google.com/maps/search/?api=1&query=9350%20E%20Market%20St%2C%20Warren%2C%20OH%2044484" target="_blank" rel="noopener">Open in maps<span class="visually-hidden"> &mdash; directions to 9350 East Market St, Warren, Ohio (opens in a new tab)</span></a></p>
+      <p><a class="btn" data-map-query="9350 E Market St, Warren, OH 44484" href="https://www.google.com/maps/search/?api=1&query=9350%20E%20Market%20St%2C%20Warren%2C%20OH%2044484" target="_blank" rel="noopener"><span>Open in maps</span><span class="visually-hidden"> &mdash; 9350 E Market St, Warren, OH 44484 (opens a map in a new tab)</span></a></p>
       <h3>By car</h3>
       <p><strong>From Cleveland, OH</strong> (approximately 68 miles): take I&#8209;90 E and I&#8209;80 E to
         OH&#8209;11 S. Continue on OH&#8209;11 S to exit 34 for OH&#8209;82 W toward Warren. Merge onto
@@ -205,7 +197,10 @@
         <dl class="contact-list">
           <div>
             <dt>Address</dt>
-            <dd><address>1453 Youngstown Kingsville Road<br>Vienna, OH 44473</address></dd>
+            <dd>
+              <address>1453 Youngstown Kingsville Road<br>Vienna, OH 44473</address>
+              <a class="action-link" data-map-query="1453 Youngstown Kingsville Road, Vienna, OH 44473" href="https://www.google.com/maps/search/?api=1&query=1453%20Youngstown%20Kingsville%20Road%2C%20Vienna%2C%20OH%2044473" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 14.5 9 2.5 2.5 0 0 1 12 11.5z"/></svg><span>Get directions</span><span class="visually-hidden"> to JETS &mdash; 1453 Youngstown Kingsville Road, Vienna, OH 44473 (opens a map in a new tab)</span></a>
+            </dd>
           </div>
           <div>
             <dt>Phone</dt>
@@ -216,7 +211,7 @@
           </div>
           <div>
             <dt>Email</dt>
-            <dd><a class="action-link" href="mailto:DTaylor@JetsFBO.com"><span>DTaylor@JetsFBO.com</span></a></dd>
+            <dd><a class="action-link" href="https://mail.google.com/mail/?view=cm&fs=1&to=DTaylor%40JetsFBO.com" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5z"/></svg><span>DTaylor@JetsFBO.com</span><span class="visually-hidden"> (opens Gmail in a new tab)</span></a></dd>
           </div>
         </dl>
       </div>
@@ -227,10 +222,12 @@
         <h4>The Grand Resort</h4>
         <p>0.25 miles from the museum</p>
         <address>9519 East Market St.<br>Warren, OH 44484</address>
+        <p><a class="action-link" data-map-query="9519 East Market St, Warren, OH 44484" href="https://www.google.com/maps/search/?api=1&query=9519%20East%20Market%20St%2C%20Warren%2C%20OH%2044484" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 14.5 9 2.5 2.5 0 0 1 12 11.5z"/></svg><span>Get directions</span><span class="visually-hidden"> to The Grand Resort &mdash; 9519 East Market St, Warren, OH 44484 (opens a map in a new tab)</span></a></p>
         <p><a class="action-link" href="tel:+13308561900"><span>(330) 856-1900</span></a></p>
 
         <h4>The Residence Inn</h4>
         <address>5555 Youngstown Warren Road<br>Niles, OH 44446</address>
+        <p><a class="action-link" data-map-query="5555 Youngstown Warren Road, Niles, OH 44446" href="https://www.google.com/maps/search/?api=1&query=5555%20Youngstown%20Warren%20Road%2C%20Niles%2C%20OH%2044446" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 14.5 9 2.5 2.5 0 0 1 12 11.5z"/></svg><span>Get directions</span><span class="visually-hidden"> to The Residence Inn &mdash; 5555 Youngstown Warren Road, Niles, OH 44446 (opens a map in a new tab)</span></a></p>
         <p><a class="action-link" href="tel:+13305053655"><span>(330) 505-3655</span></a></p>
 
         <h3>Museum shop</h3>
@@ -261,7 +258,7 @@
       <div>
         <p>To arrange an accommodation, or to tell us something on this site is not working for you:</p>
         <p><a class="action-link" href="tel:+13308562120"><span>(330) 856-2120</span></a></p>
-        <p><a class="action-link" href="mailto:info@medicimuseum.art"><span>info@medicimuseum.art</span></a></p>
+        <p><a class="action-link" href="https://mail.google.com/mail/?view=cm&fs=1&to=info%40medicimuseum.art" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5z"/></svg><span>info@medicimuseum.art</span><span class="visually-hidden"> (opens Gmail in a new tab)</span></a></p>
       </div>
     </div>
   </div>
@@ -291,9 +288,7 @@
             9350 East Market St.<br>
             Warren, OH 44484
           </address>
-          <a class="action-link" href="https://www.google.com/maps/search/?api=1&query=9350%20E%20Market%20St%2C%20Warren%2C%20OH%2044484" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 14.5 9 2.5 2.5 0 0 1 12 11.5z"/></svg>Get directions<span class="visually-hidden"> to 9350 East Market St., Warren, OH 44484 (opens in a new tab)</span>
-          </a>
+          <a class="action-link" data-map-query="9350 E Market St, Warren, OH 44484" href="https://www.google.com/maps/search/?api=1&query=9350%20E%20Market%20St%2C%20Warren%2C%20OH%2044484" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 14.5 9 2.5 2.5 0 0 1 12 11.5z"/></svg><span>Get directions</span><span class="visually-hidden"> &mdash; 9350 E Market St, Warren, OH 44484 (opens a map in a new tab)</span></a>
         </dd>
       </div>
       <div>
@@ -307,13 +302,7 @@
       <div>
         <dt>Email</dt>
         <dd>
-          <!-- A plain mailto: is the markup, so this works with JavaScript off
-               and is what a screen reader announces. On desktop, site.js turns
-               it into a chooser: Windows sends mailto: to Outlook whether or
-               not the visitor uses Outlook, which strands anyone on Gmail. -->
-          <a class="action-link" data-email-link href="mailto:info@medicimuseum.art">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5z"/></svg><span>info@medicimuseum.art</span>
-          </a>
+          <a class="action-link" href="https://mail.google.com/mail/?view=cm&fs=1&to=info%40medicimuseum.art" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5z"/></svg><span>info@medicimuseum.art</span><span class="visually-hidden"> (opens Gmail in a new tab)</span></a>
         </dd>
       </div>
       <div>
