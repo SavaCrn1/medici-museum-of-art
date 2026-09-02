@@ -52,8 +52,14 @@ Output (`index.html`, `visit/index.html`, …) is committed so GitHub Pages can 
 |---|---|
 | Opening hours, phone, email, address | `src/site.config.js` — every page updates |
 | Events | `src/events.json`, then rebuild |
+| Exhibitions | `src/exhibitions.json`, then rebuild |
 | Page wording | `src/pages/<page>.html` |
 | Navigation | the `nav` array in `src/site.config.js` |
+
+Exhibitions sort themselves into **On view now**, **Coming up** and past from their own `start`
+and `end` dates each time you build, and the homepage leads with whichever is most relevant. So
+an exhibition cannot sit under the wrong heading after it opens or closes — but the site does
+need rebuilding and committing for the dates to be re-evaluated.
 
 Then run `node build.js` and commit.
 
@@ -67,17 +73,21 @@ npx http-server . -p 4321 -c-1
 
 These need the museum, not the code:
 
-1. **Confirm the opening hours.** The old site said Thursday–Sunday in the footer and
+1. **Check the *Forest* dates.** The poster gives them as `09.10.2026–01.04.2027`. Read as US
+   month-first, that is **10 September 2026 – 4 January 2027**, which is what the site now
+   shows. If it was meant day-first, correct `src/exhibitions.json`.
+2. **Add dates for Ross Pino, *Electric Stillness*.** It sits under "On view" on the current
+   site with no dates published anywhere, so it is shown as on view with a TODO instead of an
+   invented run.
+3. **Confirm the opening hours.** The old site said Thursday–Sunday in the footer and
    Wednesday–Sunday on `/visit` and `/tours`. The rebuild uses Wednesday–Sunday. One line in
    `src/site.config.js` if that is wrong.
-2. **Confirm `info@medicimuseum.art` is monitored.** The old footer displayed that address but
+4. **Confirm `info@medicimuseum.art` is monitored.** The old footer displayed that address but
    linked to two named staff inboxes.
-3. **Publish current events.** Nothing has been listed since 17 January 2026.
-4. **Connect the forms.** They are accessible but have no delivery endpoint, and currently say so.
-5. **Document the building's accessibility** on `/visit`. Left blank on purpose rather than
+5. **Publish current events.** Nothing has been listed since 17 January 2026.
+6. **Connect the forms.** They are accessible but have no delivery endpoint, and currently say so.
+7. **Document the building's accessibility** on `/visit`. Left blank on purpose rather than
    guessed — see ACCESSIBILITY.md.
-6. **Supply details for the two exhibition posters** on the current homepage so they can be
-   captioned and reinstated.
 
 ## Images
 

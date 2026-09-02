@@ -309,10 +309,17 @@
           html +=
             '<td role="gridcell" tabindex="-1" data-day="' + day + '" data-key="' + key + '"' +
             (isToday ? ' aria-current="date"' : '') +
+            (dayEvents.length ? ' data-has-events="' + dayEvents.length + '"' : '') +
             ' aria-label="' + name.replace(/"/g, '&quot;') + '">' +
             '<div class="calendar__day">' +
             '<span class="calendar__daynum" aria-hidden="true">' + day + '</span>' +
             (isOpen ? '<span class="calendar__open" aria-hidden="true">Open</span>' : '') +
+            // A dot carries the "something is on" signal where the cell is too
+            // small for titles; the titles themselves are still rendered for
+            // wider screens and are hidden by CSS below the breakpoint.
+            (dayEvents.length
+              ? '<span class="calendar__dot" aria-hidden="true"></span>'
+              : '') +
             dayEvents
               .map(function (e) {
                 return (
@@ -354,9 +361,75 @@
         month = 0;
         year += 1;
       }
-      var focused = render(focusDay);
-      return focused;
+      // The open detail belongs to a day in the month we just left.
+      var panel = root.querySelector('[data-calendar-detail]');
+      if (panel) panel.hidden = true;
+      return render(focusDay);
     }
+
+    /* ----- Day detail -------------------------------------------------------
+       On a phone a 44px cell cannot hold an event title. Rather than shrink the
+       text or push it behind a horizontal scroll, selecting a day writes its
+       details here: full date, open/closed, and every event as a real link with
+       a proper tap target. It works the same on desktop, so there is only one
+       behaviour to reason about.
+       --------------------------------------------------------------------- */
+
+    var detail = root.querySelector('[data-calendar-detail]');
+    var detailDate = root.querySelector('[data-calendar-detail-date]');
+    var detailBody = root.querySelector('[data-calendar-detail-body]');
+
+    function showDetail(cell) {
+      if (!detail || !cell) return;
+
+      var key = cell.getAttribute('data-key');
+      var dayEvents = byDay[key] || [];
+      var parts = key.split('-').map(Number);
+      var dateObj = new Date(parts[0], parts[1] - 1, parts[2]);
+      var isOpen = data.hours && data.hours.days.indexOf(dateObj.getDay()) !== -1;
+
+      detailDate.textContent =
+        DAYS_LONG[dateObj.getDay()] + ', ' + MONTHS[parts[1] - 1] + ' ' + parts[2] + ', ' + parts[0] +
+        (key === today ? ' (today)' : '');
+
+      var html = '<p class="calendar__detail-hours">' +
+        (isOpen ? 'Museum open ' + data.hours.time : 'Museum closed') +
+        '</p>';
+
+      if (dayEvents.length) {
+        html += '<ul class="calendar__detail-events">' +
+          dayEvents
+            .map(function (e) {
+              return (
+                '<li><a href="' + e.url + '">' + escapeHtml(e.title) + '</a>' +
+                '<span class="calendar__detail-time">' + formatTime(e.start) +
+                (e.end ? '–' + formatTime(e.end) : '') + '</span></li>'
+              );
+            })
+            .join('') +
+          '</ul>';
+      } else {
+        html += '<p class="calendar__detail-empty">No events on this day.</p>';
+      }
+
+      detailBody.innerHTML = html;
+      detail.hidden = false;
+    }
+
+    // Focus follows arrow-key navigation, so this covers keyboard users too.
+    grid.addEventListener('focusin', function (event) {
+      var cell = event.target.closest('td[data-day]');
+      if (cell) showDetail(cell);
+    });
+
+    grid.addEventListener('click', function (event) {
+      // Let a direct click on an event link do its normal thing.
+      if (event.target.closest('.calendar__event')) return;
+      var cell = event.target.closest('td[data-day]');
+      if (!cell) return;
+      focusCell(cell);
+      showDetail(cell);
+    });
 
     prev.addEventListener('click', function () {
       move(-1);
@@ -423,6 +496,10 @@
       });
       cell.setAttribute('tabindex', '0');
       cell.focus();
+      // Updated here rather than left to the focusin handler alone: focus
+      // events do not fire when the document itself is not focused, and the
+      // panel must always describe the cell the user is actually on.
+      showDetail(cell);
     }
 
     render();
@@ -451,6 +528,150 @@
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
+  }
+
+  /* ---------------------------------------------------------------------------
+     Email chooser
+
+     A bare mailto: on Windows hands the message to Outlook (or to the "choose
+     an app" shell dialog) regardless of what the visitor actually uses. For
+     someone on Gmail that is a dead end: Outlook opens unconfigured, asks them
+     to set up an account, and the enquiry never gets sent.
+
+     So on desktop the email link opens a small menu instead — Gmail, Outlook
+     on the web, the default mail app, or copy the address. The link keeps its
+     mailto: href, so with JavaScript off, or on a phone (where mailto: reliably
+     opens the mail app the person actually uses), nothing changes.
+
+     Built as a disclosure, not a dialog: aria-expanded on the trigger, arrow
+     keys and Home/End inside, Escape closes and returns focus, clicking away
+     closes.
+     --------------------------------------------------------------------------- */
+
+  function isDesktop() {
+    // Coarse pointer or a narrow screen means a phone or tablet: leave mailto:
+    // alone there, because the OS mail handler is the one the visitor chose.
+    if (window.matchMedia('(pointer: coarse)').matches) return false;
+    if (window.matchMedia('(max-width: 767px)').matches) return false;
+    return true;
+  }
+
+  function initEmailChooser() {
+    var links = document.querySelectorAll('a[data-email-link]');
+    if (!links.length || !isDesktop()) return;
+
+    var counter = 0;
+
+    Array.prototype.forEach.call(links, function (link) {
+      var mailto = link.getAttribute('href');
+      var address = mailto.replace(/^mailto:/, '').split('?')[0];
+      var id = 'email-chooser-' + counter++;
+
+      var menu = document.createElement('div');
+      menu.className = 'email-chooser';
+      menu.id = id;
+      menu.hidden = true;
+      menu.innerHTML =
+        '<p class="email-chooser__heading">Send an email to<br><strong>' +
+        escapeHtml(address) +
+        '</strong></p>' +
+        '<ul>' +
+        '<li><a href="https://mail.google.com/mail/?view=cm&fs=1&to=' +
+        encodeURIComponent(address) +
+        '" target="_blank" rel="noopener">Open in Gmail<span class="visually-hidden"> (opens in a new tab)</span></a></li>' +
+        '<li><a href="https://outlook.office.com/mail/deeplink/compose?to=' +
+        encodeURIComponent(address) +
+        '" target="_blank" rel="noopener">Open in Outlook on the web<span class="visually-hidden"> (opens in a new tab)</span></a></li>' +
+        '<li><a href="' + mailto + '">Use my default mail app</a></li>' +
+        '<li><button type="button" data-copy-email>Copy address</button></li>' +
+        '</ul>' +
+        '<p class="email-chooser__status" role="status" aria-live="polite"></p>';
+
+      var wrap = document.createElement('span');
+      wrap.className = 'email-chooser__wrap';
+      link.parentNode.insertBefore(wrap, link);
+      wrap.appendChild(link);
+      wrap.appendChild(menu);
+
+      link.setAttribute('aria-expanded', 'false');
+      link.setAttribute('aria-controls', id);
+
+      function items() {
+        return menu.querySelectorAll('a, button');
+      }
+
+      function open() {
+        menu.hidden = false;
+        link.setAttribute('aria-expanded', 'true');
+        items()[0].focus();
+      }
+
+      function close(refocus) {
+        menu.hidden = true;
+        link.setAttribute('aria-expanded', 'false');
+        if (refocus) link.focus();
+      }
+
+      link.addEventListener('click', function (event) {
+        // Modified clicks keep their normal browser meaning.
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        if (menu.hidden) open();
+        else close(true);
+      });
+
+      menu.addEventListener('keydown', function (event) {
+        var list = Array.prototype.slice.call(items());
+        var index = list.indexOf(document.activeElement);
+
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          close(true);
+        } else if (event.key === 'ArrowDown') {
+          event.preventDefault();
+          list[(index + 1) % list.length].focus();
+        } else if (event.key === 'ArrowUp') {
+          event.preventDefault();
+          list[(index - 1 + list.length) % list.length].focus();
+        } else if (event.key === 'Home') {
+          event.preventDefault();
+          list[0].focus();
+        } else if (event.key === 'End') {
+          event.preventDefault();
+          list[list.length - 1].focus();
+        } else if (event.key === 'Tab') {
+          close(false);
+        }
+      });
+
+      menu.addEventListener('click', function (event) {
+        var copy = event.target.closest('[data-copy-email]');
+        var status = menu.querySelector('.email-chooser__status');
+
+        if (copy) {
+          event.preventDefault();
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(address).then(
+              function () {
+                status.textContent = 'Address copied.';
+              },
+              function () {
+                status.textContent = 'Could not copy. The address is ' + address;
+              }
+            );
+          } else {
+            status.textContent = 'The address is ' + address;
+          }
+          return;
+        }
+
+        if (event.target.closest('a')) close(false);
+      });
+
+      document.addEventListener('click', function (event) {
+        if (!wrap.contains(event.target) && !menu.hidden) close(false);
+      });
+    });
   }
 
   /* ---------------------------------------------------------------------------
@@ -512,6 +733,7 @@
     initNav();
     initHours();
     initCalendar();
+    initEmailChooser();
     initForms();
   }
 

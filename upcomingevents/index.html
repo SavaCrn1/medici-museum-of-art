@@ -107,19 +107,28 @@
           </caption>
           <thead>
             <tr>
-              <th scope="col"><abbr title="Sunday">Sun</abbr></th>
-              <th scope="col"><abbr title="Monday">Mon</abbr></th>
-              <th scope="col"><abbr title="Tuesday">Tue</abbr></th>
-              <th scope="col"><abbr title="Wednesday">Wed</abbr></th>
-              <th scope="col"><abbr title="Thursday">Thu</abbr></th>
-              <th scope="col"><abbr title="Friday">Fri</abbr></th>
-              <th scope="col"><abbr title="Saturday">Sat</abbr></th>
+              <th scope="col"><abbr title="Sunday"><span class="calendar__dayname-long">Sun</span><span class="calendar__dayname-short" aria-hidden="true">S</span></abbr></th>
+              <th scope="col"><abbr title="Monday"><span class="calendar__dayname-long">Mon</span><span class="calendar__dayname-short" aria-hidden="true">M</span></abbr></th>
+              <th scope="col"><abbr title="Tuesday"><span class="calendar__dayname-long">Tue</span><span class="calendar__dayname-short" aria-hidden="true">T</span></abbr></th>
+              <th scope="col"><abbr title="Wednesday"><span class="calendar__dayname-long">Wed</span><span class="calendar__dayname-short" aria-hidden="true">W</span></abbr></th>
+              <th scope="col"><abbr title="Thursday"><span class="calendar__dayname-long">Thu</span><span class="calendar__dayname-short" aria-hidden="true">T</span></abbr></th>
+              <th scope="col"><abbr title="Friday"><span class="calendar__dayname-long">Fri</span><span class="calendar__dayname-short" aria-hidden="true">F</span></abbr></th>
+              <th scope="col"><abbr title="Saturday"><span class="calendar__dayname-long">Sat</span><span class="calendar__dayname-short" aria-hidden="true">S</span></abbr></th>
             </tr>
           </thead>
           <tbody data-calendar-grid></tbody>
         </table>
       </div>
-      <p class="calendar__hint">Days marked <strong>Open</strong> are regular opening days (Wednesday – Sunday, 11am – 4pm). Every event below is also listed as text.</p>
+
+      <!-- Tapping or focusing a day fills this in. On a narrow screen the cells
+           are too small to hold event titles, so the detail lands here instead
+           of being truncated or pushed off-screen behind a horizontal scroll. -->
+      <div class="calendar__detail" data-calendar-detail hidden>
+        <h4 data-calendar-detail-date></h4>
+        <div data-calendar-detail-body></div>
+      </div>
+
+      <p class="calendar__hint">Days marked <strong>Open</strong> are regular opening days (Wednesday – Sunday, 11am – 4pm). Select a day for its details. Every event is also listed as text.</p>
     </div>
     <noscript>
       <div class="notice">
@@ -421,7 +430,11 @@
       <div>
         <dt>Email</dt>
         <dd>
-          <a class="action-link" href="mailto:info@medicimuseum.art">
+          <!-- A plain mailto: is the markup, so this works with JavaScript off
+               and is what a screen reader announces. On desktop, site.js turns
+               it into a chooser: Windows sends mailto: to Outlook whether or
+               not the visitor uses Outlook, which strands anyone on Gmail. -->
+          <a class="action-link" data-email-link href="mailto:info@medicimuseum.art">
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5z"/></svg><span>info@medicimuseum.art</span>
           </a>
         </dd>

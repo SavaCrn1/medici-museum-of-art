@@ -672,6 +672,50 @@ a:hover {
 }
 
 /* --------------------------------------------------------------------------
+   Exhibitions
+   -------------------------------------------------------------------------- */
+
+.exhibition__badge {
+  align-self: flex-start;
+  margin: 0 0 0.6rem;
+  padding: 0.3rem 0.7rem;
+  border: 2px solid var(--ink);
+  font-family: var(--display);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.exhibition__badge--now {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.exhibition__artist {
+  display: block;
+  font-size: 0.72em;
+  letter-spacing: 0.04em;
+}
+
+.exhibition h2 em,
+.exhibition h3 em,
+h2 .exhibition__artist + em {
+  font-style: italic;
+}
+
+.exhibition__dates {
+  margin-bottom: 0.35rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.exhibition__countdown {
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+/* --------------------------------------------------------------------------
    Contact details — footer and Visit page share these
    -------------------------------------------------------------------------- */
 
@@ -724,6 +768,98 @@ a:hover {
   height: 1.05em;
   flex-shrink: 0;
   fill: currentColor;
+}
+
+/* --------------------------------------------------------------------------
+   Email chooser
+   -------------------------------------------------------------------------- */
+
+.email-chooser__wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.email-chooser {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  z-index: 60;
+  min-width: 17rem;
+  padding: 0.9rem 1rem;
+  background: var(--paper);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
+  text-align: left;
+}
+
+.email-chooser[hidden] {
+  display: none;
+}
+
+.email-chooser__heading {
+  margin: 0 0 0.6rem;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+
+.email-chooser__heading strong {
+  color: var(--ink);
+  word-break: break-all;
+}
+
+.email-chooser ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.email-chooser a,
+.email-chooser button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.5rem 0.6rem;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-align: left;
+  text-decoration: none;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--rule);
+  cursor: pointer;
+}
+
+.email-chooser li:first-child a {
+  border-top: 0;
+}
+
+.email-chooser a:hover,
+.email-chooser button:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.email-chooser__status {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.email-chooser__status:empty {
+  display: none;
+}
+
+/* Anchored inside the black footer, the panel keeps its own light surface so
+   its contrast does not depend on where it happens to be rendered. */
+.site-footer .email-chooser,
+.band--night .email-chooser {
+  border-color: var(--paper);
 }
 
 .hours-table {
@@ -926,6 +1062,145 @@ a:hover {
   margin-top: 0.75rem;
   font-size: 0.85rem;
   color: var(--ink-soft);
+}
+
+/* The short day initial is only used on narrow screens. */
+.calendar__dayname-short {
+  display: none;
+}
+
+/* Event marker for cells too small to hold a title. Never the only signal —
+   the cell's accessible name still lists every event by name and time. */
+.calendar__dot {
+  display: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+
+.calendar td[aria-current='date'] .calendar__dot {
+  background: var(--accent);
+}
+
+/* --------------------------------------------------------------------------
+   Selected-day detail
+   -------------------------------------------------------------------------- */
+
+.calendar__detail {
+  margin-top: 1rem;
+  padding: 1rem 1.25rem;
+  border: 2px solid var(--ink);
+}
+
+.calendar__detail h4 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+}
+
+.calendar__detail-hours {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.calendar__detail-empty {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.calendar__detail-events {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.calendar__detail-events li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+}
+
+.calendar__detail-events a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 700;
+}
+
+.calendar__detail-time {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+/* --------------------------------------------------------------------------
+   Calendar on small screens
+
+   The grid used to need a 34rem minimum width, which meant a phone user had to
+   scroll a table sideways to read a month — awkward with a screen reader, and
+   worse with a magnifier, where the horizontal pan loses the day headings.
+   Below 40rem the grid fits the viewport instead: seven columns of at least
+   44px, single-letter day headings, a dot in place of the event title, and the
+   detail panel carrying the text that no longer fits.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 40rem) {
+  .calendar table {
+    min-width: 0;
+  }
+
+  .calendar__dayname-long {
+    display: none;
+  }
+
+  .calendar__dayname-short {
+    display: inline;
+  }
+
+  .calendar th {
+    padding: 0.4rem 0;
+    font-size: 0.75rem;
+  }
+
+  .calendar td {
+    height: auto;
+  }
+
+  .calendar__day {
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem;
+    min-height: 46px;
+    padding: 0.3rem 0.1rem;
+    text-align: center;
+  }
+
+  .calendar__daynum {
+    font-size: 0.9rem;
+  }
+
+  /* Titles move to the detail panel; "Open" would not fit legibly. */
+  .calendar__event,
+  .calendar__open {
+    display: none;
+  }
+
+  .calendar__dot {
+    display: block;
+  }
+
+  .calendar__detail {
+    padding: 0.9rem 1rem;
+  }
+}
+
+/* A pointer-driven cell is clickable, so say so. */
+.calendar td[data-day] {
+  cursor: pointer;
 }
 
 /* --------------------------------------------------------------------------

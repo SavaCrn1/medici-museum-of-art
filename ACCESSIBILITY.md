@@ -191,23 +191,82 @@ page holds 14 listings, all now in the past.
 > **Action needed from the museum:** publish current events. No amount of markup fixes an empty
 > calendar. Add entries to `src/events.json` and rebuild.
 
+### 2.8 The grid forced a phone user to scroll a table sideways — *fixed*
+
+The first rebuild kept a 34rem minimum width on the table, so on a 375px phone the month
+spilled off-screen behind a horizontal scroll. That is bad for everyone and worse for two
+groups in particular: a screen-magnifier user panning right loses the day-of-week headings that
+give a cell its meaning, and a screen-reader user swiping through a scroll container has no
+signal that content continues off-screen.
+
+**Now**, below 40rem the grid fits the viewport — measured at 335px wide inside a 375px screen,
+with **no horizontal scroll and no page overflow**. Cells are 48×47px, above the 44px minimum.
+Day headings shorten to single letters visually while the `<abbr title>` and column-header
+semantics still carry the full day name.
+
+Event titles cannot fit legibly in a 48px cell, so they are not squeezed in. Instead:
+
+- A dot marks days with something on. It is **never the only signal** — the cell's accessible
+  name still reads "Sunday, January 4, 2026. Museum open 11am – 4pm. 1 event: Drawing With
+  Scissors at 2pm", so nothing is conveyed by shape or colour alone (1.4.1, 1.3.3).
+- Selecting a day fills a **detail panel** below the grid with the full date, open/closed status
+  and every event as a real link with a 44px tap target.
+
+The panel is driven from the same code path as keyboard navigation, so arrowing across the grid
+updates it as you go — verified:
+
+```
+focus  -> (panel empty until a day is chosen)
+Right  -> Friday, January 2, 2026  | Museum open 11am – 4pm  No events on this day.
+Down   -> Friday, January 9, 2026  | Museum open 11am – 4pm  No events on this day.
+Home   -> Sunday, January 4, 2026  | Museum open 11am – 4pm  Drawing With Scissors 2pm–4pm
+```
+
+Changing month clears the panel, so it can never describe a day you are no longer looking at.
+
 ---
 
-## 3. Site-wide issues found along the way
+## 3. The email link on Windows
+
+`mailto:` on Windows is handed to whatever the OS has registered — in practice Outlook, or the
+"How do you want to open this?" shell dialog. For a visitor who uses Gmail in a browser and has
+never configured Outlook, that is a dead end: Outlook opens and asks them to set up an account,
+and the enquiry is simply never sent. The failure is silent; the museum never learns the message
+did not arrive.
+
+**Now**, on desktop the email link opens a small chooser: **Open in Gmail**, Open in Outlook on
+the web, Use my default mail app, or Copy address.
+
+Deliberate constraints:
+
+- The markup is still a plain `<a href="mailto:…">`. With JavaScript off it behaves exactly as
+  before, and its accessible name is still the email address, so 2.5.3 Label in Name still holds.
+- On phones and tablets (coarse pointer or narrow viewport) the chooser is not built at all —
+  there, `mailto:` correctly opens the mail app the person actually chose.
+- Modified clicks (Ctrl, Cmd, Shift, Alt) keep their normal browser behaviour.
+
+It is a disclosure, not a trap. Verified: `aria-expanded` toggles, focus moves into the menu on
+open, arrow keys move through the options and wrap, Home/End jump to the ends, Escape closes and
+returns focus to the link, clicking outside closes it, and all four options measure exactly 44px
+tall.
+
+---
+
+## 4. Site-wide issues found along the way
 
 | # | Finding | Status |
 |---|---|---|
-| 3.1 | **8 images with no alt text**, including all three collection images and all four footer logos (AAM, Ohio Arts Council, Feuerman Foundation, Medici). Content images, not decoration. | Fixed — every image described, or `alt=""` where genuinely decorative |
-| 3.2 | **~20 links with no accessible name** — nav folder links, card "read more" arrows, an empty mailto. Screen reader announced "link" with nothing after it. | Fixed — zero nameless interactive elements across all 11 pages |
-| 3.3 | Navigation menu **duplicated three times in the DOM**. Screen reader and keyboard users met every link three times. | Fixed — one nav, one set of links |
-| 3.4 | Nav folders ("Connect", "On View", "Inspire") were `<a>` elements with no `href` — unreachable by keyboard. | Fixed — real disclosure `<button>`s with `aria-expanded`, Escape closes and returns focus |
-| 3.5 | **`/exhibits` was an empty page** — header and footer only, reachable from the main nav. | Fixed — real content, since the material existed on the homepage |
-| 3.6 | No current-page indication in the nav. | Fixed — `aria-current="page"`, shown with an underline as well as colour |
-| 3.7 | Forms had no error handling; required fields were marked "(required)" as plain text with no `required` or `aria-required`. | Fixed — errors announced, tied to fields via `aria-describedby`, focus moves to the first problem, never colour-only |
-| 3.8 | Hero and banner text sat directly on photographs with no scrim. Over the lightest parts of the image, body text measured roughly **3:1** — below the 4.5:1 minimum. | Fixed — image opacity capped so the brightest possible pixel still yields **5.5:1** |
-| 3.9 | No skip link that worked, no landmark labels. | Fixed — visible-on-focus skip link, labelled `<nav>` landmarks |
-| 3.10 | No `prefers-reduced-motion` handling. | Fixed |
-| 3.11 | Small tap targets on mobile. | Fixed — standalone controls ≥ 44×44 CSS px; inline links exempt per 2.5.8 |
+| 4.1 | **8 images with no alt text**, including all three collection images and all four footer logos (AAM, Ohio Arts Council, Feuerman Foundation, Medici). Content images, not decoration. | Fixed — every image described, or `alt=""` where genuinely decorative |
+| 4.2 | **~20 links with no accessible name** — nav folder links, card "read more" arrows, an empty mailto. Screen reader announced "link" with nothing after it. | Fixed — zero nameless interactive elements across all 11 pages |
+| 4.3 | Navigation menu **duplicated three times in the DOM**. Screen reader and keyboard users met every link three times. | Fixed — one nav, one set of links |
+| 4.4 | Nav folders ("Connect", "On View", "Inspire") were `<a>` elements with no `href` — unreachable by keyboard. | Fixed — real disclosure `<button>`s with `aria-expanded`, Escape closes and returns focus |
+| 4.5 | **`/exhibits` was an empty page** — header and footer only, reachable from the main nav. | Fixed — real content, since the material existed on the homepage |
+| 4.6 | No current-page indication in the nav. | Fixed — `aria-current="page"`, shown with an underline as well as colour |
+| 4.7 | Forms had no error handling; required fields were marked "(required)" as plain text with no `required` or `aria-required`. | Fixed — errors announced, tied to fields via `aria-describedby`, focus moves to the first problem, never colour-only |
+| 4.8 | Hero and banner text sat directly on photographs with no scrim. Over the lightest parts of the image, body text measured roughly **3:1** — below the 4.5:1 minimum. | Fixed — image opacity capped so the brightest possible pixel still yields **5.5:1** |
+| 4.9 | No skip link that worked, no landmark labels. | Fixed — visible-on-focus skip link, labelled `<nav>` landmarks |
+| 4.10 | No `prefers-reduced-motion` handling. | Fixed |
+| 4.11 | Small tap targets on mobile. | Fixed — standalone controls ≥ 44×44 CSS px; inline links exempt per 2.5.8 |
 
 ---
 

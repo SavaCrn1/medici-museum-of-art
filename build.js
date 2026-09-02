@@ -179,7 +179,11 @@ function contactBlock({ heading = true } = {}) {
       <div>
         <dt>Email</dt>
         <dd>
-          <a class="action-link" href="mailto:${site.email.href}">
+          <!-- A plain mailto: is the markup, so this works with JavaScript off
+               and is what a screen reader announces. On desktop, site.js turns
+               it into a chooser: Windows sends mailto: to Outlook whether or
+               not the visitor uses Outlook, which strands anyone on Gmail. -->
+          <a class="action-link" data-email-link href="mailto:${site.email.href}">
             ${icons.mail}<span>${esc(site.email.display)}</span>
           </a>
         </dd>
@@ -360,17 +364,183 @@ function calendarBlock() {
           <thead>
             <tr>
               ${DAY_NAMES.map(
-                (d) => `<th scope="col"><abbr title="${d}">${d.slice(0, 3)}</abbr></th>`
+                (d) =>
+                  `<th scope="col"><abbr title="${d}"><span class="calendar__dayname-long">${d.slice(
+                    0,
+                    3
+                  )}</span><span class="calendar__dayname-short" aria-hidden="true">${d.slice(
+                    0,
+                    1
+                  )}</span></abbr></th>`
               ).join('\n              ')}
             </tr>
           </thead>
           <tbody data-calendar-grid></tbody>
         </table>
       </div>
+
+      <!-- Tapping or focusing a day fills this in. On a narrow screen the cells
+           are too small to hold event titles, so the detail lands here instead
+           of being truncated or pushed off-screen behind a horizontal scroll. -->
+      <div class="calendar__detail" data-calendar-detail hidden>
+        <h4 data-calendar-detail-date></h4>
+        <div data-calendar-detail-body></div>
+      </div>
+
       <p class="calendar__hint">Days marked <strong>Open</strong> are regular opening days (${esc(
         site.hours.label
-      )}, ${esc(site.hours.time)}). Every event below is also listed as text.</p>
+      )}, ${esc(site.hours.time)}). Select a day for its details. Every event is also listed as text.</p>
     </div>`;
+}
+
+/* ---------------------------------------------------------------------------
+   Exhibitions
+   Sorted into On View / Upcoming / Past from their own dates at build time, so
+   an exhibition that has opened or closed cannot sit under the wrong heading —
+   which is how the old site ended up showing a permanent collection under a
+   heading that said nothing about what was actually on.
+   --------------------------------------------------------------------------- */
+
+const exhibitionData = JSON.parse(
+  fs.readFileSync(path.join(ROOT, 'src', 'exhibitions.json'), 'utf8')
+);
+
+const TODAY = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date());
+
+function fmtDayMonth(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  return `${MONTHS_LONG[m - 1]} ${d}`;
+}
+
+function fmtFullDate(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  return `${MONTHS_LONG[m - 1]} ${d}, ${y}`;
+}
+
+/** "September 10, 2026 – January 4, 2027", collapsing the year when shared. */
+function exhibitionDates(ex) {
+  if (!ex.start || !ex.end) return null;
+  const sameYear = ex.start.slice(0, 4) === ex.end.slice(0, 4);
+  return sameYear
+    ? `${fmtDayMonth(ex.start)} – ${fmtFullDate(ex.end)}`
+    : `${fmtFullDate(ex.start)} – ${fmtFullDate(ex.end)}`;
+}
+
+function classify(ex) {
+  if (ex.datesUnconfirmed || !ex.start || !ex.end) return 'current';
+  if (TODAY < ex.start) return 'upcoming';
+  if (TODAY > ex.end) return 'past';
+  return 'current';
+}
+
+const exhibitions = {
+  current: exhibitionData.temporary.filter((e) => classify(e) === 'current'),
+  upcoming: exhibitionData.temporary.filter((e) => classify(e) === 'upcoming'),
+  past: exhibitionData.temporary.filter((e) => classify(e) === 'past'),
+  permanent: exhibitionData.permanent,
+};
+
+/** Days until an exhibition opens — used for the "opens in N days" line. */
+function daysUntil(iso) {
+  const ms = Date.parse(iso + 'T00:00:00-05:00') - Date.parse(TODAY + 'T00:00:00-05:00');
+  return Math.round(ms / 86400000);
+}
+
+function exhibitionCard(ex, state) {
+  const dates = exhibitionDates(ex);
+  const badge =
+    state === 'upcoming'
+      ? `<p class="exhibition__badge">Opening soon</p>`
+      : state === 'current'
+      ? `<p class="exhibition__badge exhibition__badge--now">On view now</p>`
+      : '';
+
+  const when = dates
+    ? `<p class="exhibition__dates"><time datetime="${ex.start}">${fmtFullDate(ex.start)}</time> – <time datetime="${ex.end}">${fmtFullDate(ex.end)}</time></p>`
+    : ex.datesUnconfirmed
+    ? `<p class="exhibition__dates">Currently on view. <!-- TO BE COMPLETED BY MUSEUM STAFF: add start and end dates to src/exhibitions.json --></p>`
+    : '';
+
+  const countdown =
+    state === 'upcoming' && ex.start
+      ? `<p class="exhibition__countdown">Opens in ${daysUntil(ex.start)} day${
+          daysUntil(ex.start) === 1 ? '' : 's'
+        }</p>`
+      : '';
+
+  return `<li class="card exhibition">
+        ${ex.image ? `<img src="{{base}}${ex.image}" alt="${esc(ex.imageAlt || '')}">` : ''}
+        ${badge}
+        <h3><span class="exhibition__artist">${esc(ex.artist || '')}</span>
+          <em>${esc(ex.title)}</em></h3>
+        ${when}
+        ${countdown}
+        <p>${esc(ex.blurb || '')}</p>
+        ${
+          ex.url
+            ? `<a class="card__more" href="${ex.url}">More about ${esc(ex.artist || ex.title)} &rarr;</a>`
+            : ''
+        }
+      </li>`;
+}
+
+function exhibitionSection() {
+  const blocks = [];
+
+  if (exhibitions.current.length) {
+    blocks.push(`<h2 id="on-view-now">On view now</h2>
+    <ul class="card-grid">
+      ${exhibitions.current.map((e) => exhibitionCard(e, 'current')).join('\n      ')}
+    </ul>`);
+  }
+
+  if (exhibitions.upcoming.length) {
+    blocks.push(`<h2 id="coming-up">Coming up</h2>
+    <ul class="card-grid">
+      ${exhibitions.upcoming.map((e) => exhibitionCard(e, 'upcoming')).join('\n      ')}
+    </ul>`);
+  }
+
+  return blocks.join('\n\n    ');
+}
+
+/** The single exhibition worth leading the homepage with. */
+function headlineExhibition() {
+  const ex = exhibitions.upcoming[0] || exhibitions.current[0];
+  if (!ex) return '';
+
+  const state = classify(ex);
+  const dates = exhibitionDates(ex);
+
+  return `<section class="band band--tight" aria-labelledby="headline-exhibition">
+  <div class="shell split">
+    <img src="{{base}}${ex.image}" alt="${esc(ex.imageAlt || '')}">
+    <div>
+      <p class="eyebrow">${state === 'upcoming' ? 'Coming up' : 'On view now'}</p>
+      <h2 id="headline-exhibition"><span class="exhibition__artist">${esc(ex.artist || '')}</span>
+        <em>${esc(ex.title)}</em></h2>
+      ${
+        dates
+          ? `<p class="exhibition__dates"><time datetime="${ex.start}">${fmtFullDate(
+              ex.start
+            )}</time> – <time datetime="${ex.end}">${fmtFullDate(ex.end)}</time></p>`
+          : ''
+      }
+      ${
+        state === 'upcoming' && ex.start
+          ? `<p class="exhibition__countdown">Opens in ${daysUntil(ex.start)} day${
+              daysUntil(ex.start) === 1 ? '' : 's'
+            }</p>`
+          : ''
+      }
+      <p class="lede">${esc(ex.blurb || '')}</p>
+      <p>
+        ${ex.url ? `<a class="btn" href="${ex.url}">About ${esc(ex.artist || ex.title)}</a>` : ''}
+        <a class="btn btn--ghost" href="{{base}}exhibits/">All exhibitions</a>
+      </p>
+    </div>
+  </div>
+</section>`;
 }
 
 /**
@@ -473,13 +643,16 @@ ${buildFooter(base)}
 function render(template, page) {
   const base = page.slug === '' ? '' : '../';
 
+  // {{base}} is substituted LAST, because several of the blocks injected below
+  // (exhibition cards, the contact block) contain {{base}} of their own.
   return template
-    .replace(/\{\{base\}\}/g, base)
     .replace(/\{\{contact\}\}/g, () => contactBlock())
     .replace(/\{\{contactNoHeading\}\}/g, () => contactBlock({ heading: false }))
     .replace(/\{\{hoursTable\}\}/g, () => hoursTable())
     .replace(/\{\{calendar\}\}/g, () => calendarBlock())
     .replace(/\{\{formNotice\}\}/g, () => formNotice())
+    .replace(/\{\{exhibitions\}\}/g, () => exhibitionSection())
+    .replace(/\{\{headlineExhibition\}\}/g, () => headlineExhibition())
     .replace(/\{\{events\}\}/g, () => eventList(allEvents))
     .replace(/\{\{eventsRecent\}\}/g, () => eventList(allEvents, { limit: 4 }))
     .replace(/\{\{mapsUrl\}\}/g, mapsUrl)
@@ -490,7 +663,8 @@ function render(template, page) {
     .replace(/\{\{hoursLabel\}\}/g, esc(site.hours.label))
     .replace(/\{\{hoursTime\}\}/g, esc(site.hours.time))
     .replace(/\{\{eventbrite\}\}/g, site.external.eventbrite)
-    .replace(/\{\{volunteerApplication\}\}/g, site.external.volunteerApplication);
+    .replace(/\{\{volunteerApplication\}\}/g, site.external.volunteerApplication)
+    .replace(/\{\{base\}\}/g, base);
 }
 
 function build() {
