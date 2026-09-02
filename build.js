@@ -239,12 +239,15 @@ function buildFooter(base) {
         <h2 class="visually-hidden">Accreditation and support</h2>
         ${site.partners
           .map((p) => {
-            const img = `<img src="${base}${p.logo}" alt="${esc(p.alt)}" height="54">`;
+            // When the logo is wrapped in a link, the link's text carries the
+            // name and the image goes alt="" — otherwise the accessible name
+            // is the organisation announced twice, once from the span and
+            // again from the alt.
             return p.href
               ? `<a href="${p.href}" target="_blank" rel="noopener"><span class="visually-hidden">${esc(
                   p.name
-                )} (opens in a new tab)</span>${img}</a>`
-              : img;
+                )} (opens in a new tab)</span><img src="${base}${p.logo}" alt="" height="54"></a>`
+              : `<img src="${base}${p.logo}" alt="${esc(p.alt)}" height="54">`;
           })
           .join('\n        ')}
       </div>

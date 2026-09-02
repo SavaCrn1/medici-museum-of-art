@@ -84,10 +84,13 @@ const site = {
       alt: 'Ohio Arts Council',
     },
     {
-      name: 'Feuerman Sculpture Foundation',
-      href: null,
+      // The old site showed this logo unlinked, unlike the other two. The
+      // foundation donated the two sculptures in the garden, so the credit
+      // ought to lead somewhere. Name matches the foundation's own title.
+      name: 'Carole A. Feuerman Sculpture Foundation',
+      href: 'https://www.carolefeuermanfoundation.org/',
       logo: 'assets/img/logo-feuerman.png',
-      alt: 'Feuerman Sculpture Foundation',
+      alt: 'Carole A. Feuerman Sculpture Foundation',
     },
   ],
 };
