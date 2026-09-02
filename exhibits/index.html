@@ -43,16 +43,21 @@
               <li><a href="../">Home</a></li>
               <li><a href="../rentals/">Rentals</a></li>
               <li><a href="../tours/">Tours</a></li>
-              <li><a href="../volunteer/">Volunteer</a></li>
               <li><a href="../contact-us/">Contact Us</a></li>
             </ul>
           </li>
-          <li class="nav__cta">
-            <a href="../donate/">Donate</a>
+          <li class="nav__folder nav__cta">
+            <button type="button" aria-expanded="false" aria-controls="nav-support">
+              Support<span class="nav__chevron" aria-hidden="true"></span>
+            </button>
+            <ul class="nav__panel" id="nav-support" hidden>
+              <li><a href="../donate/">Donate</a></li>
+              <li><a href="../volunteer/">Volunteer</a></li>
+            </ul>
           </li>
-          <li class="nav__folder">
+          <li class="nav__folder nav__folder--current">
             <button type="button" aria-expanded="false" aria-controls="nav-on-view">
-              On View<span class="nav__chevron" aria-hidden="true"></span>
+              On View<span class="visually-hidden"> (current section)</span><span class="nav__chevron" aria-hidden="true"></span>
             </button>
             <ul class="nav__panel" id="nav-on-view" hidden>
               <li><a href="../exhibits/" aria-current="page">Exhibitions</a></li>
@@ -109,7 +114,7 @@
         <h3><span class="exhibition__artist">Dragana Crnjak</span>
           <em>Forest</em></h3>
         <p class="exhibition__dates"><time datetime="2026-09-10">September 10, 2026</time> – <time datetime="2027-01-04">January 4, 2027</time></p>
-        <p class="exhibition__countdown">Opens in 9 days</p>
+        <p class="exhibition__countdown">Opens in 8 days</p>
         <p>Paintings that treat the forest as both subject and structure, where looking is an active process and nothing stays fixed.</p>
         <a class="card__more" href="https://www.medicimuseum.art/new-page">More about Dragana Crnjak &rarr;</a>
       </li>
@@ -360,9 +365,9 @@
             <li><a href="../visit/">Visit</a></li>
             <li><a href="../rentals/">Rentals</a></li>
             <li><a href="../tours/">Tours</a></li>
-            <li><a href="../volunteer/">Volunteer</a></li>
             <li><a href="../contact-us/">Contact Us</a></li>
             <li><a href="../donate/">Donate</a></li>
+            <li><a href="../volunteer/">Volunteer</a></li>
             <li><a href="../exhibits/">Exhibitions</a></li>
             <li><a href="../upcomingevents/">Upcoming Events and Classes</a></li>
             <li><a href="../subscribe/">Subscribe</a></li>

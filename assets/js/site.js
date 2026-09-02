@@ -24,25 +24,23 @@
 
     var toggle = header.querySelector('.nav-toggle');
     var nav = header.querySelector('.nav');
-    var mq = window.matchMedia('(max-width: 1080px)');
 
-    function applyLayout() {
-      if (mq.matches) {
-        nav.hidden = toggle.getAttribute('aria-expanded') !== 'true';
-      } else {
-        nav.hidden = false;
-        toggle.setAttribute('aria-expanded', 'false');
-      }
-    }
-
+    // Visibility is owned entirely by CSS, keyed off aria-expanded on the
+    // toggle (`.nav-toggle[aria-expanded='true'] + .nav`). JavaScript only
+    // records the state.
+    //
+    // An earlier version toggled the `hidden` attribute and reconciled it on
+    // media-query change. That could desynchronise: at desktop width the
+    // stylesheet's `display: flex` beat the attribute, so a stale `hidden`
+    // left the menu on screen but missing from the accessibility tree —
+    // sighted users saw a nav that a screen reader was told did not exist.
+    // Letting one system own visibility removes the failure mode rather than
+    // patching it, and the breakpoint needs no resize listener at all.
     if (toggle && nav) {
       toggle.addEventListener('click', function () {
         var open = toggle.getAttribute('aria-expanded') === 'true';
         toggle.setAttribute('aria-expanded', String(!open));
-        applyLayout();
       });
-      mq.addEventListener('change', applyLayout);
-      applyLayout();
     }
 
     var folders = header.querySelectorAll('.nav__folder');

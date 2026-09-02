@@ -73,10 +73,22 @@ function buildNav(base, current) {
     if (entry.children) {
       const id = `nav-${entry.label.toLowerCase().replace(/\s+/g, '-')}`;
       const containsCurrent = entry.children.some((child) => child.slug === current);
+      const classes = [
+        'nav__folder',
+        entry.cta ? 'nav__cta' : '',
+        containsCurrent ? 'nav__folder--current' : '',
+      ]
+        .filter(Boolean)
+        .join(' ');
       return `
-          <li class="nav__folder">
+          <li class="${classes}">
             <button type="button" aria-expanded="false" aria-controls="${id}">
-              ${esc(entry.label)}<span class="nav__chevron" aria-hidden="true"></span>
+              ${esc(entry.label)}${
+        // Said out loud as well as shown, because the underline that marks the
+        // open section is no use to anyone who cannot see it, and the child's
+        // aria-current is hidden inside a collapsed panel.
+        containsCurrent ? '<span class="visually-hidden"> (current section)</span>' : ''
+      }<span class="nav__chevron" aria-hidden="true"></span>
             </button>
             <ul class="nav__panel" id="${id}" hidden>
               ${entry.children

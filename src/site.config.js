@@ -111,11 +111,22 @@ const nav = [
       { label: 'Home', slug: '' },
       { label: 'Rentals', slug: 'rentals' },
       { label: 'Tours', slug: 'tours' },
-      { label: 'Volunteer', slug: 'volunteer' },
       { label: 'Contact Us', slug: 'contact-us' },
     ],
   },
-  { label: 'Donate', slug: 'donate', cta: true },
+  {
+    // Donate now sits under Support rather than standing alone. Volunteer moved
+    // across with it (out of Connect, so it is not listed in two menus): the
+    // museum's own Donate page frames giving time as the other way to help.
+    // `cta: true` keeps the outlined-button treatment the Donate link had, so
+    // the donation route is no less prominent for being one level down.
+    label: 'Support',
+    cta: true,
+    children: [
+      { label: 'Donate', slug: 'donate' },
+      { label: 'Volunteer', slug: 'volunteer' },
+    ],
+  },
   {
     label: 'On View',
     children: [{ label: 'Exhibitions', slug: 'exhibits' }],

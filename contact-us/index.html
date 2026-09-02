@@ -33,9 +33,9 @@
 
       <nav class="nav" id="primary-nav" aria-label="Main">
         <ul>
-          <li class="nav__folder">
+          <li class="nav__folder nav__folder--current">
             <button type="button" aria-expanded="false" aria-controls="nav-connect">
-              Connect<span class="nav__chevron" aria-hidden="true"></span>
+              Connect<span class="visually-hidden"> (current section)</span><span class="nav__chevron" aria-hidden="true"></span>
             </button>
             <ul class="nav__panel" id="nav-connect" hidden>
               <li><a href="../about-us-1/">About Us</a></li>
@@ -43,12 +43,17 @@
               <li><a href="../">Home</a></li>
               <li><a href="../rentals/">Rentals</a></li>
               <li><a href="../tours/">Tours</a></li>
-              <li><a href="../volunteer/">Volunteer</a></li>
               <li><a href="../contact-us/" aria-current="page">Contact Us</a></li>
             </ul>
           </li>
-          <li class="nav__cta">
-            <a href="../donate/">Donate</a>
+          <li class="nav__folder nav__cta">
+            <button type="button" aria-expanded="false" aria-controls="nav-support">
+              Support<span class="nav__chevron" aria-hidden="true"></span>
+            </button>
+            <ul class="nav__panel" id="nav-support" hidden>
+              <li><a href="../donate/">Donate</a></li>
+              <li><a href="../volunteer/">Volunteer</a></li>
+            </ul>
           </li>
           <li class="nav__folder">
             <button type="button" aria-expanded="false" aria-controls="nav-on-view">
@@ -360,9 +365,9 @@
             <li><a href="../visit/">Visit</a></li>
             <li><a href="../rentals/">Rentals</a></li>
             <li><a href="../tours/">Tours</a></li>
-            <li><a href="../volunteer/">Volunteer</a></li>
             <li><a href="../contact-us/">Contact Us</a></li>
             <li><a href="../donate/">Donate</a></li>
+            <li><a href="../volunteer/">Volunteer</a></li>
             <li><a href="../exhibits/">Exhibitions</a></li>
             <li><a href="../upcomingevents/">Upcoming Events and Classes</a></li>
             <li><a href="../subscribe/">Subscribe</a></li>

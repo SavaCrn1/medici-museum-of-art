@@ -270,6 +270,60 @@ tall.
 
 ---
 
+## 5. Defects introduced by the rebuild itself, and fixed
+
+Reported by the client, or found while checking the report.
+
+### 5.1 Exhibition text sat on top of the artwork — *fixed*
+
+The stylesheet had no `img { max-width: 100% }`. On the homepage the exhibition poster
+therefore rendered at its intrinsic **1080px inside a 537px grid column**, overflowing by more
+than 500px and covering the entire text column beside it — title, dates, description and both
+buttons, all unreadable.
+
+Measured before the fix, at 1280px wide:
+
+```
+exhibition-crnjak-forest.jpg <-> "Dragana Crnjak Forest"                 479 x 77 px overlap
+exhibition-crnjak-forest.jpg <-> "September 10, 2026 – January 4, 2027"  479 x 30 px overlap
+exhibition-crnjak-forest.jpg <-> "Paintings that treat the forest…"      479 x 100 px overlap
+```
+
+**Now:** a global `img { max-width: 100%; height: auto }`, which every stylesheet should carry
+and this one did not. Re-measured at 1280, 1024, 900, 768 and 375px: **zero overlaps, zero
+images overflowing their container, no sideways page scroll**.
+
+Two related changes while in there: an image used as one half of a split fills its column
+(`.split > img { width: 100% }`), and exhibition posters use `object-fit: contain` rather than
+`cover`, because these posters carry their title and dates *inside the artwork* — a 4:3 crop of
+a square poster cut the dates off.
+
+### 5.2 The main navigation could be visible and hidden at the same time — *fixed*
+
+Found while re-testing the layout at different widths. The mobile drawer was driven by the
+`hidden` attribute, reconciled by JavaScript on media-query change. At desktop width the
+stylesheet's `.nav { display: flex }` beats the user-agent rule for `[hidden]`, so if that
+reconciliation was ever missed — after a window resize, in an emulated viewport, on older
+WebKit — the menu was **on screen for sighted users while being absent from the accessibility
+tree**, leaving a screen-reader user with no main navigation at all.
+
+Patching the CSS to force `[hidden]` to win would have made the two agree but could still hide
+the nav from everyone. The fix removes the failure mode instead: **visibility is owned entirely
+by CSS**, keyed off the toggle's own `aria-expanded`
+(`.nav-toggle[aria-expanded='true'] + .nav`). JavaScript now only records the state, there is no
+resize handling to get wrong, and `display: none` takes the closed drawer out of the
+accessibility tree automatically, so the visual and non-visual states cannot diverge.
+
+Verified across the breakpoint without reloading: desktop `flex` → 700px `none` → toggle opens
+`flex` → toggle closes `none` → back to desktop `flex`.
+
+### 5.3 Linked partner logos announced their organisation twice — *fixed*
+
+See the Feuerman credit note in the commit history: a linked logo emitted both a
+visually-hidden name and an `alt` repeating it. Linked logos now use `alt=""`.
+
+---
+
 ## What I could not fix, and why
 
 **The forms do not send anywhere.** They are marked up correctly and validate accessibly, but
