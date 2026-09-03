@@ -729,12 +729,30 @@ a:hover {
   padding: 0;
 }
 
-.tile-grid--feature {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+/* Column counts are stated outright rather than left to auto-fit arithmetic,
+   so "two above three" is what renders on a desktop at any root font size,
+   and the steps down to one column are chosen rather than emergent. */
+.tile-grid--feature,
+.tile-grid--three {
+  grid-template-columns: 1fr;
 }
 
-.tile-grid--three {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+@media (min-width: 34rem) {
+  .tile-grid--three {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 48rem) {
+  .tile-grid--feature {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 58rem) {
+  .tile-grid--three {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .tile-heading {

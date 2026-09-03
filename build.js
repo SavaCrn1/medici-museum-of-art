@@ -13,7 +13,30 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { site, nav } = require('./src/site.config.js');
+
+/**
+ * Cache-busting stamps for the stylesheet and scripts, filled in by build()
+ * before any page is rendered.
+ *
+ * GitHub Pages serves assets with `Cache-Control: max-age=600`. Without a
+ * versioned URL, for ten minutes after every deploy a returning visitor gets
+ * the new HTML paired with the stylesheet they already had — and markup whose
+ * CSS has not arrived does not degrade gracefully, it collapses. That is
+ * exactly how a five-tile exhibition grid became five full-width pictures
+ * stacked down the page.
+ *
+ * Hashing the file contents means the URL only changes when the file does, so
+ * the cache still does its job on unchanged deploys.
+ */
+const assetVersion = { css: '', js: '', data: '' };
+
+function hashOf(relativePath) {
+  const full = path.join(ROOT, relativePath);
+  if (!fs.existsSync(full)) return '0';
+  return crypto.createHash('sha1').update(fs.readFileSync(full)).digest('hex').slice(0, 8);
+}
 
 const ROOT = __dirname;
 const PAGES_DIR = path.join(ROOT, 'src', 'pages');
@@ -733,7 +756,7 @@ function layout(page, content) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Nunito+Sans:wght@400;700&display=swap">
-<link rel="stylesheet" href="${base}assets/css/site.css">
+<link rel="stylesheet" href="${base}assets/css/site.css?v=${assetVersion.css}">
 <script type="application/ld+json">${jsonLd()}</script>
 </head>
 <body data-base="${base}">
@@ -745,8 +768,8 @@ ${content}
 </main>
 ${buildFooter(base)}
 
-<script src="${base}assets/js/data.js"></script>
-<script src="${base}assets/js/site.js"></script>
+<script src="${base}assets/js/data.js?v=${assetVersion.data}"></script>
+<script src="${base}assets/js/site.js?v=${assetVersion.js}"></script>
 </body>
 </html>
 `;
@@ -981,7 +1004,7 @@ function redirectPage(target, title) {
 <link rel="canonical" href="${site.url}/${target}">
 <meta name="robots" content="noindex">
 <meta http-equiv="refresh" content="0; url=../${target}">
-<link rel="stylesheet" href="../assets/css/site.css">
+<link rel="stylesheet" href="../assets/css/site.css?v=${assetVersion.css}">
 </head>
 <body>
 <main id="main" class="band">
@@ -1007,6 +1030,13 @@ window.MEDICI = ${JSON.stringify({ events: eventData.events, hours: site.hours }
 `;
   fs.mkdirSync(path.join(ROOT, 'assets', 'js'), { recursive: true });
   fs.writeFileSync(path.join(ROOT, 'assets', 'js', 'data.js'), dataFile);
+
+  // Stamp the assets before rendering, so every page references this build's
+  // exact stylesheet and scripts rather than whatever the browser last kept.
+  assetVersion.css = hashOf('assets/css/site.css');
+  assetVersion.js = hashOf('assets/js/site.js');
+  assetVersion.data = hashOf('assets/js/data.js');
+  console.log(`  assets stamped  css=${assetVersion.css} js=${assetVersion.js} data=${assetVersion.data}\n`);
 
   let count = 0;
   for (const page of pages) {

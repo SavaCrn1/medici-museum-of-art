@@ -46,6 +46,12 @@ assets/js/data.js    generated — do not edit
 
 Output (`index.html`, `visit/index.html`, …) is committed so GitHub Pages can serve it directly.
 
+The build stamps the stylesheet and scripts with a hash of their contents
+(`site.css?v=892fe3e0`). GitHub Pages serves assets with `max-age=600`, so without this a
+returning visitor gets new HTML with the stylesheet they already had for up to ten minutes after
+a deploy — and markup whose CSS has not arrived collapses rather than degrading. The stamp only
+changes when the file does, so unchanged deploys still cache normally. Nothing to do by hand.
+
 ### Changing things
 
 | To change | Edit |
