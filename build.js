@@ -693,6 +693,17 @@ function exhibitionTile(ex, { status = '', dateLine = '' } = {}) {
  * The Exhibitions index: what is on and what is coming, then the permanent
  * collection. Two tiles above three, which is also the natural reading order.
  */
+/**
+ * The permanent collection as bare picture tiles: image, title, and the artist
+ * where there is one. No blurb — on the homepage these are a way in, not
+ * something to read, and each tile carries its own page for the detail.
+ */
+function permanentTiles() {
+  return `<ul class="tile-grid tile-grid--three">
+      ${exhibitions.permanent.map((ex) => exhibitionTile(ex)).join('\n      ')}
+    </ul>`;
+}
+
 function exhibitionsGrid() {
   const featured = [...exhibitions.upcoming, ...exhibitions.current];
 
@@ -871,6 +882,7 @@ function render(template, page) {
     .replace(/\{\{calendar\}\}/g, () => calendarBlock())
     .replace(/\{\{formNotice\}\}/g, () => formNotice())
     .replace(/\{\{exhibitionsGrid\}\}/g, () => exhibitionsGrid())
+    .replace(/\{\{permanentTiles\}\}/g, () => permanentTiles())
     .replace(/\{\{headlineExhibition\}\}/g, () => headlineExhibition())
     .replace(/\{\{eventsUpcoming\}\}/g, () =>
       eventList(upcomingEvents, { kind: 'upcoming', emptyHtml: nothingUpcomingHtml() })
