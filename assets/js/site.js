@@ -234,9 +234,29 @@
     var year = Number(nowParts[0]);
     var month = Number(nowParts[1]) - 1;
 
-    var hasUpcoming = (data.events || []).some(function (ev) {
-      return new Date(ev.end || ev.start) >= new Date();
-    });
+    // Exhibitions are date ranges, not points. A run covers every day from its
+    // opening to its closing, so the calendar can answer "what is on that day"
+    // and not only "is there a workshop that day".
+    var runs = data.exhibitions || [];
+
+    function runsOn(key) {
+      return runs.filter(function (run) {
+        return key >= run.start && key <= run.end;
+      });
+    }
+
+    function runLabel(run) {
+      return (run.artist ? run.artist + ', ' : '') + run.title;
+    }
+
+    var nowStamp = new Date();
+    var hasUpcoming =
+      (data.events || []).some(function (ev) {
+        return new Date(ev.end || ev.start) >= nowStamp;
+      }) ||
+      runs.some(function (run) {
+        return new Date(run.end + 'T23:59:59') >= nowStamp;
+      });
 
     var monthHeading = root.querySelector('[data-calendar-month]');
     var grid = root.querySelector('[data-calendar-grid]');
@@ -269,6 +289,7 @@
       var html = '';
       var day = 1;
       var eventCount = 0;
+      var monthRuns = [];
 
       for (var week = 0; week < 6 && day <= daysInMonth; week++) {
         html += '<tr>';
@@ -280,7 +301,11 @@
 
           var key = keyOf(year, month, day);
           var dayEvents = byDay[key] || [];
+          var dayRuns = runsOn(key);
           eventCount += dayEvents.length;
+          dayRuns.forEach(function (run) {
+            if (monthRuns.indexOf(run) === -1) monthRuns.push(run);
+          });
           var isToday = key === today;
           var isOpen = data.hours && data.hours.days.indexOf(new Date(year, month, day).getDay()) !== -1;
 
@@ -289,6 +314,17 @@
           var name = DAYS_LONG[new Date(year, month, day).getDay()] + ', ' + MONTHS[month] + ' ' + day + ', ' + year;
           if (isToday) name += ', today';
           name += isOpen ? '. Museum open ' + data.hours.time : '. Museum closed';
+          if (dayRuns.length) {
+            name +=
+              '. On view: ' +
+              dayRuns
+                .map(function (run) {
+                  if (key === run.start) return runLabel(run) + ', opens today';
+                  if (key === run.end) return runLabel(run) + ', last day';
+                  return runLabel(run);
+                })
+                .join(', ');
+          }
           if (dayEvents.length) {
             name +=
               '. ' +
@@ -305,6 +341,7 @@
             '<td role="gridcell" tabindex="-1" data-day="' + day + '" data-key="' + key + '"' +
             (isToday ? ' aria-current="date"' : '') +
             (dayEvents.length ? ' data-has-events="' + dayEvents.length + '"' : '') +
+            (dayRuns.length ? ' data-on-view="' + dayRuns.length + '"' : '') +
             ' aria-label="' + name.replace(/"/g, '&quot;') + '">' +
             '<div class="calendar__day">' +
             '<span class="calendar__daynum" aria-hidden="true">' + day + '</span>' +
@@ -324,6 +361,34 @@
                 );
               })
               .join('') +
+            // An exhibition run reads as a continuous band. The title is
+            // printed where a band begins — the opening day, the start of a
+            // week, or the first of the month — rather than repeated into all
+            // hundred-and-something days of the run, which would bury the
+            // workshops. The accessible name above still names it every day.
+            //
+            // It comes last and is pinned to the bottom of the cell, so the
+            // band lines up straight across a week. Anchored to the flow
+            // instead, it rode up and down depending on whether a given day
+            // carried an "Open" label, and the run stopped looking continuous.
+            (dayRuns.length ? '<span class="calendar__runs">' : '') +
+            dayRuns
+              .map(function (run) {
+                var startsBand = key === run.start || col === 0 || day === 1;
+                var edge = key === run.start ? ' calendar__run--opens' : key === run.end ? ' calendar__run--closes' : '';
+                return (
+                  '<a class="calendar__run' + edge + '" tabindex="-1" href="' +
+                  BASE + 'exhibits/' + run.slug + '/">' +
+                  (startsBand
+                    ? '<span class="calendar__run-label">' +
+                      escapeHtml(key === run.start ? run.title + ' opens' : run.title) +
+                      '</span>'
+                    : '') +
+                  '</a>'
+                );
+              })
+              .join('') +
+            (dayRuns.length ? '</span>' : '') +
             '</div></td>';
 
           day += 1;
@@ -342,7 +407,12 @@
       if (target) target.setAttribute('tabindex', '0');
 
       status.textContent =
-        label + '. ' + (eventCount === 0 ? 'No events scheduled.' : eventCount + (eventCount === 1 ? ' event.' : ' events.'));
+        label +
+        '. ' +
+        (eventCount === 0 ? 'No workshops or classes.' : eventCount + (eventCount === 1 ? ' event.' : ' events.')) +
+        (monthRuns.length
+          ? ' On view: ' + monthRuns.map(runLabel).join(', ') + '.'
+          : '');
 
       return target;
     }
@@ -404,7 +474,29 @@
             .join('') +
           '</ul>';
       } else {
-        html += '<p class="calendar__detail-empty">No events on this day.</p>';
+        html += '<p class="calendar__detail-empty">No workshops or classes on this day.</p>';
+      }
+
+      // What is hanging on the walls that day, which for most days is the only
+      // thing there is to say.
+      var dayRuns = runsOn(key);
+      if (dayRuns.length) {
+        html +=
+          '<p class="calendar__detail-label">On view</p>' +
+          '<ul class="calendar__detail-events">' +
+          dayRuns
+            .map(function (run) {
+              var edge =
+                key === run.start ? 'Opens today' : key === run.end ? 'Last day' : '';
+              return (
+                '<li><a href="' + BASE + 'exhibits/' + run.slug + '/">' +
+                escapeHtml(runLabel(run)) + '</a>' +
+                (edge ? '<span class="calendar__detail-time">' + edge + '</span>' : '') +
+                '</li>'
+              );
+            })
+            .join('') +
+          '</ul>';
       }
 
       detailBody.innerHTML = html;

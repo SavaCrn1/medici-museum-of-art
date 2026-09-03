@@ -1422,6 +1422,88 @@ h2 .exhibition__artist + em {
   color: var(--paper);
 }
 
+/* An exhibition run: a continuous band across the days it covers, visually
+   quieter than a workshop chip because it is a state rather than an
+   appointment. The cell padding is cancelled horizontally so consecutive days
+   join into one bar. */
+/* Pinned to the bottom of the cell so the band runs straight across a week,
+   regardless of how much sits above it in any given day. */
+.calendar__runs {
+  display: grid;
+  gap: 1px;
+  margin-top: auto;
+  padding-top: 0.25rem;
+}
+
+.calendar__run {
+  /* A fixed height rather than a minimum: a labelled segment would otherwise
+     be a fraction of a pixel taller than its unlabelled neighbours and the
+     band would not sit perfectly flat. */
+  display: flex;
+  align-items: center;
+  margin-inline: -0.4rem;
+  padding: 0 0.3rem;
+  height: 1.3rem;
+  background: var(--accent);
+  color: var(--paper);
+  font-size: 0.68rem;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.calendar__run--opens {
+  margin-left: 0;
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+}
+
+.calendar__run--closes {
+  margin-right: 0;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
+
+.calendar__run:hover,
+.calendar__run:focus-visible {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.calendar__run-label {
+  font-weight: var(--label-weight);
+}
+
+.calendar__detail-label {
+  margin: 0.9rem 0 0.35rem;
+  font-family: var(--display);
+  font-size: 0.68rem;
+  font-weight: var(--label-weight);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 40rem) {
+  /* No room for a title in a 48px cell; the band alone carries the signal and
+     the detail panel names it. */
+  .calendar__run {
+    margin-inline: -0.1rem;
+    height: 0.4rem;
+    padding: 0;
+  }
+
+  .calendar__run-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+}
+
 .calendar__legend {
   display: flex;
   flex-wrap: wrap;
