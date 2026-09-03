@@ -551,62 +551,73 @@ function daysUntil(iso) {
   return Math.round(ms / 86400000);
 }
 
-function exhibitionCard(ex, state) {
-  const dates = exhibitionDates(ex);
-  const badge =
-    state === 'upcoming'
-      ? `<p class="exhibition__badge">Opening soon</p>`
-      : state === 'current'
-      ? `<p class="exhibition__badge exhibition__badge--now">On view now</p>`
-      : '';
+/** Where an exhibition's own page lives. Derived, never stored. */
+function exhibitionPath(ex) {
+  return `exhibits/${ex.slug}/`;
+}
 
-  const when = dates
-    ? `<p class="exhibition__dates"><time datetime="${ex.start}">${fmtFullDate(ex.start)}</time> – <time datetime="${ex.end}">${fmtFullDate(ex.end)}</time></p>`
-    : ex.datesUnconfirmed
-    ? `<p class="exhibition__dates">Currently on view. <!-- TO BE COMPLETED BY MUSEUM STAFF: add start and end dates to src/exhibitions.json --></p>`
-    : '';
+/**
+ * A picture tile, in the manner of a museum's "On View" index: the whole card
+ * is one link, so the image, the title and the dates are a single target
+ * rather than three competing ones.
+ *
+ * The image is alt="" on purpose. The link's text already names the
+ * exhibition, and a descriptive alt here would be read out as part of the
+ * link, giving a 40-word link name. The full description lives on the
+ * exhibition's own page, where the image is the content rather than a label.
+ */
+function exhibitionTile(ex, { status = '', dateLine = '' } = {}) {
+  const fit = ex.imageFit === 'cover' ? 'tile__img--cover' : 'tile__img--contain';
 
-  const countdown =
-    state === 'upcoming' && ex.start
-      ? `<p class="exhibition__countdown">Opens in ${daysUntil(ex.start)} day${
-          daysUntil(ex.start) === 1 ? '' : 's'
-        }</p>`
-      : '';
-
-  return `<li class="card exhibition">
-        ${ex.image ? `<img src="{{base}}${ex.image}" alt="${esc(ex.imageAlt || '')}">` : ''}
-        ${badge}
-        <h3><span class="exhibition__artist">${esc(ex.artist || '')}</span>
-          <em>${esc(ex.title)}</em></h3>
-        ${when}
-        ${countdown}
-        <p>${esc(ex.blurb || '')}</p>
-        ${
-          ex.url
-            ? `<a class="card__more" href="${resolveUrl(ex.url)}">More about ${esc(ex.artist || ex.title)} &rarr;</a>`
-            : ''
-        }
+  return `<li class="tile">
+        <a href="{{base}}${exhibitionPath(ex)}">
+          <span class="tile__frame">
+            <img class="${fit}" src="{{base}}${ex.image}" alt="" loading="lazy">
+          </span>
+          <span class="tile__body">
+            ${status ? `<span class="tile__status">${esc(status)}</span>` : ''}
+            <span class="tile__title">${
+              // The trailing space matters: without it the artist's name runs
+              // into the title in the link's accessible name.
+              ex.artist ? `<span class="tile__artist">${esc(ex.artist)}</span> ` : ''
+            }<em>${esc(ex.title)}</em></span>
+            ${dateLine ? `<span class="tile__dates">${esc(dateLine)}</span>` : ''}
+          </span>
+        </a>
       </li>`;
 }
 
-function exhibitionSection() {
-  const blocks = [];
+/**
+ * The Exhibitions index: what is on and what is coming, then the permanent
+ * collection. Two tiles above three, which is also the natural reading order.
+ */
+function exhibitionsGrid() {
+  const featured = [...exhibitions.upcoming, ...exhibitions.current];
 
-  if (exhibitions.current.length) {
-    blocks.push(`<h2 id="on-view-now">On view now</h2>
-    <ul class="card-grid">
-      ${exhibitions.current.map((e) => exhibitionCard(e, 'current')).join('\n      ')}
-    </ul>`);
-  }
+  const featuredTiles = featured
+    .map((ex) => {
+      const state = classify(ex);
+      const dates = exhibitionDates(ex);
+      return exhibitionTile(ex, {
+        status: state === 'upcoming' ? 'Coming up' : 'On view now',
+        dateLine: dates || (ex.datesUnconfirmed ? 'Currently on view' : ''),
+      });
+    })
+    .join('\n      ');
 
-  if (exhibitions.upcoming.length) {
-    blocks.push(`<h2 id="coming-up">Coming up</h2>
-    <ul class="card-grid">
-      ${exhibitions.upcoming.map((e) => exhibitionCard(e, 'upcoming')).join('\n      ')}
-    </ul>`);
-  }
+  const permanentTiles = exhibitions.permanent
+    .map((ex) => exhibitionTile(ex, { status: ex.kind || 'Permanent', dateLine: 'Ongoing' }))
+    .join('\n      ');
 
-  return blocks.join('\n\n    ');
+  return `<h2 id="on-view-now">Exhibitions and galleries</h2>
+    <ul class="tile-grid tile-grid--feature">
+      ${featuredTiles}
+    </ul>
+
+    <h2 id="permanent" class="tile-heading">Permanent Collection</h2>
+    <ul class="tile-grid tile-grid--three">
+      ${permanentTiles}
+    </ul>`;
 }
 
 /** The single exhibition worth leading the homepage with. */
@@ -756,7 +767,7 @@ function render(template, page) {
     .replace(/\{\{hoursTable\}\}/g, () => hoursTable())
     .replace(/\{\{calendar\}\}/g, () => calendarBlock())
     .replace(/\{\{formNotice\}\}/g, () => formNotice())
-    .replace(/\{\{exhibitions\}\}/g, () => exhibitionSection())
+    .replace(/\{\{exhibitionsGrid\}\}/g, () => exhibitionsGrid())
     .replace(/\{\{headlineExhibition\}\}/g, () => headlineExhibition())
     .replace(/\{\{events\}\}/g, () => eventList(allEvents))
     .replace(/\{\{eventsRecent\}\}/g, () => eventList(allEvents, { limit: 4 }))
@@ -882,24 +893,52 @@ function eventDetailBody(ev) {
 </section>`;
 }
 
-function exhibitionDetailBody(ex) {
+function exhibitionDetailBody(ex, { permanent = false } = {}) {
   const dates = exhibitionDates(ex);
+  const state = permanent ? 'permanent' : classify(ex);
+  const status = permanent
+    ? 'Ongoing'
+    : state === 'upcoming'
+    ? 'Coming up'
+    : state === 'past'
+    ? 'Past exhibition'
+    : 'On view now';
+
+  // Body copy varies by how much the museum has actually published. Rather
+  // than pad a thin entry with invented text, a page with nothing but a blurb
+  // simply says less and points at the people who can say more.
+  const hasProse = Boolean(ex.statement || ex.bio);
+
   return `<section class="band band--tight">
   <div class="shell">
     <p class="eyebrow"><a href="{{base}}exhibits/">Exhibitions</a></p>
-    <h1><span class="exhibition__artist">${esc(ex.artist || '')}</span>
-      <em>${esc(ex.title)}</em></h1>
+    <p class="exhibition__badge${state === 'current' || permanent ? ' exhibition__badge--now' : ''}">${esc(
+    status
+  )}</p>
+    <h1>${ex.artist ? `<span class="exhibition__artist">${esc(ex.artist)}</span>\n      ` : ''}<em>${esc(
+    ex.title
+  )}</em></h1>
     ${dates ? `<p class="exhibition__dates">${esc(dates)}</p>` : ''}
+    ${
+      !dates && ex.datesUnconfirmed
+        ? `<p class="exhibition__dates">Currently on view.
+             <!-- TO BE COMPLETED BY MUSEUM STAFF: add "start" and "end" to this
+                  entry in src/exhibitions.json. No dates for this exhibition are
+                  published anywhere, so none were invented. --></p>`
+        : ''
+    }
     <p class="lede">${esc(ex.blurb || '')}</p>
   </div>
 </section>
 
 <section class="band band--tight">
-  <div class="shell split">
+  <div class="shell${hasProse ? ' split' : ''}">
     <img src="{{base}}${ex.secondaryImage || ex.image}" alt="${esc(
     ex.secondaryImageAlt || ex.imageAlt || ''
-  )}">
-    <div>
+  )}"${hasProse ? '' : ' style="max-width:52rem"'}>
+    ${
+      hasProse
+        ? `<div>
       ${ex.statement ? `<h2>Artist statement</h2><p>${esc(ex.statement)}</p>` : ''}
       ${ex.bio ? `<h2>About ${esc(ex.artist || ex.title)}</h2><p>${esc(ex.bio)}</p>` : ''}
       ${
@@ -909,7 +948,9 @@ function exhibitionDetailBody(ex) {
             )}'s website<span class="visually-hidden"> (opens in a new tab)</span></a></p>`
           : ''
       }
-    </div>
+    </div>`
+        : ''
+    }
   </div>
 </section>
 
@@ -995,16 +1036,23 @@ window.MEDICI = ${JSON.stringify({ events: eventData.events, hours: site.hours }
   }
   console.log(`  upcomingevents/<slug>/index.html  (${eventData.events.length} events)`);
 
-  // One page per temporary exhibition, replacing the Squarespace /new-page.
-  for (const ex of exhibitionData.temporary) {
-    if (!ex.statement && !ex.bio) continue; // nothing to say yet
+  // A page for every exhibition and gallery, temporary and permanent, because
+  // each is a tile on /exhibits and a tile that leads nowhere is not a tile.
+  const allExhibitions = [
+    ...exhibitionData.temporary.map((ex) => ({ ex, permanent: false })),
+    ...exhibitionData.permanent.map((ex) => ({ ex, permanent: true })),
+  ];
+
+  for (const { ex, permanent } of allExhibitions) {
     const page = {
       file: null,
       slug: `exhibits/${ex.slug}`,
-      title: `${ex.artist}: ${ex.title}`,
-      description: ex.blurb || `${ex.title} at ${site.name}.`,
+      title: ex.artist ? `${ex.artist}: ${ex.title}` : ex.title,
+      description: ex.blurb
+        ? ex.blurb.slice(0, 155)
+        : `${ex.title} at ${site.name}.`,
     };
-    const html = layout(page, render(exhibitionDetailBody(ex), page));
+    const html = layout(page, render(exhibitionDetailBody(ex, { permanent }), page));
     const outDir = path.join(ROOT, 'exhibits', ex.slug);
     fs.mkdirSync(outDir, { recursive: true });
     fs.writeFileSync(path.join(outDir, 'index.html'), html);

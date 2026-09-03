@@ -9,6 +9,7 @@
       "start": "2026-09-10",
       "end": "2027-01-04",
       "image": "assets/img/exhibition-crnjak-forest.jpg",
+      "imageFit": "contain",
       "imageAlt": "Exhibition poster for Dragana Crnjak: Forest. A large abstract painting in dusty pink, ochre, grey and pale blue, its vertical strokes suggesting trees, overlaid with solid bars of pink, yellow and violet.",
       "secondaryImage": "assets/img/exhibition-crnjak-work.jpg",
       "secondaryImageAlt": "A painting by Dragana Crnjak: soft vertical forms in muted pink, grey and ochre that resolve into a forest the longer you look.",
@@ -26,6 +27,7 @@
       "end": null,
       "datesUnconfirmed": true,
       "image": "assets/img/exhibition-pino-stillness.jpg",
+      "imageFit": "contain",
       "imageAlt": "Exhibition poster for Ross Pino: Electric Stillness. A painted skeleton with 'rock star' lettered across its skull and crayons for teeth, raising one arm against a black ground scattered with hand-painted stars in pink, yellow, green, blue, orange and purple.",
       "url": null,
       "blurb": "Painted figures and hand-drawn stars, loud and still at once."
@@ -37,6 +39,8 @@
       "slug": "grohl-collection",
       "title": "Renie & James Grohl Collection",
       "image": "assets/img/collection-grohl.png",
+      "imageFit": "contain",
+      "kind": "Collection",
       "imageAlt": "An abstract Alexander Calder composition from the collection: red and blue lines ruled across cream paper, hung with circles, triangles, a spiral and hourglass shapes in red, orange, blue, yellow and black.",
       "blurb": "The James and Renie Grohl Collection at the Medici Museum of Art is a distinguished assemblage of artworks that reflects a deep appreciation for artistic excellence and cultural significance. Generously gifted by the Grohl family, this collection serves as a testament to their enduring passion for the arts and their commitment to preserving and sharing remarkable works with the public."
     },
@@ -44,6 +48,8 @@
       "slug": "carole-feuerman",
       "title": "Carole A. Feuerman",
       "image": "assets/img/artist-feuerman.png",
+      "imageFit": "cover",
+      "kind": "Artist",
       "imageAlt": "Sculptor Carole A. Feuerman seated beside one of her hyperrealist works: a swimmer in a lime-green bathing cap, arms folded over a grey inflatable tube, water beaded on her skin.",
       "blurb": "Carole A. Feuerman (born 1945) is an American sculptor and author known as a Superrealist. She is one of the three artists who started the movement in the late 1970s. She is best known for her figurative works of swimmers and dancers. She is the only artist to make realistically painted outdoor sculptures and the only woman to sculpt in this style."
     },
@@ -51,6 +57,8 @@
       "slug": "sculpture-garden",
       "title": "Outdoor Sculpture Garden",
       "image": "assets/img/sculpture-garden.jpg",
+      "imageFit": "cover",
+      "kind": "Gallery",
       "imageAlt": "Carole A. Feuerman's sculpture Justice in the garden: a gold-toned figure of a woman in a swim cap and gold swimsuit, seated in a lotus pose on a mirror-polished steel sphere, with trees behind her.",
       "blurb": "Two sculptures donated by Carole A. Feuerman, with a combined value of $1.5 million. “Justice” depicts a serene woman in a graceful lotus pose, balanced atop a gleaming, polished stainless steel sphere — symbolising poise, balance, and inner strength. “Poseidon”, a six-foot bronze completed in 2023, is a permanent installation in the garden."
     }

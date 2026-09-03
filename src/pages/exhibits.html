@@ -2,64 +2,14 @@
   <div class="shell">
     <p class="eyebrow">On view</p>
     <h1>Exhibitions</h1>
-    <p class="lede">Admission is free, {{hoursLabel}}, {{hoursTime}}.</p>
+    <p class="lede">Admission is free, {{hoursLabel}}, {{hoursTime}}. Choose an exhibition or
+      gallery to read more about it.</p>
   </div>
 </section>
 
 <section class="band band--tight" aria-labelledby="on-view-now">
   <div class="shell">
-    {{exhibitions}}
-  </div>
-</section>
-
-<hr class="rule">
-
-<section class="band band--tight" aria-labelledby="permanent">
-  <div class="shell">
-    <h2 id="permanent">Permanent Collection</h2>
-
-    <div class="split" style="margin-top:2rem">
-      <img src="{{base}}assets/img/collection-grohl.png"
-           alt="An abstract Alexander Calder composition from the collection: red and blue lines ruled across cream paper, hung with circles, triangles, a spiral and hourglass shapes in red, orange, blue, yellow and black.">
-      <div>
-        <h3 id="grohl">Renie &amp; James Grohl Collection</h3>
-        <p>The James and Renie Grohl Collection at the Medici Museum of Art is a distinguished assemblage of
-          artworks that reflects a deep appreciation for artistic excellence and cultural significance.
-          Generously gifted by the Grohl family, this collection serves as a testament to their enduring passion
-          for the arts and their commitment to preserving and sharing remarkable works with the public.</p>
-      </div>
-    </div>
-
-    <hr class="rule" style="margin-block:clamp(2.5rem,5vw,4rem)">
-
-    <div class="split">
-      <div>
-        <h3 id="feuerman">Carole A. Feuerman</h3>
-        <p>Carole A. Feuerman (born 1945) is an American sculptor and author known as a Superrealist. She is one
-          of the three artists who started the movement in the late 1970s. She is best known for her figurative
-          works of swimmers and dancers. She is the only artist to make realistically painted outdoor sculptures
-          and the only woman to sculpt in this style.</p>
-      </div>
-      <img src="{{base}}assets/img/artist-feuerman.png"
-           alt="Sculptor Carole A. Feuerman seated beside one of her hyperrealist works: a swimmer in a lime-green bathing cap, arms folded over a grey inflatable tube, water beaded on her skin.">
-    </div>
-
-    <hr class="rule" style="margin-block:clamp(2.5rem,5vw,4rem)">
-
-    <div class="split">
-      <img src="{{base}}assets/img/sculpture-garden.jpg"
-           alt="Carole A. Feuerman's sculpture Justice in the garden: a gold-toned figure of a woman in a swim cap and gold swimsuit, seated in a lotus pose on a mirror-polished steel sphere, with trees behind her.">
-      <div>
-        <h3 id="garden">Outdoor Sculpture Garden</h3>
-        <p>The Medici Museum of Art is honoured to feature two remarkable sculptures generously donated by
-          internationally acclaimed artist Carole A. Feuerman, with a combined value of $1.5&nbsp;million.</p>
-        <p><strong>&ldquo;Justice&rdquo;</strong> depicts a serene woman in a graceful lotus pose, balanced atop
-          a gleaming, polished stainless steel sphere &mdash; symbolising poise, balance, and inner strength.</p>
-        <p><strong>&ldquo;Poseidon&rdquo;</strong>, a striking six-foot bronze sculpture completed in 2023,
-          stands as a bold new permanent installation in the garden. This powerful piece further exemplifies
-          Feuerman&rsquo;s mastery in capturing form and emotion.</p>
-      </div>
-    </div>
+    {{exhibitionsGrid}}
   </div>
 </section>
 
@@ -68,8 +18,8 @@
     <h2 id="see-it">See it in person</h2>
     <div class="split">
       <div>
-        <p>Guided tours run {{hoursLabel}} and can be booked for individuals, school groups and private
-          parties.</p>
+        <p>Guided tours run {{hoursLabel}} and can be booked for individuals, school groups and
+          private parties.</p>
         <p>
           <a class="btn" href="{{base}}tours/">Book a tour</a>
           <a class="btn btn--ghost" href="{{base}}visit/">Plan your visit</a>
