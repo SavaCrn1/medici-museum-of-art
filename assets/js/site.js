@@ -11,6 +11,14 @@
   var data = window.MEDICI || { events: [], hours: null };
   var TZ = 'America/New_York';
 
+  // How far this page sits below the site root, written by the build. Used to
+  // build event links that work from any depth.
+  var BASE = (document.body && document.body.getAttribute('data-base')) || '';
+
+  function eventHref(ev) {
+    return BASE + 'upcomingevents/' + ev.slug + '/';
+  }
+
   /* ---------------------------------------------------------------------------
      Navigation
      Folders are real disclosure buttons: aria-expanded, Escape closes and
@@ -321,7 +329,7 @@
             dayEvents
               .map(function (e) {
                 return (
-                  '<a class="calendar__event" tabindex="-1" href="' + e.url + '">' +
+                  '<a class="calendar__event" tabindex="-1" href="' + eventHref(e) + '">' +
                   escapeHtml(e.title) +
                   '</a>'
                 );
@@ -399,7 +407,7 @@
           dayEvents
             .map(function (e) {
               return (
-                '<li><a href="' + e.url + '">' + escapeHtml(e.title) + '</a>' +
+                '<li><a href="' + eventHref(e) + '">' + escapeHtml(e.title) + '</a>' +
                 '<span class="calendar__detail-time">' + formatTime(e.start) +
                 (e.end ? '–' + formatTime(e.end) : '') + '</span></li>'
               );

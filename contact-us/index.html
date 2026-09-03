@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="../assets/css/site.css">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Museum","name":"Medici Museum of Art","url":"https://medicimuseum.art","telephone":"+1-330-856-2120","email":"info@medicimuseum.art","address":{"@type":"PostalAddress","streetAddress":"9350 East Market St.","addressLocality":"Warren","addressRegion":"OH","postalCode":"44484","addressCountry":"US"},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["https://schema.org/Wednesday","https://schema.org/Thursday","https://schema.org/Friday","https://schema.org/Saturday","https://schema.org/Sunday"],"opens":"11:00","closes":"16:00"}],"isAccessibleForFree":true,"sameAs":["https://www.facebook.com/medicimuseumofart/","https://www.instagram.com/medicimuseum.art/"]}</script>
 </head>
-<body>
+<body data-base="../">
 <a class="skip-link" href="#main">Skip to main content</a>
 
   <header class="site-header">
@@ -179,7 +179,12 @@
         </div>
         <div>
           <dt>Press, image rights and reproductions</dt>
-          <dd><a href="https://www.medicimuseum.art/rights-and-reproductions">Rights and Reproductions</a></dd>
+          <!-- The old site linked to /rights-and-reproductions here and in the
+               footer of every page. That URL already returns an error on the
+               live Squarespace site, so it points at the people who can answer
+               instead of at a 404. Restore the link once the policy is written:
+               see external.rightsAndReproductions in src/site.config.js. -->
+          <dd>Contact us for permission to reproduce an image from the collection.</dd>
         </div>
         <div>
           <dt>Accessibility</dt>
@@ -355,7 +360,6 @@
             <li><a href="../exhibits/">Exhibitions</a></li>
             <li><a href="../upcomingevents/">Upcoming Events and Classes</a></li>
             <li><a href="../subscribe/">Subscribe</a></li>
-            <li><a href="https://www.medicimuseum.art/rights-and-reproductions">Rights and Reproductions</a></li>
           </ul>
         </nav>
       </div>

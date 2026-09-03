@@ -74,10 +74,19 @@ const site = {
 
   external: {
     eventbrite: 'https://www.medicimuseum.eventbrite.com/',
-    volunteerApplication:
-      'https://www.medicimuseum.art/s/Volunteer-Application_Medici.pdf',
-    rightsAndReproductions:
-      'https://www.medicimuseum.art/rights-and-reproductions',
+
+    // Served from this repository rather than from Squarespace, so it survives
+    // the move off that platform. Replace the file in place to update it.
+    volunteerApplication: '{{base}}assets/files/Volunteer-Application_Medici.pdf',
+
+    // The old footer linked to /rights-and-reproductions on every page, and
+    // that URL already returns an error on the live Squarespace site — it was a
+    // dead link before this rebuild and was copied across faithfully. The
+    // footer now omits it rather than pointing everyone at a 404.
+    //
+    // Write the policy as a page in src/pages/ and put its path here to bring
+    // the link back.
+    rightsAndReproductions: null,
   },
 
   partners: [

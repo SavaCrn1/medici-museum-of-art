@@ -6,7 +6,6 @@ window.MEDICI = {
       "title": "Paper Portraits Workshop",
       "start": "2026-01-17T14:00:00-05:00",
       "end": "2026-01-17T15:00:00-05:00",
-      "url": "https://www.medicimuseum.art/upcomingevents/paper-portraits-workshop",
       "tickets": "https://www.eventbrite.com/e/paper-portraits-workshop-tickets-1977047972707"
     },
     {
@@ -14,7 +13,6 @@ window.MEDICI = {
       "title": "Storytime at the Art Museum",
       "start": "2026-01-10T10:00:00-05:00",
       "end": "2026-01-10T11:00:00-05:00",
-      "url": "https://www.medicimuseum.art/upcomingevents/storytime-at-the-art-museum-4",
       "tickets": null
     },
     {
@@ -22,7 +20,6 @@ window.MEDICI = {
       "title": "Drawing With Scissors",
       "start": "2026-01-04T14:00:00-05:00",
       "end": "2026-01-04T16:00:00-05:00",
-      "url": "https://www.medicimuseum.art/upcomingevents/drawing-with-scissors",
       "tickets": "https://www.eventbrite.com/e/drawing-with-scissors-tickets-1974988178808"
     },
     {
@@ -30,7 +27,6 @@ window.MEDICI = {
       "title": "Craft and Storytime at the Art Museum",
       "start": "2025-12-13T10:00:00-05:00",
       "end": "2025-12-13T11:00:00-05:00",
-      "url": "https://www.medicimuseum.art/upcomingevents/storytime-at-the-art-museum-3",
       "tickets": null
     },
     {
@@ -38,7 +34,6 @@ window.MEDICI = {
       "title": "Snowman Paint and Sip",
       "start": "2025-12-04T18:00:00-05:00",
       "end": "2025-12-04T19:30:00-05:00",
-      "url": "https://www.medicimuseum.art/upcomingevents/snowman-paint-and-sip",
       "tickets": null
     },
     {
@@ -46,7 +41,6 @@ window.MEDICI = {
       "title": "Mosaic 101 Workshop",
       "start": "2025-11-22T13:00:00-05:00",
       "end": "2025-11-22T15:00:00-05:00",
-      "url": "https://www.medicimuseum.art/upcomingevents/mosaic-101-workshop",
       "tickets": "https://www.eventbrite.com/e/mosaic-101-workshop-tickets-1835439983399"
     },
     {
@@ -54,7 +48,6 @@ window.MEDICI = {
       "title": "Art Museum Scavenger Hunt",
       "start": "2025-11-21T11:00:00-05:00",
       "end": "2025-11-23T16:00:00-05:00",
-      "url": "https://www.medicimuseum.art/upcomingevents/museum-scavenger-hunt",
       "tickets": null
     },
     {
@@ -62,7 +55,6 @@ window.MEDICI = {
       "title": "Urban Sketching Workshop",
       "start": "2025-11-09T13:00:00-05:00",
       "end": "2025-11-09T15:00:00-05:00",
-      "url": "https://www.medicimuseum.art/upcomingevents/urban-sketching-workshop",
       "tickets": null
     },
     {
@@ -70,7 +62,6 @@ window.MEDICI = {
       "title": "Storytime at the Art Museum",
       "start": "2025-11-08T10:00:00-05:00",
       "end": "2025-11-08T11:00:00-05:00",
-      "url": "https://www.medicimuseum.art/upcomingevents/storytime-at-the-art-museum-2",
       "tickets": null
     },
     {
@@ -78,7 +69,6 @@ window.MEDICI = {
       "title": "Kid's Collage Workshop",
       "start": "2025-11-01T13:00:00-04:00",
       "end": "2025-11-01T15:00:00-04:00",
-      "url": "https://www.medicimuseum.art/upcomingevents/kids-collage-workshop",
       "tickets": "https://www.eventbrite.com/e/kids-collage-workshop-tickets-1751817406019"
     },
     {
@@ -86,7 +76,6 @@ window.MEDICI = {
       "title": "Adult Collage Workshop",
       "start": "2025-10-26T13:00:00-04:00",
       "end": "2025-10-26T15:00:00-04:00",
-      "url": "https://www.medicimuseum.art/upcomingevents/adult-collage-workshop",
       "tickets": "https://www.eventbrite.com/e/adult-collage-workshop-tickets-1751819612619"
     },
     {
@@ -94,7 +83,6 @@ window.MEDICI = {
       "title": "Fall Family Festival",
       "start": "2025-10-18T15:00:00-04:00",
       "end": "2025-10-18T18:00:00-04:00",
-      "url": "https://www.medicimuseum.art/upcomingevents/fall-family-festival",
       "tickets": null
     },
     {
@@ -102,7 +90,6 @@ window.MEDICI = {
       "title": "Storytime at the Art Museum",
       "start": "2025-10-11T10:00:00-04:00",
       "end": "2025-10-11T11:00:00-04:00",
-      "url": "https://www.medicimuseum.art/upcomingevents/storytime-at-the-art-museum-1",
       "tickets": null
     },
     {
@@ -110,7 +97,6 @@ window.MEDICI = {
       "title": "Storytime at the Art Museum",
       "start": "2025-09-19T11:00:00-04:00",
       "end": "2025-09-19T12:00:00-04:00",
-      "url": "https://www.medicimuseum.art/upcomingevents/storytime-at-the-art-museum",
       "tickets": null
     }
   ],

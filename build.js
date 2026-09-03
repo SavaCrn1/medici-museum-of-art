@@ -123,6 +123,20 @@ function link(base, slug) {
   return slug === '' ? base || './' : `${base}${slug}/`;
 }
 
+/**
+ * How far a page sits below the site root, as a relative prefix. Detail pages
+ * live two levels down (upcomingevents/<slug>/), so a flat '../' is not enough
+ * — every asset and link on them would resolve one directory too high.
+ */
+function baseFor(slug) {
+  return slug === '' ? '' : '../'.repeat(slug.split('/').length);
+}
+
+/** Leaves absolute URLs alone; makes repo-relative ones base-aware. */
+function resolveUrl(url) {
+  return /^https?:\/\//.test(url) ? url : `{{base}}${url}`;
+}
+
 function buildNav(base, current) {
   const item = (entry) => {
     if (entry.children) {
@@ -286,8 +300,11 @@ function buildFooter(base) {
               .flatMap((entry) => (entry.children ? entry.children : [entry]))
               .filter((entry) => entry.slug !== '')
               .map((entry) => `<li><a href="${link(base, entry.slug)}">${esc(entry.label)}</a></li>`)
-              .join('\n            ')}
-            <li><a href="${site.external.rightsAndReproductions}">Rights and Reproductions</a></li>
+              .join('\n            ')}${
+    site.external.rightsAndReproductions
+      ? `\n            <li><a href="${site.external.rightsAndReproductions}">Rights and Reproductions</a></li>`
+      : ''
+  }
           </ul>
         </nav>
       </div>
@@ -352,6 +369,32 @@ function fmtTime(iso) {
     .replace(' ', '');
 }
 
+/**
+ * Where an event's own page lives. Derived from the slug rather than stored,
+ * so the link can never point at a host we no longer control — the previous
+ * version linked every event to its Squarespace page, all of which would have
+ * 404'd the moment the domain moved.
+ */
+function eventPath(base, ev) {
+  return `${base}upcomingevents/${ev.slug}/`;
+}
+
+/** "Add to Google Calendar" needs UTC stamps in this exact compact form. */
+function calendarStamp(iso) {
+  return new Date(iso).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+}
+
+function googleCalendarUrl(ev) {
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: ev.title,
+    dates: `${calendarStamp(ev.start)}/${calendarStamp(ev.end || ev.start)}`,
+    location: `${site.address.street}, ${site.address.city}, ${site.address.state} ${site.address.zip}`,
+    details: `${ev.title} at ${site.name}.`,
+  });
+  return `https://www.google.com/calendar/render?${params.toString()}`;
+}
+
 function eventList(events, { limit } = {}) {
   const list = limit ? events.slice(0, limit) : events;
   if (!list.length) {
@@ -385,7 +428,9 @@ function eventList(events, { limit } = {}) {
           <time datetime="${ev.start}">${esc(when)}</time>
           ${past ? '<p class="event-list__past">This event has passed</p>' : ''}
           <p class="event-list__links">
-            <a href="${ev.url}">Event details<span class="visually-hidden"> for ${esc(ev.title)}</span></a>
+            <a href="{{base}}upcomingevents/${ev.slug}/">Event details<span class="visually-hidden"> for ${esc(
+            ev.title
+          )}</span></a>
             ${
               ev.tickets
                 ? `<a href="${ev.tickets}" target="_blank" rel="noopener">Tickets on Eventbrite<span class="visually-hidden"> for ${esc(
@@ -538,7 +583,7 @@ function exhibitionCard(ex, state) {
         <p>${esc(ex.blurb || '')}</p>
         ${
           ex.url
-            ? `<a class="card__more" href="${ex.url}">More about ${esc(ex.artist || ex.title)} &rarr;</a>`
+            ? `<a class="card__more" href="${resolveUrl(ex.url)}">More about ${esc(ex.artist || ex.title)} &rarr;</a>`
             : ''
         }
       </li>`;
@@ -595,7 +640,7 @@ function headlineExhibition() {
       }
       <p class="lede">${esc(ex.blurb || '')}</p>
       <p>
-        ${ex.url ? `<a class="btn" href="${ex.url}">About ${esc(ex.artist || ex.title)}</a>` : ''}
+        ${ex.url ? `<a class="btn" href="${resolveUrl(ex.url)}">About ${esc(ex.artist || ex.title)}</a>` : ''}
         <a class="btn btn--ghost" href="{{base}}exhibits/">All exhibitions</a>
       </p>
     </div>
@@ -657,7 +702,7 @@ function jsonLd() {
    --------------------------------------------------------------------------- */
 
 function layout(page, content) {
-  const base = page.slug === '' ? '' : '../';
+  const base = baseFor(page.slug);
   const canonical = page.slug === '' ? `${site.url}/` : `${site.url}/${page.slug}`;
   const fullTitle = page.slug === '' ? site.name : `${page.title} — ${site.name}`;
 
@@ -680,7 +725,7 @@ function layout(page, content) {
 <link rel="stylesheet" href="${base}assets/css/site.css">
 <script type="application/ld+json">${jsonLd()}</script>
 </head>
-<body>
+<body data-base="${base}">
 <a class="skip-link" href="#main">Skip to main content</a>
 ${buildNav(base, page.slug)}
 
@@ -701,7 +746,7 @@ ${buildFooter(base)}
    --------------------------------------------------------------------------- */
 
 function render(template, page) {
-  const base = page.slug === '' ? '' : '../';
+  const base = baseFor(page.slug);
 
   // {{base}} is substituted LAST, because several of the blocks injected below
   // (exhibition cards, the contact block) contain {{base}} of their own.
@@ -743,8 +788,179 @@ function render(template, page) {
     .replace(/\{\{base\}\}/g, base);
 }
 
+/* ---------------------------------------------------------------------------
+   Detail pages
+
+   These exist because the rebuild previously linked out to Squarespace for
+   them — 14 event pages, the Dragana Crnjak page, and a Rights and
+   Reproductions page that was already a 404. Every one of those links would
+   have broken the moment the domain was repointed, because they resolve to the
+   same domain. They are now pages in this repository.
+   --------------------------------------------------------------------------- */
+
+function eventDetailBody(ev) {
+  const d = fmtDate(ev.start);
+  const endDay = ev.end ? fmtDate(ev.end) : d;
+  const sameDay = endDay.day === d.day && endDay.month === d.month;
+  const past = new Date(ev.end || ev.start) < new Date();
+
+  // The whitespace around <br> is load-bearing: without it textContent runs the
+  // year into the time and a screen reader says "twenty thousand two hundred
+  // and sixty-two pm" instead of "2026, 2pm".
+  const when = sameDay
+    ? `${d.weekday}, ${d.month} ${d.day}, ${d.year} <br> ${fmtTime(ev.start)}${
+        ev.end ? `&ndash;${fmtTime(ev.end)}` : ''
+      } Eastern Time`
+    : `${d.month} ${d.day} &ndash; ${endDay.month} ${endDay.day}, ${d.year}`;
+
+  return `<section class="band band--tight">
+  <div class="shell">
+    <p class="eyebrow"><a href="{{base}}upcomingevents/">Events and classes</a></p>
+    <h1>${esc(ev.title)}</h1>
+    ${past ? '<p class="notice" role="note">This event has already taken place.</p>' : ''}
+  </div>
+</section>
+
+<section class="band band--tight">
+  <div class="shell split">
+    <div>
+      <h2>Details</h2>
+      <dl class="contact-list">
+        <div>
+          <dt>When</dt>
+          <dd><time datetime="${ev.start}">${when}</time></dd>
+        </div>
+        <div>
+          <dt>Where</dt>
+          <dd>
+            <address>${esc(site.address.street)}<br>${esc(site.address.city)}, ${esc(
+    site.address.state
+  )} ${esc(site.address.zip)}</address>
+            {{map:SELF|Get directions}}
+          </dd>
+        </div>
+        <div>
+          <dt>Admission</dt>
+          <dd>${esc(site.hours.admission)}</dd>
+        </div>
+      </dl>
+
+      <!-- TO BE COMPLETED BY MUSEUM STAFF: add a "description" to this event in
+           src/events.json and it will appear here. Left out rather than
+           invented, because no description was ever published for these. -->
+      ${ev.description ? `<p>${esc(ev.description)}</p>` : ''}
+
+      <p style="margin-top:2rem">
+        ${
+          ev.tickets
+            ? `<a class="btn" href="${ev.tickets}" target="_blank" rel="noopener">Tickets on Eventbrite<span class="visually-hidden"> for ${esc(
+                ev.title
+              )} (opens in a new tab)</span></a>`
+            : ''
+        }
+        ${
+          past
+            ? ''
+            : `<a class="btn btn--ghost" href="${googleCalendarUrl(
+                ev
+              )}" target="_blank" rel="noopener">Add to calendar<span class="visually-hidden"> &mdash; ${esc(
+                ev.title
+              )} (opens Google Calendar in a new tab)</span></a>`
+        }
+      </p>
+    </div>
+
+    <div>
+      <h2>Questions?</h2>
+      <p><a class="action-link" href="tel:${site.phone.href}"><span>${esc(
+    site.phone.display
+  )}</span></a></p>
+      <p>{{email:SELF|${site.email.display}}}</p>
+      <p style="margin-top:2rem"><a class="btn btn--ghost" href="{{base}}upcomingevents/">All events and classes</a></p>
+    </div>
+  </div>
+</section>`;
+}
+
+function exhibitionDetailBody(ex) {
+  const dates = exhibitionDates(ex);
+  return `<section class="band band--tight">
+  <div class="shell">
+    <p class="eyebrow"><a href="{{base}}exhibits/">Exhibitions</a></p>
+    <h1><span class="exhibition__artist">${esc(ex.artist || '')}</span>
+      <em>${esc(ex.title)}</em></h1>
+    ${dates ? `<p class="exhibition__dates">${esc(dates)}</p>` : ''}
+    <p class="lede">${esc(ex.blurb || '')}</p>
+  </div>
+</section>
+
+<section class="band band--tight">
+  <div class="shell split">
+    <img src="{{base}}${ex.secondaryImage || ex.image}" alt="${esc(
+    ex.secondaryImageAlt || ex.imageAlt || ''
+  )}">
+    <div>
+      ${ex.statement ? `<h2>Artist statement</h2><p>${esc(ex.statement)}</p>` : ''}
+      ${ex.bio ? `<h2>About ${esc(ex.artist || ex.title)}</h2><p>${esc(ex.bio)}</p>` : ''}
+      ${
+        ex.artistUrl
+          ? `<p><a class="btn btn--ghost" href="${ex.artistUrl}" target="_blank" rel="noopener">${esc(
+              ex.artist || ex.title
+            )}'s website<span class="visually-hidden"> (opens in a new tab)</span></a></p>`
+          : ''
+      }
+    </div>
+  </div>
+</section>
+
+<section class="band band--warm band--tight">
+  <div class="shell split">
+    <div>
+      <h2>Plan your visit</h2>
+      <p>Admission is free, ${esc(site.hours.label)}, ${esc(site.hours.time)}.</p>
+      <p><a class="btn" href="{{base}}visit/">Visitor information</a></p>
+    </div>
+    <div>{{contactNoHeading}}</div>
+  </div>
+</section>`;
+}
+
+/**
+ * A standing redirect for a URL the old site published. /new-page is where the
+ * Dragana Crnjak page lived on Squarespace — an unhelpful slug, but one that
+ * may sit in printed material and inbound links, so it keeps working.
+ */
+function redirectPage(target, title) {
+  return `<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(title)} — ${esc(site.name)}</title>
+<link rel="canonical" href="${site.url}/${target}">
+<meta name="robots" content="noindex">
+<meta http-equiv="refresh" content="0; url=../${target}">
+<link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body>
+<main id="main" class="band">
+  <div class="shell">
+    <h1>This page has moved</h1>
+    <p class="lede">${esc(title)} is now at a new address.</p>
+    <p><a class="btn" href="../${target}">Continue to ${esc(title)}</a></p>
+  </div>
+</main>
+</body>
+</html>
+`;
+}
+
 function build() {
   // Client-side data mirrors the build-time data — one source, two consumers.
+  // The calendar links each event to its own page. Only the slug is stored —
+  // site.js joins it to the page's own base path, because the calendar appears
+  // at more than one depth and a single hard-coded path would be wrong on one
+  // of them.
   const dataFile = `/* Generated by build.js — edit src/events.json or src/site.config.js instead. */
 window.MEDICI = ${JSON.stringify({ events: eventData.events, hours: site.hours }, null, 2)};
 `;
@@ -761,6 +977,49 @@ window.MEDICI = ${JSON.stringify({ events: eventData.events, hours: site.hours }
     count += 1;
     console.log(`  ${page.slug === '' ? 'index.html' : page.slug + '/index.html'}`);
   }
+
+  // One page per event, at the same /upcomingevents/<slug>/ path the old site
+  // used, so those URLs keep resolving after the move off Squarespace.
+  for (const ev of eventData.events) {
+    const page = {
+      file: null,
+      slug: `upcomingevents/${ev.slug}`,
+      title: ev.title,
+      description: `${ev.title} at ${site.name} — date, time, location and booking.`,
+    };
+    const html = layout(page, render(eventDetailBody(ev), page));
+    const outDir = path.join(ROOT, 'upcomingevents', ev.slug);
+    fs.mkdirSync(outDir, { recursive: true });
+    fs.writeFileSync(path.join(outDir, 'index.html'), html);
+    count += 1;
+  }
+  console.log(`  upcomingevents/<slug>/index.html  (${eventData.events.length} events)`);
+
+  // One page per temporary exhibition, replacing the Squarespace /new-page.
+  for (const ex of exhibitionData.temporary) {
+    if (!ex.statement && !ex.bio) continue; // nothing to say yet
+    const page = {
+      file: null,
+      slug: `exhibits/${ex.slug}`,
+      title: `${ex.artist}: ${ex.title}`,
+      description: ex.blurb || `${ex.title} at ${site.name}.`,
+    };
+    const html = layout(page, render(exhibitionDetailBody(ex), page));
+    const outDir = path.join(ROOT, 'exhibits', ex.slug);
+    fs.mkdirSync(outDir, { recursive: true });
+    fs.writeFileSync(path.join(outDir, 'index.html'), html);
+    count += 1;
+    console.log(`  exhibits/${ex.slug}/index.html`);
+  }
+
+  // Keep the old Squarespace URL working.
+  fs.mkdirSync(path.join(ROOT, 'new-page'), { recursive: true });
+  fs.writeFileSync(
+    path.join(ROOT, 'new-page', 'index.html'),
+    redirectPage('exhibits/dragana-crnjak-forest/', 'Dragana Crnjak: Forest')
+  );
+  count += 1;
+  console.log('  new-page/index.html  (redirect)');
 
   // GitHub Pages: skip Jekyll so directories starting with _ are served as-is.
   fs.writeFileSync(path.join(ROOT, '.nojekyll'), '');
