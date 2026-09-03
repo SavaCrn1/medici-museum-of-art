@@ -583,6 +583,77 @@
      --------------------------------------------------------------------------- */
 
   /* ---------------------------------------------------------------------------
+     Scenic scroll — fallback only
+
+     Browsers with scroll-linked CSS animations do this entirely in the
+     stylesheet and never reach this code. This is the one-shot arrival
+     animation for the browsers that do not.
+
+     The class that hides sections is added here rather than sitting in the
+     HTML, so a script that never runs cannot leave the page blank. A timer
+     backs that up: if the observer somehow never fires, everything is revealed
+     anyway. Content visibility is not something to leave to an optimistic
+     assumption.
+     --------------------------------------------------------------------------- */
+
+  function initScenicScroll() {
+    if (!window.matchMedia('(prefers-reduced-motion: no-preference)').matches) return;
+    if (!('IntersectionObserver' in window)) return;
+
+    var sections = document.querySelectorAll('main > section');
+    if (!sections.length) return;
+
+    document.documentElement.classList.add('scenic-js');
+
+    function arrive(el) {
+      el.classList.add('is-in');
+    }
+
+    // Arrival: one-shot, as soon as any meaningful part of the section shows.
+    var arriving = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          arrive(entry.target);
+          arriving.unobserve(entry.target);
+        });
+      },
+      { rootMargin: '0px 0px -8% 0px', threshold: 0.04 }
+    );
+
+    // Departure: the root is pulled down from the top, so a section only counts
+    // as leaving once its bottom edge has risen into the top third of the
+    // screen — by which point there is almost nothing left of it to read. The
+    // `top < 0` test distinguishes leaving upward from arriving below.
+    var leaving = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          var goneUp = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+          entry.target.classList.toggle('is-past', goneUp);
+        });
+      },
+      { rootMargin: '-35% 0px 0px 0px', threshold: 0 }
+    );
+
+    Array.prototype.forEach.call(sections, function (section, index) {
+      // Anything already on screen at load appears immediately, so the page
+      // never opens blank waiting for a callback.
+      if (index === 0 || section.getBoundingClientRect().top < window.innerHeight) {
+        arrive(section);
+      } else {
+        arriving.observe(section);
+      }
+      leaving.observe(section);
+    });
+
+    // Failsafe. If an observer never fires for any reason, nothing stays
+    // hidden — the effect is decoration, the content is not.
+    window.setTimeout(function () {
+      Array.prototype.forEach.call(sections, arrive);
+    }, 4000);
+  }
+
+  /* ---------------------------------------------------------------------------
      Forms
      Errors are announced, tied to their field with aria-describedby, and focus
      lands on the first problem. Nothing relies on colour alone.
@@ -642,6 +713,7 @@
     initHours();
     initCalendar();
     initMapLinks();
+    initScenicScroll();
     initForms();
   }
 

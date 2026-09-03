@@ -20,8 +20,21 @@
   --accent: #7d6224;
   --accent-night: #d4b46a;
 
-  --display: 'Archivo Black', 'Arial Black', 'Helvetica Neue', sans-serif;
-  --body: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  /* One geometric sans throughout, after the Ogunquit Museum's typography.
+     That site uses futura-pt, which is licensed through Adobe Fonts and cannot
+     be served from a static host; Jost is a Futura revival on Google Fonts and
+     the closest freely available match.
+
+     Hierarchy comes from weight, size and letter-spacing rather than from a
+     second family — which is what makes the reference feel spare. The local
+     fallbacks are the same geometric shape, so an offline render degrades to
+     something with the same proportions rather than to Times. */
+  --display: 'Jost', Futura, 'Century Gothic', 'Helvetica Neue', Arial, sans-serif;
+  --body: 'Jost', Futura, 'Century Gothic', 'Helvetica Neue', Arial, sans-serif;
+
+  /* Jost is lighter on the page than Archivo Black was, so labels and controls
+     take a little more weight to hold their own at small sizes. */
+  --label-weight: 500;
 
   --shell: 1240px;
   --gutter: clamp(1.25rem, 4vw, 3.5rem);
@@ -119,10 +132,41 @@ h3,
 h4 {
   font-family: var(--display);
   font-weight: 400;
-  line-height: 1.12;
-  letter-spacing: -0.01em;
+  line-height: 1.1;
+  /* A geometric face at display size wants pulling together, not spacing out.
+     Archivo Black needed neither. */
+  letter-spacing: -0.02em;
   margin: 0 0 0.6em;
   text-wrap: balance;
+}
+
+/* Small headings sit below the size where weight 400 reads as deliberate. */
+h3,
+h4 {
+  font-weight: var(--label-weight);
+  letter-spacing: -0.005em;
+}
+
+/* Every label, control and caption set in the display face. Grouped rather
+   than repeated sixteen times, so the weight stays consistent as things move. */
+.skip-link,
+.eyebrow,
+.btn,
+.nav a,
+.nav button,
+.nav-toggle,
+.card__more,
+.tile__status,
+.tile__title,
+.exhibition__badge,
+.contact-list dt,
+.calendar th,
+.calendar__daynum,
+.event-list__month,
+.event-list__day,
+.form legend,
+.site-footer h2 {
+  font-weight: var(--label-weight);
 }
 
 h1 {
@@ -351,7 +395,7 @@ a:hover {
   color: var(--ink);
   background: none;
   border: 0;
-  font-weight: inherit;
+  font-weight: var(--label-weight);
   cursor: pointer;
   white-space: nowrap;
 }
@@ -1727,6 +1771,63 @@ h2 .exhibition__artist + em {
 }
 
 /* --------------------------------------------------------------------------
+   Scenic scroll
+
+   Sections rise and settle as they arrive, and ease back as they leave. Three
+   rules govern it, in this order of importance:
+
+   1. Nothing here ever runs for someone who has asked for less motion. The
+      whole feature sits inside prefers-reduced-motion: no-preference.
+   2. The resting state — no animation, no JavaScript, no support — is fully
+      visible. Every rule below can fail and the page still reads.
+   3. The departing fade is deliberately shallow and deliberately late. Text
+      that is fading is text losing contrast, so it only begins once a section
+      is well past the top of the screen, and it stops well short of
+      transparent.
+
+   Dial the whole effect from the four values below; set --scenic-exit-opacity
+   to 1 to keep departing content at full strength.
+   -------------------------------------------------------------------------- */
+
+:root {
+  --scenic-rise: 22px;
+  --scenic-enter-scale: 0.985;
+  --scenic-exit-scale: 0.975;
+  --scenic-exit-opacity: 0.35;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Driven by IntersectionObserver rather than CSS scroll-linked animations.
+     The scroll-linked version was built first and rejected: on this page
+     Chromium froze the view timeline for every section taller than the
+     viewport, so `currentTime` never advanced past its starting value and
+     four sections stayed at opacity 0 no matter how far you scrolled. A
+     scenic effect is not worth a page whose content never appears.
+     Observers only toggle a class; the transitions below do the work, so
+     there is no scroll handler running on every frame either.
+
+     The .scenic-js class is added by the script itself, so a script that
+     never runs cannot leave anything hidden. */
+  .scenic-js main > section {
+    opacity: 0;
+    transform: translateY(var(--scenic-rise)) scale(var(--scenic-enter-scale));
+    transition: opacity 0.75s ease, transform 0.75s ease;
+  }
+
+  .scenic-js main > section.is-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Only once a section has all but left the top of the screen. Fading text
+     is text losing contrast, so this stays shallow and starts late. */
+  .scenic-js main > section.is-past {
+    opacity: var(--scenic-exit-opacity);
+    transform: scale(var(--scenic-exit-scale));
+  }
+}
+
+/* --------------------------------------------------------------------------
    Print
    -------------------------------------------------------------------------- */
 
@@ -1736,6 +1837,15 @@ h2 .exhibition__artist + em {
   .skip-link,
   .calendar__nav {
     display: none !important;
+  }
+
+  /* Whatever the scroll effect was mid-way through, print the page whole. */
+  main > section,
+  main > section > .shell,
+  .scenic-js main > section {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 
   body {

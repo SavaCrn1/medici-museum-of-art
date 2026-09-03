@@ -755,7 +755,7 @@ function layout(page, content) {
 <link rel="icon" href="${base}assets/img/logo-medici.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Nunito+Sans:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&display=swap">
 <link rel="stylesheet" href="${base}assets/css/site.css?v=${assetVersion.css}">
 <script type="application/ld+json">${jsonLd()}</script>
 </head>
