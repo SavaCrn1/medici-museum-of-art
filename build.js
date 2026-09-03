@@ -30,7 +30,7 @@ const { site, nav } = require('./src/site.config.js');
  * Hashing the file contents means the URL only changes when the file does, so
  * the cache still does its job on unchanged deploys.
  */
-const assetVersion = { css: '', js: '', data: '' };
+const assetVersion = { css: '', js: '', data: '', search: '' };
 
 function hashOf(relativePath) {
   const full = path.join(ROOT, relativePath);
@@ -79,6 +79,8 @@ const icons = {
   pin: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 14.5 9 2.5 2.5 0 0 1 12 11.5z"/></svg>',
   facebook: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 8.5V7c0-.7.3-1 1-1h1.5V3H14c-2.2 0-3.5 1.4-3.5 3.7V8.5H8V12h2.5v9H14v-9h2.4l.4-3.5z"/></svg>',
   instagram: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.3 2.2.4.6.2 1 .5 1.4.9s.7.8.9 1.4c.1.4.3 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 1.8-.4 2.2-.2.6-.5 1-.9 1.4s-.8.7-1.4.9c-.4.1-1 .3-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.3-2.2-.4-.6-.2-1-.5-1.4-.9s-.7-.8-.9-1.4c-.1-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.3-1.8.4-2.2.2-.6.5-1 .9-1.4s.8-.7 1.4-.9c.4-.1 1-.3 2.2-.4 1.3-.1 1.7-.1 4.8-.1zm0 5.8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm0 6.6a2.6 2.6 0 1 1 0-5.2 2.6 2.6 0 0 1 0 5.2zm5.1-6.7a.94.94 0 1 1-.94-.94.94.94 0 0 1 .94.94z"/></svg>',
+  search:
+    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10.5 3a7.5 7.5 0 0 1 5.92 12.1l4.24 4.25-1.41 1.41-4.25-4.24A7.5 7.5 0 1 1 10.5 3zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z"/></svg>',
   chevronLeft: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15.4 4.6 8 12l7.4 7.4 1.4-1.4L10.8 12l6-6z"/></svg>',
   chevronRight: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8.6 4.6 7.2 6l6 6-6 6 1.4 1.4L16 12z"/></svg>',
 };
@@ -226,8 +228,31 @@ function buildNav(base, current) {
                 )} (opens in a new tab)" target="_blank" rel="noopener">${icons[s.name.toLowerCase()]}</a></li>`
             )
             .join('\n          ')}
+          <!-- Search cannot work without JavaScript — there is no server to ask
+               — so the button ships hidden and site.js reveals it. A control
+               that cannot do anything should not be offered. -->
+          <li class="nav__search" hidden data-search-item>
+            <button type="button" data-search-toggle aria-expanded="false" aria-controls="site-search">
+              ${icons.search}<span class="visually-hidden">Search this site</span>
+            </button>
+          </li>
         </ul>
       </nav>
+    </div>
+
+    <div class="search-panel" id="site-search" hidden>
+      <div class="shell">
+        <form class="search-panel__form" role="search" data-search-form>
+          <label for="site-search-input">Search the Medici Museum of Art</label>
+          <div class="search-panel__row">
+            <input id="site-search-input" type="search" name="q" autocomplete="off"
+                   placeholder="Exhibitions, hours, tours&hellip;" data-search-input>
+            <button type="button" class="btn btn--ghost" data-search-close>Close</button>
+          </div>
+        </form>
+        <p class="search-panel__status" role="status" aria-live="polite" data-search-status></p>
+        <div data-search-results></div>
+      </div>
     </div>
   </header>`;
 }
@@ -363,8 +388,31 @@ function buildFooter(base) {
    --------------------------------------------------------------------------- */
 
 const eventData = JSON.parse(fs.readFileSync(path.join(ROOT, 'src', 'events.json'), 'utf8'));
-const allEvents = eventData.events
-  .slice()
+
+/**
+ * Events split by whether they have finished, against the clock at build time.
+ *
+ * Upcoming runs soonest-first, which is the order someone deciding what to
+ * attend actually wants. Past runs most-recent-first, which is the order
+ * someone looking back wants. They are different questions, so they get
+ * different orders.
+ *
+ * An event counts as upcoming until it has *ended*, so something running today
+ * is not filed under history halfway through the afternoon.
+ *
+ * This is a build-time split, and a site that is not rebuilt would let it
+ * drift. site.js re-checks the same dates in the browser and moves anything
+ * that has since finished, so the page stays truthful between deploys.
+ */
+const BUILD_NOW = new Date();
+const eventHasPassed = (ev) => new Date(ev.end || ev.start) < BUILD_NOW;
+
+const upcomingEvents = eventData.events
+  .filter((ev) => !eventHasPassed(ev))
+  .sort((a, b) => new Date(a.start) - new Date(b.start));
+
+const pastEvents = eventData.events
+  .filter(eventHasPassed)
   .sort((a, b) => new Date(b.start) - new Date(a.start));
 
 function fmtDate(iso) {
@@ -418,21 +466,21 @@ function googleCalendarUrl(ev) {
   return `https://www.google.com/calendar/render?${params.toString()}`;
 }
 
-function eventList(events, { limit } = {}) {
+/**
+ * @param kind      "upcoming" or "past" — used by site.js to find the two
+ *                  lists and move anything that has finished since the build.
+ * @param emptyHtml what to show when there is nothing in this list at all.
+ */
+function eventList(events, { limit, kind = 'upcoming', emptyHtml = '' } = {}) {
   const list = limit ? events.slice(0, limit) : events;
-  if (!list.length) {
-    return `<p>No events are listed at the moment. <a href="${site.external.eventbrite}" target="_blank" rel="noopener">Check Eventbrite for new dates (opens in a new tab)</a>.</p>`;
-  }
 
-  const now = new Date();
-
-  return `<ul class="event-list">
+  return `<div data-event-list="${kind}">
+    <ul class="event-list"${list.length ? '' : ' hidden'}>
       ${list
         .map((ev) => {
-          const start = new Date(ev.start);
           const d = fmtDate(ev.start);
           const monthIndex = MONTHS_LONG.indexOf(d.month);
-          const past = new Date(ev.end || ev.start) < now;
+          const past = eventHasPassed(ev);
           const sameDay = !ev.end || fmtDate(ev.end).day === d.day;
           const when = sameDay
             ? `${d.weekday}, ${d.month} ${d.day}, ${d.year}, ${fmtTime(ev.start)}${
@@ -440,7 +488,7 @@ function eventList(events, { limit } = {}) {
               }`
             : `${d.month} ${d.day}–${fmtDate(ev.end).day}, ${d.year}`;
 
-          return `<li>
+          return `<li data-event-end="${ev.end || ev.start}">
         <p class="event-list__date" aria-hidden="true">
           <span class="event-list__month">${MONTHS_SHORT[monthIndex]}</span>
           <span class="event-list__day">${d.day}</span>
@@ -449,7 +497,7 @@ function eventList(events, { limit } = {}) {
         <div>
           <h3>${esc(ev.title)}</h3>
           <time datetime="${ev.start}">${esc(when)}</time>
-          ${past ? '<p class="event-list__past">This event has passed</p>' : ''}
+          <p class="event-list__past"${past ? '' : ' hidden'}>This event has passed</p>
           <p class="event-list__links">
             <a href="{{base}}upcomingevents/${ev.slug}/">Event details<span class="visually-hidden"> for ${esc(
             ev.title
@@ -466,8 +514,16 @@ function eventList(events, { limit } = {}) {
       </li>`;
         })
         .join('\n      ')}
-    </ul>`;
+    </ul>
+    <div data-event-empty${list.length ? ' hidden' : ''}>${emptyHtml}</div>
+  </div>`;
 }
+
+const NOTHING_UPCOMING = `<p>No events are scheduled at the moment. New workshops and classes are
+      announced by email first &mdash; <a href="{{base}}subscribe/">join the mailing list</a> &mdash; and
+      tickets go on sale on <a href="${site.external.eventbrite}" target="_blank" rel="noopener">Eventbrite<span class="visually-hidden"> (opens in a new tab)</span></a>.</p>`;
+
+const NOTHING_PAST = `<p>Past events will be listed here.</p>`;
 
 /**
  * The calendar shell. JavaScript fills the tbody; the month heading, the two
@@ -769,6 +825,7 @@ ${content}
 ${buildFooter(base)}
 
 <script src="${base}assets/js/data.js?v=${assetVersion.data}"></script>
+<script src="${base}assets/js/search-index.js?v=${assetVersion.search}"></script>
 <script src="${base}assets/js/site.js?v=${assetVersion.js}"></script>
 </body>
 </html>
@@ -792,8 +849,15 @@ function render(template, page) {
     .replace(/\{\{formNotice\}\}/g, () => formNotice())
     .replace(/\{\{exhibitionsGrid\}\}/g, () => exhibitionsGrid())
     .replace(/\{\{headlineExhibition\}\}/g, () => headlineExhibition())
-    .replace(/\{\{events\}\}/g, () => eventList(allEvents))
-    .replace(/\{\{eventsRecent\}\}/g, () => eventList(allEvents, { limit: 4 }))
+    .replace(/\{\{eventsUpcoming\}\}/g, () =>
+      eventList(upcomingEvents, { kind: 'upcoming', emptyHtml: NOTHING_UPCOMING })
+    )
+    .replace(/\{\{eventsUpcomingShort\}\}/g, () =>
+      eventList(upcomingEvents, { limit: 4, kind: 'upcoming', emptyHtml: NOTHING_UPCOMING })
+    )
+    .replace(/\{\{eventsPast\}\}/g, () =>
+      eventList(pastEvents, { kind: 'past', emptyHtml: NOTHING_PAST })
+    )
     .replace(/\{\{mapsUrl\}\}/g, mapsUrl)
     .replace(/\{\{phoneHref\}\}/g, `tel:${site.phone.href}`)
     .replace(/\{\{phone\}\}/g, esc(site.phone.display))
@@ -1019,6 +1083,26 @@ function redirectPage(target, title) {
 `;
 }
 
+/* ---------------------------------------------------------------------------
+   Search index
+
+   There is no server, so search has to be a small index shipped with the site.
+   It is built from each page's own rendered body, which means it can never
+   describe a page that does not exist or miss one that does.
+   --------------------------------------------------------------------------- */
+
+function indexableText(bodyHtml) {
+  return bodyHtml
+    .replace(/<!--[\s\S]*?-->/g, ' ') // build notes are not content
+    .replace(/<(script|style)[\s\S]*?<\/\1>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&[a-z]+;|&#\d+;/gi, ' ')
+    .replace(/\{\{[^}]*\}\}/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 1400);
+}
+
 function build() {
   // Client-side data mirrors the build-time data — one source, two consumers.
   // The calendar links each event to its own page. Only the slug is stored —
@@ -1031,22 +1115,15 @@ window.MEDICI = ${JSON.stringify({ events: eventData.events, hours: site.hours }
   fs.mkdirSync(path.join(ROOT, 'assets', 'js'), { recursive: true });
   fs.writeFileSync(path.join(ROOT, 'assets', 'js', 'data.js'), dataFile);
 
-  // Stamp the assets before rendering, so every page references this build's
-  // exact stylesheet and scripts rather than whatever the browser last kept.
-  assetVersion.css = hashOf('assets/css/site.css');
-  assetVersion.js = hashOf('assets/js/site.js');
-  assetVersion.data = hashOf('assets/js/data.js');
-  console.log(`  assets stamped  css=${assetVersion.css} js=${assetVersion.js} data=${assetVersion.data}\n`);
+  /* Pass one: render every page body and collect it. Bodies are rendered
+     before anything is written because the search index is built from them,
+     and the index has to exist — and be hashed — before layout() can stamp it
+     into the pages that load it. */
+  const rendered = [];
 
-  let count = 0;
   for (const page of pages) {
     const template = fs.readFileSync(path.join(PAGES_DIR, page.file), 'utf8');
-    const html = layout(page, render(template, page));
-    const outDir = page.slug === '' ? ROOT : path.join(ROOT, page.slug);
-    fs.mkdirSync(outDir, { recursive: true });
-    fs.writeFileSync(path.join(outDir, 'index.html'), html);
-    count += 1;
-    console.log(`  ${page.slug === '' ? 'index.html' : page.slug + '/index.html'}`);
+    rendered.push({ page, body: render(template, page), dir: page.slug === '' ? ROOT : path.join(ROOT, page.slug) });
   }
 
   // One page per event, at the same /upcomingevents/<slug>/ path the old site
@@ -1058,13 +1135,8 @@ window.MEDICI = ${JSON.stringify({ events: eventData.events, hours: site.hours }
       title: ev.title,
       description: `${ev.title} at ${site.name} — date, time, location and booking.`,
     };
-    const html = layout(page, render(eventDetailBody(ev), page));
-    const outDir = path.join(ROOT, 'upcomingevents', ev.slug);
-    fs.mkdirSync(outDir, { recursive: true });
-    fs.writeFileSync(path.join(outDir, 'index.html'), html);
-    count += 1;
+    rendered.push({ page, body: render(eventDetailBody(ev), page), dir: path.join(ROOT, 'upcomingevents', ev.slug) });
   }
-  console.log(`  upcomingevents/<slug>/index.html  (${eventData.events.length} events)`);
 
   // A page for every exhibition and gallery, temporary and permanent, because
   // each is a tile on /exhibits and a tile that leads nowhere is not a tile.
@@ -1078,17 +1150,51 @@ window.MEDICI = ${JSON.stringify({ events: eventData.events, hours: site.hours }
       file: null,
       slug: `exhibits/${ex.slug}`,
       title: ex.artist ? `${ex.artist}: ${ex.title}` : ex.title,
-      description: ex.blurb
-        ? ex.blurb.slice(0, 155)
-        : `${ex.title} at ${site.name}.`,
+      description: ex.blurb ? ex.blurb.slice(0, 155) : `${ex.title} at ${site.name}.`,
     };
-    const html = layout(page, render(exhibitionDetailBody(ex, { permanent }), page));
-    const outDir = path.join(ROOT, 'exhibits', ex.slug);
-    fs.mkdirSync(outDir, { recursive: true });
-    fs.writeFileSync(path.join(outDir, 'index.html'), html);
-    count += 1;
-    console.log(`  exhibits/${ex.slug}/index.html`);
+    rendered.push({
+      page,
+      body: render(exhibitionDetailBody(ex, { permanent }), page),
+      dir: path.join(ROOT, 'exhibits', ex.slug),
+    });
   }
+
+  // The index: every page that was actually generated, nothing else.
+  const searchIndex = rendered.map(({ page, body }) => ({
+    u: page.slug === '' ? '' : page.slug + '/',
+    t: page.title,
+    d: page.description,
+    x: indexableText(body),
+  }));
+
+  fs.writeFileSync(
+    path.join(ROOT, 'assets', 'js', 'search-index.js'),
+    `/* Generated by build.js from the rendered pages. Do not edit. */\nwindow.MEDICI_SEARCH = ${JSON.stringify(
+      searchIndex
+    )};\n`
+  );
+
+  // Stamp the assets before wrapping anything, so every page references this
+  // build's exact stylesheet and scripts rather than whatever the browser kept.
+  assetVersion.css = hashOf('assets/css/site.css');
+  assetVersion.js = hashOf('assets/js/site.js');
+  assetVersion.data = hashOf('assets/js/data.js');
+  assetVersion.search = hashOf('assets/js/search-index.js');
+  console.log(
+    `  assets stamped  css=${assetVersion.css} js=${assetVersion.js} data=${assetVersion.data} search=${assetVersion.search}`
+  );
+  console.log(`  search index    ${searchIndex.length} pages, ${Math.round(
+    fs.statSync(path.join(ROOT, 'assets', 'js', 'search-index.js')).size / 1024
+  )} KB\n`);
+
+  // Pass two: wrap each body in the shell and write it out.
+  let count = 0;
+  for (const { page, body, dir } of rendered) {
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, 'index.html'), layout(page, body));
+    count += 1;
+  }
+  console.log(`  ${pages.length} main pages, ${eventData.events.length} events, ${allExhibitions.length} exhibitions`);
 
   // Keep the old Squarespace URL working.
   fs.mkdirSync(path.join(ROOT, 'new-page'), { recursive: true });

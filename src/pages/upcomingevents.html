@@ -23,9 +23,17 @@
 
 <section class="band" aria-labelledby="all-events">
   <div class="shell">
-    <h2 id="all-events">All listings</h2>
-    <p>Listed newest first. Times are Eastern Time.</p>
-    {{events}}
+    <h2 id="all-events">Coming up</h2>
+    <p>Soonest first. Times are Eastern Time.</p>
+    {{eventsUpcoming}}
+  </div>
+</section>
+
+<section class="band band--tight" aria-labelledby="past-events">
+  <div class="shell">
+    <h2 id="past-events">Past events</h2>
+    <p>Most recent first, kept as a record of what the museum has run.</p>
+    {{eventsPast}}
   </div>
 </section>
 

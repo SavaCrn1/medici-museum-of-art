@@ -224,30 +224,19 @@
 
     var byDay = eventsByDay();
     var today = museumNow().iso;
-    var view = new Date();
 
-    // Land on a month that actually has something in it. The old calendar
-    // always opened on the current month, which — with no event published
-    // since January — meant visitors met a blank grid headed "Upcoming Events".
-    var sorted = (data.events || []).slice().sort(function (a, b) {
-      return new Date(a.start) - new Date(b.start);
+    // Open on the current month, always. An earlier version jumped to whichever
+    // month had listings, which meant a visitor could land on a calendar headed
+    // "January 2026" in September and have to work out why. Showing this month
+    // and saying plainly that nothing is scheduled is the more honest answer;
+    // the arrows are there for anyone who wants to look further ahead or back.
+    var nowParts = today.split('-');
+    var year = Number(nowParts[0]);
+    var month = Number(nowParts[1]) - 1;
+
+    var hasUpcoming = (data.events || []).some(function (ev) {
+      return new Date(ev.end || ev.start) >= new Date();
     });
-    var upcoming = sorted.filter(function (ev) {
-      return localDateKey(ev.start) >= today;
-    })[0];
-    var latest = sorted[sorted.length - 1];
-
-    var seed = new Date();
-    var backdated = false;
-    if (upcoming) {
-      seed = new Date(upcoming.start);
-    } else if (latest) {
-      seed = new Date(latest.start);
-      backdated = true;
-    }
-
-    var year = seed.getFullYear();
-    var month = seed.getMonth();
 
     var monthHeading = root.querySelector('[data-calendar-month]');
     var grid = root.querySelector('[data-calendar-grid]');
@@ -510,17 +499,17 @@
 
     render();
 
-    // Say plainly what is being shown, rather than leaving someone to work out
-    // why the grid is not on this month.
-    if (backdated) {
+    // An empty grid on the current month is the truth, but on its own it looks
+    // like something failed to load. Say which it is.
+    if (!hasUpcoming) {
       var note = root.querySelector('[data-calendar-note]');
       if (note) {
         note.textContent =
-          'Nothing is scheduled after ' +
-          MONTHS[seed.getMonth()] +
+          'Nothing is scheduled from ' +
+          MONTHS[month] +
           ' ' +
-          seed.getFullYear() +
-          ' yet, so the most recent listings are shown.';
+          year +
+          ' onwards yet. Use the arrows to look back at past months.';
         note.hidden = false;
       }
     }
@@ -581,6 +570,216 @@
      a Gmail link strands anyone who does not have a Google account. Neither
      choice suits everybody. Set site.email.provider to 'mail' to go back.
      --------------------------------------------------------------------------- */
+
+  /* ---------------------------------------------------------------------------
+     Search
+
+     A static site has no server to query, so the whole index ships with the
+     page — every page's title, description and text, generated from the pages
+     themselves at build time.
+
+     Scoring is deliberately plain: a term in the title counts for much more
+     than a term in the body, every term has to appear somewhere, and results
+     are ordered by score. There is no fuzzy matching, because a museum site is
+     thirty pages, not thirty thousand, and a wrong-but-confident result is
+     worse than an honest "nothing matched".
+     --------------------------------------------------------------------------- */
+
+  function initSearch() {
+    var index = window.MEDICI_SEARCH;
+    var toggle = document.querySelector('[data-search-toggle]');
+    var panel = document.getElementById('site-search');
+    if (!index || !index.length || !toggle || !panel) return;
+
+    var item = document.querySelector('[data-search-item]');
+    var input = panel.querySelector('[data-search-input]');
+    var results = panel.querySelector('[data-search-results]');
+    var status = panel.querySelector('[data-search-status]');
+    var form = panel.querySelector('[data-search-form]');
+    var closeBtn = panel.querySelector('[data-search-close]');
+
+    if (item) item.hidden = false; // only now is the control real
+
+    function terms(query) {
+      return query
+        .toLowerCase()
+        .split(/[^a-z0-9']+/)
+        .filter(function (t) {
+          return t.length > 1;
+        });
+    }
+
+    function score(entry, list) {
+      var title = (entry.t || '').toLowerCase();
+      var desc = (entry.d || '').toLowerCase();
+      var text = (entry.x || '').toLowerCase();
+      var total = 0;
+
+      for (var i = 0; i < list.length; i++) {
+        var term = list[i];
+        var inTitle = title.indexOf(term) !== -1;
+        var inDesc = desc.indexOf(term) !== -1;
+        var inText = text.indexOf(term) !== -1;
+        if (!inTitle && !inDesc && !inText) return 0; // every term must appear
+        if (inTitle) total += title === term ? 14 : 10;
+        if (inDesc) total += 4;
+        if (inText) total += 1;
+      }
+      return total;
+    }
+
+    /** A short quotation from the page, centred on the first term found. */
+    function snippet(entry, list) {
+      var text = entry.x || '';
+      var lower = text.toLowerCase();
+      var at = -1;
+      for (var i = 0; i < list.length && at === -1; i++) at = lower.indexOf(list[i]);
+      if (at === -1) return (entry.d || '').slice(0, 150);
+      var from = Math.max(0, at - 60);
+      return (from > 0 ? '…' : '') + text.slice(from, from + 160).trim() + '…';
+    }
+
+    function run(query) {
+      var list = terms(query);
+      if (!list.length) {
+        results.innerHTML = '';
+        status.textContent = '';
+        return;
+      }
+
+      var hits = index
+        .map(function (entry) {
+          return { entry: entry, score: score(entry, list) };
+        })
+        .filter(function (hit) {
+          return hit.score > 0;
+        })
+        .sort(function (a, b) {
+          return b.score - a.score;
+        })
+        .slice(0, 8);
+
+      if (!hits.length) {
+        results.innerHTML =
+          '<p class="search-panel__none">Nothing on the site matches that. Try a word like ' +
+          '<em>hours</em>, <em>tours</em>, <em>Feuerman</em> or <em>directions</em>.</p>';
+        status.textContent = 'No results for ' + query;
+        return;
+      }
+
+      results.innerHTML =
+        '<ul class="search-results">' +
+        hits
+          .map(function (hit) {
+            return (
+              '<li><a href="' + BASE + hit.entry.u + '">' +
+              '<span class="search-results__title">' + escapeHtml(hit.entry.t) + '</span>' +
+              '<span class="search-results__snippet">' + escapeHtml(snippet(hit.entry, list)) + '</span>' +
+              '</a></li>'
+            );
+          })
+          .join('') +
+        '</ul>';
+
+      status.textContent =
+        hits.length === 1 ? '1 result for ' + query : hits.length + ' results for ' + query;
+    }
+
+    function open() {
+      panel.hidden = false;
+      toggle.setAttribute('aria-expanded', 'true');
+      input.focus();
+    }
+
+    function close(refocus) {
+      panel.hidden = true;
+      toggle.setAttribute('aria-expanded', 'false');
+      if (refocus) toggle.focus();
+    }
+
+    toggle.addEventListener('click', function () {
+      if (panel.hidden) open();
+      else close(true);
+    });
+
+    if (closeBtn) closeBtn.addEventListener('click', function () { close(true); });
+
+    // Submitting would reload the page and lose the results, so it does not.
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      run(input.value);
+    });
+
+    var pending;
+    input.addEventListener('input', function () {
+      window.clearTimeout(pending);
+      pending = window.setTimeout(function () {
+        run(input.value);
+      }, 140);
+    });
+
+    panel.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') close(true);
+    });
+
+    document.addEventListener('click', function (event) {
+      if (panel.hidden) return;
+      if (panel.contains(event.target) || toggle.contains(event.target)) return;
+      close(false);
+    });
+  }
+
+  /* ---------------------------------------------------------------------------
+     Event lists
+
+     The build splits events into upcoming and past against the clock at build
+     time. That is correct the day it ships and slowly stops being correct
+     afterwards — and a museum site can sit unrebuilt for months.
+
+     So the same check runs again here, in the visitor's browser, and anything
+     that has finished since the build moves from the upcoming list into the
+     past one. Without JavaScript the build-time split still stands, which is
+     wrong by at most however long it has been since the last deploy rather
+     than wrong forever.
+     --------------------------------------------------------------------------- */
+
+  function initEventLists() {
+    var upcoming = document.querySelector('[data-event-list="upcoming"]');
+    if (!upcoming) return;
+
+    var past = document.querySelector('[data-event-list="past"]');
+    var now = new Date();
+    var stale = [];
+
+    upcoming.querySelectorAll('li[data-event-end]').forEach(function (item) {
+      if (new Date(item.getAttribute('data-event-end')) < now) stale.push(item);
+    });
+
+    stale.forEach(function (item) {
+      var label = item.querySelector('.event-list__past');
+      if (label) label.hidden = false;
+
+      if (!past) {
+        // Nowhere to move it to (the homepage shows only the short list), so
+        // just drop it rather than advertise a finished event as upcoming.
+        item.remove();
+        return;
+      }
+
+      var list = past.querySelector('.event-list');
+      if (list) list.insertBefore(item, list.firstElementChild);
+    });
+
+    // Whichever list changed, its heading and empty state have to agree with it.
+    [upcoming, past].forEach(function (group) {
+      if (!group) return;
+      var list = group.querySelector('.event-list');
+      var empty = group.querySelector('[data-event-empty]');
+      var count = list ? list.querySelectorAll('li').length : 0;
+      if (list) list.hidden = count === 0;
+      if (empty) empty.hidden = count > 0;
+    });
+  }
 
   /* ---------------------------------------------------------------------------
      Scenic scroll — fallback only
@@ -712,6 +911,8 @@
     initNav();
     initHours();
     initCalendar();
+    initSearch();
+    initEventLists();
     initMapLinks();
     initScenicScroll();
     initForms();
