@@ -234,6 +234,15 @@ a:hover {
    Layout
    -------------------------------------------------------------------------- */
 
+main {
+  /* Anything sliding in from the left sits outside the page while it travels,
+     which would otherwise put a horizontal scrollbar on the document for as
+     long as the movement lasts. `clip` rather than `hidden`: hidden would make
+     main a scroll container, which changes how position: sticky and anchor
+     scrolling behave inside it. */
+  overflow-x: clip;
+}
+
 .shell {
   width: 100%;
   max-width: var(--shell);
@@ -2017,9 +2026,24 @@ h2 .exhibition__artist + em {
    -------------------------------------------------------------------------- */
 
 :root {
-  --scenic-rise: 22px;
-  --scenic-enter-scale: 0.985;
-  --scenic-exit-scale: 0.975;
+  /* Sections and the blocks inside them arrive from the left, after the
+     Currier Museum's homepage. Their easing and duration, read off the live
+     site: 1.2s on cubic-bezier(.445,.05,.55,.95) for the movement, a slightly
+     faster cubic-bezier(.645,.045,.355,1) for the fade.
+
+     Their slide is a full -100% of the element's own width, masked by a
+     clip-path so it wipes rather than travels. Full-bleed bands are a
+     different shape from their cards — a viewport-width lurch on every band
+     would be seasick rather than elegant — so the distance is fixed here and
+     the blocks inside a band travel further than the band itself, which is
+     what actually reads as movement. */
+  --scenic-slide: 3rem;
+  --scenic-slide-item: 4.5rem;
+  --scenic-move-ease: cubic-bezier(0.445, 0.05, 0.55, 0.95);
+  --scenic-fade-ease: cubic-bezier(0.645, 0.045, 0.355, 1);
+  --scenic-move-time: 1.2s;
+  --scenic-fade-time: 0.9s;
+  --scenic-exit-scale: 0.985;
   --scenic-exit-opacity: 0.35;
 }
 
@@ -2035,15 +2059,61 @@ h2 .exhibition__artist + em {
 
      The .scenic-js class is added by the script itself, so a script that
      never runs cannot leave anything hidden. */
-  .scenic-js main > section {
+  /* The hero is excluded: it holds the page title, it is already on screen at
+     load, and sliding the thing someone came to read is a way to make a site
+     feel slow. */
+  .scenic-js main > section:not(.hero) {
     opacity: 0;
-    transform: translateY(var(--scenic-rise)) scale(var(--scenic-enter-scale));
-    transition: opacity 0.75s ease, transform 0.75s ease;
+    transform: translateX(calc(-1 * var(--scenic-slide)));
+    transition: opacity var(--scenic-fade-time) var(--scenic-fade-ease),
+      transform var(--scenic-move-time) var(--scenic-move-ease);
   }
 
   .scenic-js main > section.is-in {
     opacity: 1;
     transform: none;
+  }
+
+  /* The blocks within a band travel further and land in sequence, which is
+     where the effect actually lives — a band is usually edge to edge, so
+     moving the band alone is barely perceptible. */
+  .scenic-js main > section:not(.hero) .tile,
+  .scenic-js main > section:not(.hero) .event-list > li,
+  .scenic-js main > section:not(.hero) .split > * {
+    opacity: 0;
+    transform: translateX(calc(-1 * var(--scenic-slide-item)));
+    transition: opacity var(--scenic-fade-time) var(--scenic-fade-ease),
+      transform var(--scenic-move-time) var(--scenic-move-ease);
+  }
+
+  .scenic-js main > section.is-in .tile,
+  .scenic-js main > section.is-in .event-list > li,
+  .scenic-js main > section.is-in .split > * {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* A short stagger, capped at five: past that it stops reading as sequence
+     and starts reading as lag. */
+  .scenic-js main > section.is-in .tile:nth-child(2),
+  .scenic-js main > section.is-in .event-list > li:nth-child(2),
+  .scenic-js main > section.is-in .split > *:nth-child(2) {
+    transition-delay: 0.1s;
+  }
+
+  .scenic-js main > section.is-in .tile:nth-child(3),
+  .scenic-js main > section.is-in .event-list > li:nth-child(3) {
+    transition-delay: 0.2s;
+  }
+
+  .scenic-js main > section.is-in .tile:nth-child(4),
+  .scenic-js main > section.is-in .event-list > li:nth-child(4) {
+    transition-delay: 0.3s;
+  }
+
+  .scenic-js main > section.is-in .tile:nth-child(n + 5),
+  .scenic-js main > section.is-in .event-list > li:nth-child(n + 5) {
+    transition-delay: 0.4s;
   }
 
   /* Only once a section has all but left the top of the screen. Fading text
