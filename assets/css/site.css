@@ -1068,6 +1068,24 @@ main {
    Exhibitions
    -------------------------------------------------------------------------- */
 
+/* The lone image on an exhibition page that has no prose beside it.
+   This was previously an inline style="max-width:52rem", which was the bug:
+   an inline declaration outranks the stylesheet, so it beat the global
+   img { max-width: 100% } and let a 1080px poster render 832px wide inside a
+   375px phone — about half the picture visible and the rest off the side.
+
+   max-width now resolves against the container as well as the cap, so it can
+   never exceed the space it is in, and max-height stops a tall portrait
+   poster towering over a laptop screen. Width and height stay auto so the
+   aspect ratio is the browser's to keep. */
+.exhibition__plate {
+  display: block;
+  margin-inline: auto;
+  width: auto;
+  max-width: min(52rem, 100%);
+  max-height: 80vh;
+}
+
 /* Exhibition posters carry their own title and dates inside the artwork, so a
    4:3 crop would slice the information off. Show the whole poster, letterboxed
    on the warm ground, rather than filling the frame. */

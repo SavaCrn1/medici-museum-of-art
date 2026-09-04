@@ -1057,7 +1057,7 @@ function exhibitionDetailBody(ex, { permanent = false } = {}) {
   <div class="shell${hasProse ? ' split' : ''}">
     <img src="{{base}}${ex.secondaryImage || ex.image}" alt="${esc(
     ex.secondaryImageAlt || ex.imageAlt || ''
-  )}"${hasProse ? '' : ' style="max-width:52rem"'}>
+  )}"${hasProse ? '' : ' class="exhibition__plate"'}>
     ${
       hasProse
         ? `<div>
