@@ -849,8 +849,20 @@ function layout(page, content) {
 <link rel="stylesheet" href="${base}assets/css/site.css?v=${assetVersion.css}">
 <script type="application/ld+json">${jsonLd()}</script>
 </head>
-<body data-base="${base}">
+<body data-base="${base}"${page.slug === '' ? ' class="page-home"' : ''}>
 <a class="skip-link" href="#main">Skip to main content</a>
+${
+  // The homepage sits on one fixed photograph. It is a separate layer rather
+  // than a background-image because background-attachment: fixed is unreliable
+  // on iOS, and because an <img> can carry alt text — the building is worth
+  // describing, not decoration.
+  page.slug === ''
+    ? `<div class="page-backdrop">
+  <img src="${base}assets/img/museum-exterior.webp"
+       alt="The museum from the lawn: a long, low white building with a flat roof, set back behind a wide expanse of mown grass under a blue sky, with a small sculpture on a plinth to the right.">
+</div>`
+    : ''
+}
 ${buildNav(base, page.slug)}
 
 <main id="main" tabindex="-1">

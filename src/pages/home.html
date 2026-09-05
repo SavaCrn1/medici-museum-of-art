@@ -1,9 +1,4 @@
 <section class="hero">
-  <!-- Described rather than decorative: knowing the museum is a low white
-       building set back behind a lawn is what helps someone recognise it from
-       the road. -->
-  <img class="hero__media" src="{{base}}assets/img/museum-exterior.webp"
-       alt="The museum from the lawn: a long, low white building with a flat roof, set back behind a wide expanse of mown grass under a blue sky, with a small sculpture on a plinth to the right.">
   <div class="hero__inner shell">
     <p class="eyebrow">Warren, Ohio &middot; Free admission</p>
     <h1>Medici Museum of Art</h1>
@@ -19,8 +14,6 @@
 </section>
 
 {{headlineExhibition}}
-
-<hr class="rule">
 
 <section class="band" aria-labelledby="on-view">
   <div class="shell">
@@ -46,28 +39,20 @@
     <p class="lede">From inspiring educational programs and elegant galas to meaningful fundraisers and vibrant
       community events, there is always something happening at the Medici.</p>
 
-    <div class="split" style="margin-top:2.5rem">
-      <div>
-        <h3 class="visually-hidden">Event listings</h3>
-        {{eventsUpcomingShort}}
-        <p style="margin-top:1.5rem">
-          <a class="btn btn--ghost" href="{{base}}upcomingevents/">All events and classes</a>
-        </p>
-      </div>
-      <div>
-        {{calendar}}
-        <noscript>
-          <div class="notice">
-            <p>The month grid needs JavaScript. Every event is listed as text beside it, with dates, times and
-              booking links.</p>
-          </div>
-        </noscript>
-      </div>
+    <!-- The month grid used to sit beside this list. It is the tallest thing
+         on the site — around 570px — and with one section per screen it was
+         single-handedly the reason the whole page could not snap. It lives in
+         full on the events page, which this button leads to, so nothing is
+         lost by listing the next few dates here instead. -->
+    <div style="margin-top:1.5rem">
+      <h3 class="visually-hidden">Event listings</h3>
+      {{eventsUpcomingShort}}
+      <p style="margin-top:1.5rem">
+        <a class="btn btn--ghost" href="{{base}}upcomingevents/">All events and classes</a>
+      </p>
     </div>
   </div>
 </section>
-
-<hr class="rule">
 
 <section class="band" aria-labelledby="plan-visit">
   <div class="shell split">

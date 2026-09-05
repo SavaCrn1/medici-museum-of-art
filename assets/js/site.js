@@ -945,6 +945,84 @@
   }
 
   /* ---------------------------------------------------------------------------
+     Homepage snapping
+
+     CSS describes the snapping; this decides whether it is safe to switch on.
+
+     `scroll-snap-type: y mandatory` means the viewport must always come to
+     rest on a snap point. If a section is taller than the screen, the part of
+     it below the fold becomes unreachable — scrolling drags you back to the
+     top of the section you were trying to leave. It is the kind of fault that
+     never shows up on the machine it was built on and traps someone at 200%
+     text zoom, on a short laptop, or on a phone.
+
+     So: measure every section, and only turn snapping on if all of them fit
+     with room to spare. Re-measured on resize and on font load, because both
+     change the answer. Nothing here ever hides content — the worst case is an
+     ordinary page that scrolls normally.
+     --------------------------------------------------------------------------- */
+
+  function initSnapGuard() {
+    var home = document.querySelector('.page-home');
+    if (!home) return;
+
+    var header = document.querySelector('.site-header');
+    var sections = document.querySelectorAll('.page-home main > section');
+    if (!sections.length) return;
+
+    var root = document.documentElement;
+
+    function measure() {
+      // Publish the sticky header's height so sections can subtract it and
+      // snap positions can clear it.
+      var headerH = header ? header.getBoundingClientRect().height : 0;
+      root.style.setProperty('--header-h', headerH + 'px');
+
+      var available = window.innerHeight - headerH;
+
+      // Snapping is off while measuring, so sections report their natural
+      // height rather than a snapped one.
+      root.classList.remove('snap-on');
+
+      var tallest = 0;
+      Array.prototype.forEach.call(sections, function (section) {
+        var content = section.firstElementChild;
+        if (!content) return;
+        // Content plus the section's own vertical padding. Measuring the
+        // content alone understates what the section actually needs, which
+        // would let snapping switch on for a section that still overflows.
+        var cs = window.getComputedStyle(section);
+        var padding = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+        var needed = content.getBoundingClientRect().height + padding;
+        if (needed > tallest) tallest = needed;
+      });
+
+      // The margin is deliberate. A section that only just fits will overflow
+      // the moment a font loads differently or a scrollbar appears.
+      var fits = tallest > 0 && tallest <= available - 24;
+      var tallEnough = available >= 480;
+
+      if (fits && tallEnough) root.classList.add('snap-on');
+      return { available: available, tallest: Math.round(tallest), enabled: fits && tallEnough };
+    }
+
+    measure();
+
+    var pending;
+    window.addEventListener('resize', function () {
+      if (pending) cancelAnimationFrame(pending);
+      pending = requestAnimationFrame(measure);
+    });
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(measure);
+    }
+
+    // Exposed so the state can be inspected without guessing at it.
+    window.MEDICI_SNAP = measure;
+  }
+
+  /* ---------------------------------------------------------------------------
      Forms
      Errors are announced, tied to their field with aria-describedby, and focus
      lands on the first problem. Nothing relies on colour alone.
@@ -1007,6 +1085,7 @@
     initEventLists();
     initMapLinks();
     initScenicScroll();
+    initSnapGuard();
     initForms();
   }
 

@@ -2174,3 +2174,225 @@ h2 .exhibition__artist + em {
     word-break: break-all;
   }
 }
+
+/* ==========================================================================
+   Homepage: one photograph, one screen at a time
+
+   The whole page sits on a single fixed image and each section is a full
+   screen of content over it, snapping into place as you scroll. The footer is
+   deliberately left out of all of this and behaves as it always has.
+
+   Snapping is the part that needs care. `scroll-snap-type: y mandatory` means
+   the viewport must always come to rest on a snap point — so if a section is
+   taller than the screen, the middle of it becomes literally unreachable: you
+   scroll and it pulls you back. That breaks at 200% text zoom, on short
+   laptops, and on phones, which is exactly where it would hurt most.
+
+   So the CSS below only describes the snapping. Whether it is switched on at
+   all is decided at runtime by initSnapGuard() in site.js, which measures
+   every section against the viewport and refuses to enable it if anything
+   would be trapped. The class it adds is the only thing that turns it on, so
+   the failure direction is an ordinary scrolling page.
+   ========================================================================== */
+
+.page-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+}
+
+.page-backdrop img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* A single scrim over the photograph rather than one per section: the image
+   never moves, so the darkening need not either. Measured against the real
+   image — see the contrast figures in ACCESSIBILITY.md. */
+.page-backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 7, 9, 0.72);
+}
+
+.page-home {
+  background: var(--night);
+  color: var(--night-ink);
+
+}
+
+/* Scoped to main, not to the page, so the footer keeps the palette it has
+   always had — it sits on solid black, where the original tones are already
+   comfortably legible.
+
+   Over a photograph they are not. Measured against the brightest pixel of this
+   image through the scrim, --night-soft came out at 3.89:1 and --accent-night
+   at 3.36:1, both under the 4.5:1 minimum for body text. Deepening the scrim
+   far enough to rescue the accent would have left the photograph almost black,
+   so the two tones are lifted here instead. */
+.page-home main {
+  --night-soft: #e3e0da;
+  --accent-night: #f0d89a;
+}
+
+/* Sections are transparent so the one photograph shows through all of them. */
+.page-home main > section,
+.page-home main > section.band--warm,
+.page-home main > section.feature-band {
+  background: transparent;
+  color: var(--night-ink);
+}
+
+.page-home main > section.feature-band > img {
+  display: none;
+}
+
+.page-home main .lede,
+.page-home main .tile__status,
+.page-home main .tile__dates,
+.page-home main .eyebrow,
+.page-home main .contact-list dt {
+  color: var(--night-soft);
+}
+
+.page-home main a:hover {
+  color: var(--accent-night);
+}
+
+.page-home main :focus-visible {
+  outline-color: var(--accent-night);
+}
+
+/* Buttons and cards were drawn for a white ground. */
+/* :not(.btn--night) matters. A night button is already a light fill with dark
+   text; without the exclusion this rule repainted its label light as well, and
+   the hero's three buttons rendered as blank white boxes. */
+.page-home main .btn:not(.btn--night) {
+  border-color: var(--night-ink);
+  color: var(--night-ink);
+}
+
+.page-home main .btn:not(.btn--night):hover {
+  background: var(--night-ink);
+  color: var(--night);
+}
+
+.page-home main .tile__frame,
+.page-home main .notice,
+.page-home main .calendar {
+  border-color: rgba(242, 240, 236, 0.28);
+}
+
+.page-home main .tile__frame {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Each section is a screenful, vertically centred, clearing the sticky
+   header. --header-h is measured and written by site.js; the fallback keeps
+   the layout sane before that runs. */
+.page-home main > section {
+  min-height: calc(100svh - var(--header-h, 5rem));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: clamp(2rem, 5vh, 4rem);
+}
+
+/* --- The snapping itself, switched on only by the runtime guard --------- */
+
+html.snap-on {
+  /* `proximity`, not `mandatory`, and the difference is not cosmetic.
+
+     Under `mandatory` the viewport must always come to rest on a snap point.
+     The footer is about 1,170px tall against an ~808px viewport, so it has no
+     snap point that shows all of it — and measuring it, scrolling to the very
+     bottom of the document rested at 4041px, the last section, every time. The
+     sponsor logos, the explore links and the accessibility contact were not
+     merely awkward to reach, they were unreachable.
+
+     `proximity` still pulls to a section when you land near one, so a small
+     nudge returns you and a longer one advances you — verified at 25% and 72%
+     of the gap — but it never insists, so long content stays reachable. It is
+     the same behaviour where it was wanted and no trap where it was not. */
+  scroll-snap-type: y proximity;
+  scroll-padding-top: var(--header-h, 5rem);
+}
+
+html.snap-on .page-home main > section {
+  scroll-snap-align: start;
+  /* Stops a single flick carrying past a section, which is what "one at a
+     time" actually means. */
+  scroll-snap-stop: always;
+}
+
+/* The footer is not a snap point and is not full height. It is the one place
+   on the page where ordinary scrolling resumes, which is only safe because the
+   snapping above is proximity rather than mandatory. */
+html.snap-on .page-home .site-footer {
+  scroll-snap-align: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.snap-on {
+    scroll-snap-type: none;
+  }
+}
+
+/* --- Fitting a section to a screen ---------------------------------------
+   With one section per screen, content that merely "fits on a page" is no
+   longer good enough — it has to fit in a viewport minus the sticky header,
+   or the guard above refuses to enable snapping at all. On a 1440x900 laptop
+   that budget is about 808px, and the events section wanted 838px.
+
+   These trims are homepage-only. The same sections keep their full spacing
+   everywhere else. */
+
+.page-home main > section {
+  padding-block: clamp(1rem, 3vh, 2.25rem);
+}
+
+.page-home main h2 {
+  margin-bottom: 0.35em;
+}
+
+.page-home main .lede {
+  font-size: 1.1em;
+  margin-bottom: 0.9em;
+}
+
+.page-home main .split {
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+/* The month grid is the single tallest thing on the page. Shorter rows keep
+   every cell a comfortable tap target while giving back the ~100px that
+   decides whether the whole page can snap. */
+.page-home main .calendar td {
+  /* ~50px rows. Each cell is still about 88px wide here, so the day buttons
+     stay well clear of the 44px target-size guideline. */
+  height: 3.1rem;
+}
+
+.page-home main .calendar {
+  font-size: 0.94rem;
+}
+
+.page-home main .event-list {
+  margin-block: 0;
+}
+
+.page-home main .contact-list {
+  gap: 0.9rem;
+}
+
+.page-home main p:last-child {
+  margin-bottom: 0;
+}
+
+/* The backdrop already darkens the page; a second warm panel behind the
+   contact block would only mute it. */
+.page-home main .contact-list {
+  background: transparent;
+}
