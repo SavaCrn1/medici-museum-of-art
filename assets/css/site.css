@@ -2207,22 +2207,6 @@ h2 .exhibition__artist + em {
   object-fit: cover;
 }
 
-/* On a phone the viewport is far narrower than the photograph's 2:1 shape, so
-   `cover` scales the image up until only its middle 23% is on screen — a
-   sliver of lawn and no building. Below this width the whole frame is shown
-   instead, letterboxed on the dark ground, so the building is actually
-   recognisable. The homepage is the only page with a backdrop, so this is
-   scoped there by definition.
-
-   A very narrow desktop window has the same geometry; the breakpoint is width
-   rather than aspect ratio to keep desktop behaviour unchanged. */
-@media (max-width: 767px) {
-  .page-backdrop img {
-    object-fit: contain;
-    object-position: center;
-  }
-}
-
 /* A single scrim over the photograph rather than one per section: the image
    never moves, so the darkening need not either. Measured against the real
    image — see the contrast figures in ACCESSIBILITY.md. */
