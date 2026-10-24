@@ -1052,7 +1052,20 @@
 
       var current = 0;
       var timer = null;
-      var manual = false;
+      // Two separate ideas, deliberately kept apart:
+      //   playing  - what the visitor wants to be happening
+      //   timer    - whether an interval happens to be live right now
+      //
+      // Conflating them was a real bug. The toggle used to branch on `timer`,
+      // but you cannot reach the button without first hovering or focusing
+      // the carousel, and both of those stopped the timer as a courtesy. So
+      // `timer` was always null by the time any click landed and every first
+      // press - mouse, keyboard and touch alike - fell through to the "play"
+      // branch and restarted rotation instead of stopping it. On a phone that
+      // is a tap that visibly does nothing, on the one control WCAG 2.2.2
+      // requires. The courtesy pause now suspends the timer without touching
+      // `playing`, so the button always does what its label says.
+      var playing = !reduced;
 
       function show(i) {
         current = (i + slides.length) % slides.length;
@@ -1063,68 +1076,86 @@
           // tree, so their alt text is not read as part of the page.
           s.setAttribute('aria-hidden', on ? 'false' : 'true');
         });
+        // Generated, not written into the markup. The slide labels used to be
+        // hand-numbered, so adding a fifth picture would have left a screen
+        // reader saying "4 of 4".
+        slides.forEach(function (s, n) {
+          s.setAttribute('aria-label', n + 1 + ' of ' + slides.length);
+        });
         if (status) status.textContent = 'Picture ' + (current + 1) + ' of ' + slides.length;
       }
 
-      function stop() {
-        if (timer) { window.clearInterval(timer); timer = null; }
-        root.classList.add('is-paused');
-        if (toggleLabel) toggleLabel.textContent = 'Play the pictures';
-      }
-
-      function start() {
-        if (reduced || manual || timer) return;
+      function runTimer() {
+        if (timer || !playing || reduced) return;
         timer = window.setInterval(function () { show(current + 1); }, interval);
-        root.classList.remove('is-paused');
-        if (toggleLabel) toggleLabel.textContent = 'Pause the pictures';
       }
 
-      // Taking manual control also promotes the live region, so the change is
-      // announced to someone who asked for it.
-      function takeControl() {
-        manual = true;
-        stop();
-        if (status) status.setAttribute('aria-live', 'polite');
+      function haltTimer() {
+        if (timer) { window.clearInterval(timer); timer = null; }
       }
 
-      if (prev) prev.addEventListener('click', function () { takeControl(); show(current - 1); });
-      if (next) next.addEventListener('click', function () { takeControl(); show(current + 1); });
+      // The button reflects intent, never the timer, so hovering does not
+      // change the label under the cursor as someone reaches for it.
+      function syncToggle() {
+        root.classList.toggle('is-paused', !playing);
+        if (toggleLabel) {
+          toggleLabel.textContent = playing ? 'Pause the pictures' : 'Play the pictures';
+        }
+      }
+
+      // Announce slide changes only once someone is driving. Left polite while
+      // the carousel rotates on its own, a screen reader would be interrupted
+      // every four seconds by something nobody asked for.
+      function setLive(mode) {
+        if (status) status.setAttribute('aria-live', mode);
+      }
+
+      function stepTo(i) {
+        playing = false;
+        haltTimer();
+        setLive('polite');
+        syncToggle();
+        show(i);
+      }
+
+      if (prev) prev.addEventListener('click', function () { stepTo(current - 1); });
+      if (next) next.addEventListener('click', function () { stepTo(current + 1); });
 
       if (toggle) {
         toggle.addEventListener('click', function () {
-          if (timer) {
-            takeControl();
+          playing = !playing;
+          if (playing) {
+            setLive('off');
+            runTimer();
           } else {
-            manual = false;
-            if (status) status.setAttribute('aria-live', 'polite');
-            start();
+            haltTimer();
+            setLive('polite');
           }
+          syncToggle();
         });
       }
 
-      // Hover and focus pause as well, but only as a courtesy - the button is
-      // what satisfies the requirement, since a touch user cannot hover.
-      root.addEventListener('mouseenter', function () { if (!manual) stop(); });
-      root.addEventListener('mouseleave', function () { if (!manual) start(); });
-      root.addEventListener('focusin', function () { if (!manual) stop(); });
+      // Courtesy only: suspend while the pointer or focus is inside, resume on
+      // the way out. Intent is untouched, so this can never fight the button.
+      root.addEventListener('mouseenter', haltTimer);
+      root.addEventListener('mouseleave', runTimer);
+      root.addEventListener('focusin', haltTimer);
       root.addEventListener('focusout', function () {
-        if (!manual && !root.contains(document.activeElement)) start();
+        if (!root.contains(document.activeElement)) runTimer();
       });
 
       // Nothing should animate in a tab nobody is looking at.
       document.addEventListener('visibilitychange', function () {
-        if (document.hidden) { if (!manual) stop(); } else { start(); }
+        if (document.hidden) { haltTimer(); } else { runTimer(); }
       });
 
-      // Hands visibility over to the is-active class; until this is set the
-      // stylesheet simply shows the first slide.
+      // Hands visibility over to the is-active class, and reveals the
+      // controls - until this is set the stylesheet shows the first slide and
+      // hides buttons that would do nothing without this script.
       root.classList.add('is-ready');
       show(0);
-      if (reduced) {
-        stop();
-      } else {
-        start();
-      }
+      syncToggle();
+      runTimer();
     });
   }
 

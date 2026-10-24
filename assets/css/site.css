@@ -796,8 +796,13 @@ main {
   );
 }
 
+/* Every band that puts text on a dark ground has to be listed here. The
+   carousel hero was added without it, which left "CONNECT" at 1.03:1 against
+   the photograph behind it - the dark-grey label colour meant for white
+   sections, rendered on a dark one, and effectively invisible. */
 .hero .eyebrow,
 .feature-band .eyebrow,
+.carousel-hero .eyebrow,
 .hero .lede,
 .feature-band .lede {
   color: var(--night-ink);
@@ -2546,8 +2551,20 @@ html.snap-on .page-home .site-footer {
   margin-left: 3px;
 }
 
+/* Without the script these buttons are focusable and do nothing, so they are
+   not shown until it takes charge. */
+.carousel:not(.is-ready) .carousel__controls {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .carousel__slide {
     transition: none;
+  }
+
+  /* Nothing rotates under this preference, so a pause button would be a
+     control that cannot do anything. Previous and next still work. */
+  [data-carousel-toggle] {
+    display: none;
   }
 }
