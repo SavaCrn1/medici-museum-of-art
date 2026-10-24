@@ -1023,6 +1023,112 @@
   }
 
   /* ---------------------------------------------------------------------------
+     Carousel
+
+     Generic: drives any [data-carousel]. Follows the ARIA authoring practice
+     for an auto-rotating carousel.
+
+     The live region is the subtle part. While the carousel rotates by itself
+     it is aria-live="off", because announcing a new picture every four seconds
+     to a screen reader user who did not ask for it is noise. The moment
+     someone drives it with the buttons, it becomes aria-live="polite" so their
+     own action is confirmed. Rotation then stays off: a carousel that resumes
+     moving under you is worse than one that never moved.
+     --------------------------------------------------------------------------- */
+
+  function initCarousels() {
+    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    document.querySelectorAll('[data-carousel]').forEach(function (root) {
+      var slides = Array.prototype.slice.call(root.querySelectorAll('.carousel__slide'));
+      if (slides.length < 2) return;
+
+      var status = root.querySelector('[data-carousel-status]');
+      var prev = root.querySelector('[data-carousel-prev]');
+      var next = root.querySelector('[data-carousel-next]');
+      var toggle = root.querySelector('[data-carousel-toggle]');
+      var toggleLabel = root.querySelector('[data-carousel-toggle-label]');
+      var interval = parseInt(root.getAttribute('data-interval'), 10) || 4000;
+
+      var current = 0;
+      var timer = null;
+      var manual = false;
+
+      function show(i) {
+        current = (i + slides.length) % slides.length;
+        slides.forEach(function (s, n) {
+          var on = n === current;
+          s.classList.toggle('is-active', on);
+          // Keep the slides that are not showing out of the accessibility
+          // tree, so their alt text is not read as part of the page.
+          s.setAttribute('aria-hidden', on ? 'false' : 'true');
+        });
+        if (status) status.textContent = 'Picture ' + (current + 1) + ' of ' + slides.length;
+      }
+
+      function stop() {
+        if (timer) { window.clearInterval(timer); timer = null; }
+        root.classList.add('is-paused');
+        if (toggleLabel) toggleLabel.textContent = 'Play the pictures';
+      }
+
+      function start() {
+        if (reduced || manual || timer) return;
+        timer = window.setInterval(function () { show(current + 1); }, interval);
+        root.classList.remove('is-paused');
+        if (toggleLabel) toggleLabel.textContent = 'Pause the pictures';
+      }
+
+      // Taking manual control also promotes the live region, so the change is
+      // announced to someone who asked for it.
+      function takeControl() {
+        manual = true;
+        stop();
+        if (status) status.setAttribute('aria-live', 'polite');
+      }
+
+      if (prev) prev.addEventListener('click', function () { takeControl(); show(current - 1); });
+      if (next) next.addEventListener('click', function () { takeControl(); show(current + 1); });
+
+      if (toggle) {
+        toggle.addEventListener('click', function () {
+          if (timer) {
+            takeControl();
+          } else {
+            manual = false;
+            if (status) status.setAttribute('aria-live', 'polite');
+            start();
+          }
+        });
+      }
+
+      // Hover and focus pause as well, but only as a courtesy - the button is
+      // what satisfies the requirement, since a touch user cannot hover.
+      root.addEventListener('mouseenter', function () { if (!manual) stop(); });
+      root.addEventListener('mouseleave', function () { if (!manual) start(); });
+      root.addEventListener('focusin', function () { if (!manual) stop(); });
+      root.addEventListener('focusout', function () {
+        if (!manual && !root.contains(document.activeElement)) start();
+      });
+
+      // Nothing should animate in a tab nobody is looking at.
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) { if (!manual) stop(); } else { start(); }
+      });
+
+      // Hands visibility over to the is-active class; until this is set the
+      // stylesheet simply shows the first slide.
+      root.classList.add('is-ready');
+      show(0);
+      if (reduced) {
+        stop();
+      } else {
+        start();
+      }
+    });
+  }
+
+  /* ---------------------------------------------------------------------------
      Forms
      Errors are announced, tied to their field with aria-describedby, and focus
      lands on the first problem. Nothing relies on colour alone.
@@ -1086,6 +1192,7 @@
     initMapLinks();
     initScenicScroll();
     initSnapGuard();
+    initCarousels();
     initForms();
   }
 

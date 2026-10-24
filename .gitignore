@@ -2,3 +2,8 @@ node_modules/
 .DS_Store
 Thumbs.db
 *.log
+
+# Source photography and working selections. Large binaries, not site assets:
+# only the images actually chosen should be committed, into assets/img/.
+WeTransfer.zip
+Selected Images/

@@ -1,5 +1,57 @@
-<section class="band band--tight">
-  <div class="shell">
+<!-- The carousel is the background of this block only. Everything below it,
+     starting at "Book an event with us", is unchanged.
+
+     To change the pictures, add or remove <li class="carousel__slide"> items;
+     the script counts whatever is here, so nothing else needs editing. Keep
+     the alt text describing the room as set up - a prospective renter is
+     looking at these to judge the space, which makes them informative rather
+     than decorative.
+
+     None of these is loading="lazy", deliberately. A slide sitting at
+     opacity 0 is never "needed" as far as the browser is concerned, so the
+     lazy slides simply never downloaded - measured still unloaded four
+     seconds in, by which point the carousel had already advanced onto a
+     blank frame. They are fetchpriority="low" instead: fetched, but behind
+     the first slide and the text. -->
+<section class="band band--tight carousel-hero">
+  <div class="carousel" data-carousel data-interval="4000"
+       aria-roledescription="carousel" aria-label="The museum set up for private and corporate events">
+    <ul class="carousel__track">
+      <li class="carousel__slide" role="group" aria-roledescription="slide" aria-label="1 of 4">
+        <img src="{{base}}assets/img/rentals-event-01.webp" width="2200" height="1650" fetchpriority="high"
+             alt="A gallery set for a seated dinner: round tables under black linen with chiavari chairs and candles, beneath the wall text of the Sequence exhibition, lit in violet.">
+      </li>
+      <li class="carousel__slide" role="group" aria-roledescription="slide" aria-label="2 of 4">
+        <img src="{{base}}assets/img/rentals-event-02.webp" width="2200" height="1650" fetchpriority="low"
+             alt="A lit ice sculpture centrepiece on a long buffet of tiered hors d'oeuvres, framed by artworks on violet-lit walls.">
+      </li>
+      <li class="carousel__slide" role="group" aria-roledescription="slide" aria-label="3 of 4">
+        <img src="{{base}}assets/img/rentals-event-03.webp" width="2200" height="1650" fetchpriority="low"
+             alt="A gallery under magenta uplighting arranged with round tables for a reception, a grand piano in the foreground.">
+      </li>
+      <li class="carousel__slide" role="group" aria-roledescription="slide" aria-label="4 of 4">
+        <img src="{{base}}assets/img/rentals-event-04.webp" width="2200" height="1650" fetchpriority="low"
+             alt="Guests in evening dress arriving along a red carpet at the museum entrance at night, a server carrying a tray of drinks.">
+      </li>
+    </ul>
+
+    <p class="carousel__status visually-hidden" data-carousel-status aria-live="off"></p>
+
+    <div class="carousel__controls">
+      <button type="button" class="carousel__btn" data-carousel-prev>
+        <span class="visually-hidden">Previous picture</span><span aria-hidden="true">&#8249;</span>
+      </button>
+      <button type="button" class="carousel__btn" data-carousel-toggle>
+        <span class="visually-hidden" data-carousel-toggle-label>Pause the pictures</span>
+        <span class="carousel__glyph" aria-hidden="true"></span>
+      </button>
+      <button type="button" class="carousel__btn" data-carousel-next>
+        <span class="visually-hidden">Next picture</span><span aria-hidden="true">&#8250;</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="shell carousel-hero__inner">
     <p class="eyebrow">Connect</p>
     <h1>Special Events at Medici</h1>
     <p class="lede">Medici Museum of Art offers an intriguing and distinctive space for private and corporate

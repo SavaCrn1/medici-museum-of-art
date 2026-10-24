@@ -2396,3 +2396,158 @@ html.snap-on .page-home .site-footer {
 .page-home main .contact-list {
   background: transparent;
 }
+
+/* ==========================================================================
+   Carousel hero
+
+   A band whose background is a rotating set of photographs, with the heading
+   over them. Built once, generically: the script drives any [data-carousel],
+   so the events carousel can reuse it.
+
+   Auto-advance is the part with rules attached. WCAG 2.2.2 requires that
+   anything moving automatically for more than five seconds can be paused, so
+   there is a real pause button, not just a hover pause - a touch user cannot
+   hover. Rotation also stops on hover and on focus within, and stops for good
+   once someone uses a control, because fighting a carousel for position is
+   worse than no carousel.
+   ========================================================================== */
+
+.carousel-hero {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: clamp(22rem, 52vh, 34rem);
+  color: var(--night-ink);
+}
+
+.carousel {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.carousel__track {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+.carousel__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+
+.carousel__slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Visibility hangs off `is-ready`, which the script adds once it has taken
+   charge. Without the script there is no `is-ready`, so the first slide shows
+   and the band is a plain photograph rather than a blank box.
+
+   An earlier version tried to do this with
+   `.is-active ~ .carousel__slide:first-child { opacity: 0 }`, which matches
+   nothing - `:first-child` can never be a *following* sibling. The result was
+   that the first photograph never left: later slides painted over it, so it
+   looked almost right, while every cross-fade passed through the first image
+   instead of the previous one. */
+.carousel:not(.is-ready) .carousel__slide:first-child {
+  opacity: 1;
+}
+
+.carousel.is-ready .carousel__slide.is-active {
+  opacity: 1;
+}
+
+/* Darkens the photographs enough for the heading to clear 4.5:1 against the
+   brightest pixel of any of them - measured, not guessed. */
+.carousel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(5, 5, 8, 0.66), rgba(5, 5, 8, 0.78));
+}
+
+.carousel-hero__inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* The standfirst tone that works on solid black fails over a photograph: it
+   measured 3.43:1 against the brightest pixel of the red-carpet slide, under
+   the 4.5:1 minimum. Lifted here rather than darkening the pictures into
+   mush, exactly as the homepage does over its backdrop. */
+.carousel-hero {
+  --night-soft: #e9e6e1;
+}
+
+.carousel-hero__inner .lede {
+  color: var(--night-soft);
+}
+
+/* --- Controls ---------------------------------------------------------- */
+
+.carousel__controls {
+  position: absolute;
+  z-index: 2;
+  right: var(--gutter);
+  bottom: 1.1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.carousel__btn {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(242, 240, 236, 0.55);
+  background: rgba(5, 5, 8, 0.55);
+  color: var(--night-ink);
+  font-family: var(--display);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.carousel__btn:hover {
+  background: var(--night-ink);
+  color: var(--night);
+  border-color: var(--night-ink);
+}
+
+.carousel__btn:focus-visible {
+  outline: 3px solid var(--accent-night);
+  outline-offset: 2px;
+}
+
+/* Pause and play drawn in CSS so there is no icon font to load. */
+.carousel__glyph {
+  width: 12px;
+  height: 13px;
+  border-left: 4px solid currentColor;
+  border-right: 4px solid currentColor;
+}
+
+.carousel.is-paused .carousel__glyph {
+  width: 0;
+  height: 0;
+  border: 7px solid transparent;
+  border-left: 12px solid currentColor;
+  border-right: 0;
+  margin-left: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carousel__slide {
+    transition: none;
+  }
+}
