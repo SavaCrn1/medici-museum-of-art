@@ -858,8 +858,8 @@ ${
   // describing, not decoration.
   page.slug === ''
     ? `<div class="page-backdrop">
-  <img src="${base}assets/img/museum-exterior.webp"
-       alt="The museum from the lawn: a long, low white building with a flat roof, set back behind a wide expanse of mown grass under a blue sky, with a small sculpture on a plinth to the right.">
+  <img src="${base}assets/img/museum-lawn-sculpture.webp"
+       alt="The museum from the lawn: a long, low white building under a wide summer sky, with a large bronze head on a black plinth at the centre of a planted bed, framed by slender columnar trees.">
 </div>`
     : ''
 }
@@ -1085,17 +1085,6 @@ function exhibitionDetailBody(ex, { permanent = false } = {}) {
     </div>`
         : ''
     }
-  </div>
-</section>
-
-<section class="band band--warm band--tight">
-  <div class="shell split">
-    <div>
-      <h2>Plan your visit</h2>
-      <p>Admission is free, ${esc(site.hours.label)}, ${esc(site.hours.time)}.</p>
-      <p><a class="btn" href="{{base}}visit/">Visitor information</a></p>
-    </div>
-    <div>{{contactNoHeading}}</div>
   </div>
 </section>`;
 }

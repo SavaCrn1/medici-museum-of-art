@@ -880,7 +880,7 @@ main {
 
 .card img {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 3 / 2;
   object-fit: cover;
   background: var(--paper-warm);
   margin-bottom: 1.4rem;
@@ -915,6 +915,18 @@ main {
    proportions — artwork is not cropped to fit a layout. */
 .split > img {
   width: 100%;
+}
+
+/* A heading over a second row of split columns, set apart from the row above. */
+.split-heading {
+  margin-top: clamp(2.5rem, 6vw, 4rem);
+}
+
+/* A photograph set in the flow of a column of text. */
+.photo {
+  display: block;
+  width: 100%;
+  margin-block: 1.5rem;
 }
 
 /* --------------------------------------------------------------------------
@@ -1813,6 +1825,48 @@ h2 .exhibition__artist + em {
   margin-bottom: 0;
 }
 
+/* A notice set over a photograph. Paired with .band--night in the markup,
+   which supplies the light text, links and email chooser. The picture is
+   decoration behind the call to action, so it carries empty alt text. No overflow: hidden,
+   because the email chooser opens a panel that must be free to extend past
+   the box. */
+.notice--photo {
+  position: relative;
+  isolation: isolate;
+  padding: clamp(1.75rem, 4vw, 2.5rem);
+  background: var(--night);
+}
+
+.notice__photo {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 0.6 rather than the backdrop's 0.72 so the sculpture still reads: over the
+   pale gallery wall, the brightest part of this picture, white text still
+   clears 6:1. */
+.notice--photo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(6, 7, 9, 0.6);
+}
+
+/* `.band--night a` lightens every link, which would put light text on the
+   button's light fill. */
+.notice--photo .btn--night {
+  color: var(--night);
+}
+
+.notice--photo .btn--night:hover {
+  color: var(--night-ink);
+}
+
 /* --------------------------------------------------------------------------
    Forms
    -------------------------------------------------------------------------- */
@@ -2210,6 +2264,9 @@ h2 .exhibition__artist + em {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* The building and sculpture sit in the lower third of the frame, under a
+     tall sky; centring the crop would cut the building off first. */
+  object-position: 50% 72%;
 }
 
 /* A single scrim over the photograph rather than one per section: the image

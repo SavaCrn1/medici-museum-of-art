@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&display=swap">
-<link rel="stylesheet" href="../assets/css/site.css?v=9c68dfd0">
+<link rel="stylesheet" href="../assets/css/site.css?v=98f68514">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Museum","name":"Medici Museum of Art","url":"https://medicimuseum.art","telephone":"+1-330-856-2120","email":"info@medicimuseum.art","address":{"@type":"PostalAddress","streetAddress":"9350 East Market St.","addressLocality":"Warren","addressRegion":"OH","postalCode":"44484","addressCountry":"US"},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["https://schema.org/Wednesday","https://schema.org/Thursday","https://schema.org/Friday","https://schema.org/Saturday","https://schema.org/Sunday"],"opens":"11:00","closes":"16:00"}],"isAccessibleForFree":true,"sameAs":["https://www.facebook.com/medicimuseumofart/","https://www.instagram.com/medicimuseum.art/"]}</script>
 </head>
 <body data-base="../">
@@ -106,19 +106,50 @@
   </header>
 
 <main id="main" tabindex="-1">
-<section class="band band--tight">
-  <div class="shell">
+<!-- The same carousel hero as Rentals; see the notes at the top of rentals.html
+     for why none of the slides is loading="lazy". -->
+<section class="band band--tight carousel-hero">
+  <div class="carousel" data-carousel data-interval="4000"
+       aria-roledescription="carousel" aria-label="Volunteers and visitors at the museum">
+    <ul class="carousel__track">
+      <li class="carousel__slide" role="group" aria-roledescription="slide" aria-label="1 of 2">
+        <img src="../assets/img/volunteer-01.webp" width="2200" height="1650" fetchpriority="high"
+             alt="A screen-printing workshop in the museum's classroom: two participants pull red ink across a framed screen while others work at tables behind them.">
+      </li>
+      <li class="carousel__slide" role="group" aria-roledescription="slide" aria-label="2 of 2">
+        <img src="../assets/img/volunteer-02.webp" width="2200" height="1650" fetchpriority="low"
+             alt="A woman crouches to talk with a young child reaching for a brightly coloured ball in a busy art studio.">
+      </li>
+    </ul>
+
+    <p class="carousel__status visually-hidden" data-carousel-status aria-live="off"></p>
+
+    <div class="carousel__controls">
+      <button type="button" class="carousel__btn" data-carousel-prev>
+        <span class="visually-hidden">Previous picture</span><span aria-hidden="true">&#8249;</span>
+      </button>
+      <button type="button" class="carousel__btn" data-carousel-toggle>
+        <span class="visually-hidden" data-carousel-toggle-label>Pause the pictures</span>
+        <span class="carousel__glyph" aria-hidden="true"></span>
+      </button>
+      <button type="button" class="carousel__btn" data-carousel-next>
+        <span class="visually-hidden">Next picture</span><span aria-hidden="true">&#8250;</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="shell carousel-hero__inner">
     <p class="eyebrow">Connect</p>
     <h1>Volunteer Opportunities</h1>
     <p class="lede">Become a Medici Museum guide. Volunteers wanted.</p>
+    <p>Do you love art and enjoy connecting with people? The Medici Museum of Art is currently seeking
+      enthusiastic volunteers to join our team as museum guides.</p>
   </div>
 </section>
 
 <section class="band band--tight">
   <div class="shell split">
     <div>
-      <p>Do you love art and enjoy connecting with people? The Medici Museum of Art is currently seeking
-        enthusiastic volunteers to join our team as museum guides.</p>
       <p>Museum guides play a vital role in introducing visitors &mdash; ranging from K&ndash;12 students to
         adult groups &mdash; to the Medici&rsquo;s dynamic exhibitions. By leading engaging, one-hour tours,
         guides help make works of art meaningful, accessible, and often inspiring. Through thoughtful
@@ -146,11 +177,13 @@
     </div>
 
     <div>
-      <div class="notice">
+      <div class="notice notice--photo band--night">
+        <img class="notice__photo" src="../assets/img/volunteer-apply.webp" width="1200" height="1800"
+             loading="lazy" alt="">
         <h2 style="margin-top:0">Apply</h2>
         <p>Download the application form, then send it back to us by email.</p>
         <p>
-          <a class="btn" href="../assets/files/Volunteer-Application_Medici.pdf">
+          <a class="btn btn--night" href="../assets/files/Volunteer-Application_Medici.pdf">
             Download application<span class="visually-hidden"> (PDF)</span>
           </a>
         </p>
@@ -279,7 +312,7 @@
   </footer>
 
 <script src="../assets/js/data.js?v=72b3cff4"></script>
-<script src="../assets/js/search-index.js?v=627b1964"></script>
+<script src="../assets/js/search-index.js?v=a1484ee8"></script>
 <script src="../assets/js/site.js?v=d287eabb"></script>
 </body>
 </html>
