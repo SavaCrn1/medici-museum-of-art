@@ -20,6 +20,13 @@
   --accent: #7d6224;
   --accent-night: #d4b46a;
 
+  /* The red of the dot in the logo, used sparingly as an accent. --red is for
+     lines and shapes; text in red uses --red-deep: 6.9:1 on the tan ground,
+     and 4.9:1 over the darkest pixel of the homepage photograph under its
+     pale overlay. */
+  --red: #ed1c24;
+  --red-deep: #9a0f17;
+
   /* One geometric sans throughout, after the Ogunquit Museum's typography.
      That site uses futura-pt, which is licensed through Adobe Fonts and cannot
      be served from a static host; Jost is a Futura revival on Google Fonts and
@@ -208,12 +215,14 @@ a:hover {
   color: var(--accent-night);
 }
 
+/* Red on a light ground. Every dark context (heroes, feature bands, carousel
+   heroes, backdrop pages) sets its own light colour with a more specific rule. */
 .eyebrow {
   font-family: var(--display);
   font-size: 0.8rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--ink-soft);
+  color: var(--red-deep);
   margin: 0 0 1rem;
 }
 
@@ -424,7 +433,7 @@ main:focus {
 
 .nav a:hover,
 .nav button:hover {
-  color: var(--accent);
+  color: var(--red-deep);
 }
 
 /* Current page is announced (aria-current) *and* shown. */
@@ -432,7 +441,7 @@ main:focus {
   text-decoration: underline;
   text-decoration-thickness: 3px;
   text-underline-offset: 0.35em;
-  text-decoration-color: var(--accent);
+  text-decoration-color: var(--red);
 }
 
 /* The call-to-action treatment works on a plain link or on a folder's
@@ -455,7 +464,7 @@ main:focus {
   text-decoration: underline;
   text-decoration-thickness: 3px;
   text-underline-offset: 0.35em;
-  text-decoration-color: var(--accent);
+  text-decoration-color: var(--red);
 }
 
 .nav__folder {
@@ -530,11 +539,11 @@ main:focus {
 }
 
 .nav__search button:hover {
-  color: var(--accent);
+  color: var(--red-deep);
 }
 
 .nav__search button[aria-expanded='true'] {
-  color: var(--accent);
+  color: var(--red-deep);
 }
 
 .search-panel {
@@ -887,6 +896,13 @@ main:focus {
   padding: var(--band) var(--gutter);
 }
 
+/* Paragraphs stop at a reading width; centred text needs the paragraph
+   itself centred too, or a short line like the button's sits off to the left
+   of the heading above it. */
+.feature-band__inner p {
+  margin-inline: auto;
+}
+
 /* --------------------------------------------------------------------------
    Cards
    -------------------------------------------------------------------------- */
@@ -1002,6 +1018,55 @@ main:focus {
   max-width: 34rem;
   margin: 0;
   color: var(--night-ink);
+}
+
+/* The heading's link is stretched over the whole card, so the card is one
+   target and is read out once, by its heading. The ring goes on the card,
+   where it can be seen, rather than around the heading text. */
+.photo-card__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.photo-card__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.photo-card__link:focus-visible {
+  outline: none;
+}
+
+.photo-card:has(.photo-card__link:focus-visible) {
+  outline: 3px solid var(--accent-night);
+  outline-offset: 3px;
+}
+
+.photo-card__img {
+  transition: transform 0.4s ease;
+}
+
+.photo-card:hover .photo-card__img,
+.photo-card:has(.photo-card__link:focus-visible) .photo-card__img {
+  transform: scale(1.04);
+}
+
+.photo-card p.photo-card__more {
+  margin-top: 0.85rem;
+  font-family: var(--display);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.photo-card:hover .photo-card__more,
+.photo-card:has(.photo-card__link:focus-visible) .photo-card__more {
+  text-decoration: underline;
+  text-decoration-color: var(--red);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.3em;
 }
 
 .split {
@@ -1172,7 +1237,7 @@ main:focus {
   text-decoration: underline;
   text-decoration-thickness: 2px;
   text-underline-offset: 0.18em;
-  text-decoration-color: var(--accent);
+  text-decoration-color: var(--red);
 }
 
 .tile__dates {
@@ -1919,7 +1984,7 @@ h2 .exhibition__artist + em {
 
 .notice {
   padding: 1.25rem 1.5rem;
-  border-left: 4px solid var(--accent);
+  border-left: 4px solid var(--red-deep);
   background: var(--paper-warm);
 }
 
@@ -1978,7 +2043,7 @@ h2 .exhibition__artist + em {
   max-height: calc(100% - 2rem);
   padding: clamp(1.5rem, 4vw, 2.5rem);
   border: 0;
-  border-top: 4px solid var(--accent);
+  border-top: 4px solid var(--red);
   background: var(--paper);
   color: var(--ink);
   overflow-y: auto;
@@ -2020,7 +2085,7 @@ h2 .exhibition__artist + em {
 }
 
 .donate-dialog__close:hover {
-  color: var(--accent);
+  color: var(--red-deep);
 }
 
 .donate-dialog__embed iframe {
@@ -2732,6 +2797,68 @@ html.snap-on .page-home .site-footer {
    contact block would only mute it. */
 .has-backdrop main .contact-list {
   background: transparent;
+}
+
+/* Picture frames: red brackets at the top-left and bottom-right corners, set
+   just outside the picture. They are background layers on a 10px padding, so
+   the frame's overflow: hidden cannot clip them. Listed with the backdrop
+   selector so they also win over that page's frame background above. */
+.tile__frame,
+.has-backdrop main .tile__frame,
+.card img {
+  padding: 10px;
+  border: 0;
+  background:
+    linear-gradient(var(--red), var(--red)) top left / 42% 4px no-repeat,
+    linear-gradient(var(--red), var(--red)) top left / 4px 42% no-repeat,
+    linear-gradient(var(--red), var(--red)) bottom right / 42% 4px no-repeat,
+    linear-gradient(var(--red), var(--red)) bottom right / 4px 42% no-repeat;
+}
+
+/* A poster shown whole is narrower than its frame. The pale panel behind it
+   gives the brackets a shape to hold, instead of empty space. */
+.tile__frame:has(.tile__img--contain) {
+  background-color: var(--paper-warm);
+}
+
+/* --------------------------------------------------------------------------
+   Home: a bright backdrop
+
+   The homepage photograph sits under a pale overlay rather than the dark one
+   the other backdrop pages use, on a light grey ground nearer the original
+   site's white. The dark-ground rules above are written in --night-* tokens,
+   so redefining those inside <main> turns them all light-ground at once.
+   -------------------------------------------------------------------------- */
+
+.page-home {
+  --paper: #e5e6e7;
+  --paper-warm: #eeeff0;
+  --rule: #c8cacc;
+}
+
+.page-home .page-backdrop::after {
+  background: rgba(229, 230, 231, 0.86);
+}
+
+.page-home main {
+  --night: #e5e6e7;
+  --night-ink: #111111;
+  --night-soft: #3d3d3d;
+  --accent-night: var(--red-deep);
+}
+
+.page-home .hero::after {
+  content: none;
+}
+
+/* A plain button is a dark fill by default; on this ground it is drawn as an
+   outline, leaving the solid buttons for the main calls to action. */
+.page-home main .btn:not(.btn--night) {
+  background: transparent;
+}
+
+.page-home main .eyebrow {
+  color: var(--red-deep);
 }
 
 /* ==========================================================================

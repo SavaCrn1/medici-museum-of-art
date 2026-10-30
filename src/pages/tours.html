@@ -8,7 +8,9 @@
 </section>
 
 <!-- The photographs are backgrounds under the text, so they carry empty alt
-     text, like the photo boxes on Donate and Volunteer. -->
+     text, like the photo boxes on Donate and Volunteer. Each card is one link
+     to the request form below: the link is the heading, and site.css stretches
+     it over the whole card. -->
 <section class="band band--tight" aria-labelledby="options">
   <div class="shell">
     <h2 id="options">Tour options</h2>
@@ -17,26 +19,30 @@
     <li class="photo-card">
       <img class="photo-card__img" src="{{base}}assets/img/tours-general.webp" width="1600" height="1067"
            loading="lazy" alt="">
-      <h3>General Museum Tour</h3>
+      <h3><a class="photo-card__link" href="#tour-form">General Museum Tour</a></h3>
       <p>Highlights from our permanent collection. 30&ndash;60 minutes.</p>
+      <p class="photo-card__more">Request this tour <span aria-hidden="true">&rarr;</span></p>
     </li>
     <li class="photo-card">
       <img class="photo-card__img" src="{{base}}assets/img/tours-special-exhibition.webp" width="1200" height="1600"
            loading="lazy" alt="" style="object-position:50% 60%">
-      <h3>Special Exhibition Tour</h3>
+      <h3><a class="photo-card__link" href="#tour-form">Special Exhibition Tour</a></h3>
       <p>A deeper look at the latest featured exhibition. 30&ndash;60 minutes.</p>
+      <p class="photo-card__more">Request this tour <span aria-hidden="true">&rarr;</span></p>
     </li>
     <li class="photo-card">
       <img class="photo-card__img" src="{{base}}assets/img/tours-themed.webp" width="1600" height="721"
            loading="lazy" alt="">
-      <h3>Themed Tours</h3>
+      <h3><a class="photo-card__link" href="#tour-form">Themed Tours</a></h3>
       <p>Focused on specific art movements, artists or historical periods. 45 minutes.</p>
+      <p class="photo-card__more">Request this tour <span aria-hidden="true">&rarr;</span></p>
     </li>
     <li class="photo-card">
       <img class="photo-card__img" src="{{base}}assets/img/tours-school-group.webp" width="1600" height="1200"
            loading="lazy" alt="">
-      <h3>School &amp; Group Tours</h3>
+      <h3><a class="photo-card__link" href="#tour-form">School &amp; Group Tours</a></h3>
       <p>Tailored experiences for student groups or private events. Customisable.</p>
+      <p class="photo-card__more">Request this tour <span aria-hidden="true">&rarr;</span></p>
     </li>
   </ul>
 </section>
