@@ -38,7 +38,7 @@
     {
       "slug": "grohl-collection",
       "title": "Renie & James Grohl Collection",
-      "image": "assets/img/collection-grohl.png",
+      "image": "assets/img/collection-grohl.webp",
       "imageFit": "contain",
       "kind": "Collection",
       "imageAlt": "An abstract Alexander Calder composition from the collection: red and blue lines ruled across cream paper, hung with circles, triangles, a spiral and hourglass shapes in red, orange, blue, yellow and black.",
@@ -47,7 +47,7 @@
     {
       "slug": "carole-feuerman",
       "title": "Carole A. Feuerman",
-      "image": "assets/img/artist-feuerman.png",
+      "image": "assets/img/artist-feuerman.webp",
       "imageFit": "cover",
       "kind": "Artist",
       "imageAlt": "Sculptor Carole A. Feuerman seated beside one of her hyperrealist works: a swimmer in a lime-green bathing cap, arms folded over a grey inflatable tube, water beaded on her skin.",
@@ -56,7 +56,7 @@
     {
       "slug": "sculpture-garden",
       "title": "Outdoor Sculpture Garden",
-      "image": "assets/img/sculpture-garden.jpg",
+      "image": "assets/img/sculpture-garden.webp",
       "imageFit": "cover",
       "kind": "Gallery",
       "imageAlt": "Carole A. Feuerman's sculpture Justice in the garden: a gold-toned figure of a woman in a swim cap and gold swimsuit, seated in a lotus pose on a mirror-polished steel sphere, with trees behind her.",

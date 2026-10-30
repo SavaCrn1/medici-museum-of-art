@@ -60,6 +60,11 @@ img {
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  /* Whatever the browser scrolls into view (a focused link when tabbing
+     backwards, an #anchor, the skip link's target) stops below the sticky
+     header instead of under it (WCAG 2.4.11). --header-h is measured on the
+     homepage; elsewhere the fallback is the desktop header's height. */
+  scroll-padding-top: calc(var(--header-h, 5.75rem) + 8px);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -242,6 +247,13 @@ main {
      main a scroll container, which changes how position: sticky and anchor
      scrolling behave inside it. */
   overflow-x: clip;
+}
+
+/* The skip link focuses <main> (tabindex="-1") so the next Tab starts inside
+   it. That is a landing point, not a control, so it needs no ring around the
+   whole page. */
+main:focus {
+  outline: none;
 }
 
 .shell {
@@ -564,6 +576,12 @@ main {
   border-radius: 0;
 }
 
+/* The browser's grey placeholder measured 3.74:1 on the tan ground. */
+.search-panel input::placeholder {
+  color: var(--ink-soft);
+  opacity: 1;
+}
+
 .search-panel__status {
   margin: 0.75rem 0 0;
   font-size: 0.9rem;
@@ -589,11 +607,14 @@ main {
   border: 1px solid var(--rule);
 }
 
+/* The colour is stated, not inherited: on a backdrop page the body text is
+   light, and the titles came out light on this pale panel at 1.08:1. */
 .search-results a {
   display: grid;
   gap: 0.2rem;
   padding: 0.85rem 1rem;
   background: var(--paper);
+  color: var(--ink);
   text-decoration: none;
 }
 
@@ -2306,7 +2327,9 @@ h2 .exhibition__artist + em {
   --scenic-move-time: 1.2s;
   --scenic-fade-time: 0.9s;
   --scenic-exit-scale: 0.985;
-  --scenic-exit-opacity: 0.35;
+  /* Full strength. At 0.35 a departing section still had about 175px on
+     screen, and text resting there measured 1.3 to 2.4:1 (WCAG 1.4.3). */
+  --scenic-exit-opacity: 1;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -2445,13 +2468,29 @@ h2 .exhibition__artist + em {
   z-index: -2;
 }
 
+.page-backdrop picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .page-backdrop img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* The building and sculpture sit in the lower third of the frame, under a
-     tall sky; centring the crop would cut the building off first. */
-  object-position: 50% 72%;
+  /* --position is set per page in build.js (BACKDROPS). The default suits the
+     homepage: the building and sculpture sit in the lower third of the frame,
+     under a tall sky, and centring the crop would cut the building off first. */
+  object-position: var(--position, 50% 72%);
+}
+
+/* An upright phone gets the picture cut for it (BACKDROPS `phone`), already
+   framed on its subject, so it is shown centred rather than at the desktop
+   crop. The query matches the <source> that build.js writes. */
+@media (max-aspect-ratio: 2/3) {
+  .page-backdrop picture img {
+    object-position: 50% 50%;
+  }
 }
 
 .page-backdrop video {

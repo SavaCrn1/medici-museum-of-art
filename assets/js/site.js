@@ -1231,8 +1231,15 @@
       body: JSON.stringify(data),
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     })
+      // Sent only when the provider says so. A 200 can still carry
+      // { success: false }, and treating that as delivered would wipe a
+      // message the visitor believes went through.
       .then(function (response) {
-        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return response.json().then(function (body) {
+          if (!response.ok || !body || body.success !== true) throw new Error('Not sent');
+        });
+      })
+      .then(function () {
         form.reset();
         if (status) status.textContent = form.getAttribute('data-sent') || 'Thank you. Your message has been sent.';
       })

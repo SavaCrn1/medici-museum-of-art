@@ -845,29 +845,50 @@ function jsonLd() {
 
 // Pages that sit on a single fixed photograph or video, keyed by slug.
 // `position` is the object-position of the crop, for pictures whose subject is
-// off centre. A `video` backdrop is decoration: it carries no alt text, shows
+// off centre. Its first value steers the crop on a tall screen, its second on a
+// wide one. A `video` backdrop is decoration: it carries no alt text, shows
 // its `poster` until site.js starts it, and gets a pause button.
+//
+// `phone` is a second picture for portrait phones, cut 1:2 from the original
+// around the subject. Covering a phone with the landscape picture leaves only
+// its middle third on screen, which sliced through people and paintings, and
+// stretched that third to fill the height. The phone cut is composed for the
+// shape, sharper, and lighter to download. Visit has none: its only original is
+// the 2016px one already used, so its `position` does the framing instead.
 const BACKDROPS = {
   '': {
     src: 'museum-lawn-sculpture.webp',
+    phone: 'museum-lawn-sculpture-phone.webp',
     alt: 'The museum from the lawn: a long, low white building under a wide summer sky, with a large bronze head on a black plinth at the centre of a planted bed, framed by slender columnar trees.',
   },
   'about-us-1': {
     src: 'about-group-sculpture.webp',
+    phone: 'about-group-sculpture-phone.webp',
     position: '40% 50%',
     alt: 'Ten people stand in a row on the plaza in front of a gilded sculpture of a woman seated cross-legged on a mirrored sphere, with tall trees behind them.',
   },
   visit: {
     src: 'visit-gallery-window.webp',
-    position: '60% 50%',
+    // Far enough right that a phone's frame starts just past the window's
+    // centre mullion, which otherwise ran down the left edge of the screen.
+    position: '64% 50%',
     alt: 'A corner of the museum at dusk: through a tall glass wall, a lit gallery shows a mosaic version of Starry Night and a row of small framed works.',
   },
   tours: {
     video: 'tours-gallery-flythrough.mp4',
     poster: 'tours-video-poster.webp',
   },
+  subscribe: {
+    src: 'subscribe-night-projection.webp',
+    phone: 'subscribe-night-projection-phone.webp',
+    position: '55% 50%',
+    alt: 'The museum at night: a city skyline projected onto its long white outer wall, with a single blue beam of light rising into a starry sky.',
+  },
   donate: {
     src: 'donate-gallery-rockwell.webp',
+    phone: 'donate-gallery-rockwell-phone.webp',
+    // On a portrait tablet: three whole paintings rather than two and two halves.
+    position: '67% 72%',
     alt: 'A gallery hung with a row of framed paintings of Boy Scouts along a pale wall, a dark leather bench in the foreground.',
   },
 };
@@ -886,9 +907,20 @@ function backdropHtml(backdrop, base) {
   <span class="carousel__glyph" aria-hidden="true"></span>
 </button>`;
   }
+  // The position travels as a custom property rather than an inline
+  // object-position, so the stylesheet can centre the phone picture instead.
+  const img = `<img src="${base}assets/img/${backdrop.src}"${backdrop.position ? ` style="--position:${backdrop.position}"` : ''}
+       alt="${esc(backdrop.alt)}">`;
+  if (!backdrop.phone) return `<div class="page-backdrop">
+  ${img}
+</div>`;
+  // Portrait and narrower than 2:3 is a phone held upright; a portrait tablet
+  // (3:4) keeps the full picture. The same query is in site.css.
   return `<div class="page-backdrop">
-  <img src="${base}assets/img/${backdrop.src}"${backdrop.position ? ` style="object-position:${backdrop.position}"` : ''}
-       alt="${esc(backdrop.alt)}">
+  <picture>
+    <source media="(max-aspect-ratio: 2/3)" srcset="${base}assets/img/${backdrop.phone}">
+    ${img}
+  </picture>
 </div>`;
 }
 
