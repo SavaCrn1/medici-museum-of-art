@@ -7,3 +7,13 @@ Thumbs.db
 # only the images actually chosen should be committed, into assets/img/.
 WeTransfer.zip
 Selected Images/
+
+# Working notes and editor settings: kept on the developer's machine, not
+# published with the site.
+Final Pitcures.md
+Pictures Needed.md
+MUSEUM WEBSITE FIXINGS.txt
+.claude/
+
+# Temporary browser-test pages.
+_qa/
