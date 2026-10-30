@@ -45,7 +45,8 @@
 
   --shell: 1240px;
   --gutter: clamp(1.25rem, 4vw, 3.5rem);
-  --band: clamp(3.5rem, 8vw, 7rem);
+  /* Vertical padding of a section: 28px on a phone, 72px on a wide screen. */
+  --band: clamp(1.75rem, 5vw, 4.5rem);
 }
 
 *,
@@ -277,7 +278,17 @@ main:focus {
 }
 
 .band--tight {
-  padding-block: clamp(2.5rem, 5vw, 4rem);
+  padding-block: clamp(1.25rem, 3.5vw, 2.75rem);
+}
+
+/* Two bands on the same ground leave one gap between them, not two paddings
+   stacked. A band with its own colour keeps both, so its text never meets its
+   edge, and nothing loses its top padding after a carousel photograph. On a
+   backdrop page every band is transparent, so they all count as the same
+   ground. */
+.band:not(.band--warm, .band--night, .carousel-hero) + .band:not(.band--warm, .band--night),
+.has-backdrop main > .band:not(.carousel-hero) + .band {
+  padding-top: 0;
 }
 
 .band--warm {
@@ -1071,7 +1082,7 @@ main:focus {
 
 .split {
   display: grid;
-  gap: clamp(2rem, 5vw, 4rem);
+  gap: clamp(1.5rem, 5vw, 4rem);
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
   align-items: start;
 }
@@ -1084,7 +1095,7 @@ main:focus {
 
 /* A heading over a second row of split columns, set apart from the row above. */
 .split-heading {
-  margin-top: clamp(2.5rem, 6vw, 4rem);
+  margin-top: clamp(1.75rem, 5vw, 4rem);
 }
 
 /* A photograph set in the flow of a column of text. */
@@ -1136,7 +1147,7 @@ main:focus {
 }
 
 .tile-heading {
-  margin-top: clamp(3rem, 7vw, 5rem);
+  margin-top: clamp(2rem, 6vw, 5rem);
 }
 
 .tile a {
@@ -2692,14 +2703,18 @@ h2 .exhibition__artist + em {
 }
 
 /* Each section is a screenful, vertically centred, clearing the sticky
-   header. --header-h is measured and written by site.js; the fallback keeps
-   the layout sane before that runs. */
+   header, but only while snapping is on. Without it (phones, reduced motion,
+   a screen too short for the guard) the full-screen minimum only added empty
+   bands, about 900px of them down a phone. --header-h is measured and written
+   by site.js; the fallback keeps the layout sane before that runs. */
 .page-home main > section {
-  min-height: calc(100svh - var(--header-h, 5rem));
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-block: clamp(2rem, 5vh, 4rem);
+}
+
+html.snap-on .page-home main > section {
+  min-height: calc(100svh - var(--header-h, 5rem));
 }
 
 /* --- The snapping itself, switched on only by the runtime guard --------- */
