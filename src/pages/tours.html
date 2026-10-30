@@ -64,13 +64,13 @@
 <section class="band" aria-labelledby="tour-form">
   <div class="shell">
     <h2 id="tour-form">Guided tour request</h2>
-    {{formNotice:tours}}
+    {{formNotice}}
     <p>Tell us a little more and we will be in touch. Fields marked <span class="req">*</span> are required.</p>
 
-    <form class="form" data-validate method="post" action="{{formAction:tours}}"
+    <form class="form" data-validate method="post" action="{{formAction}}"
           data-sent="Thank you. Your tour request has been sent, and we will be in touch to confirm.">
-      {{formTrap}}
-      <input type="hidden" name="_subject" value="New tour request from the museum website">
+      {{formFields}}
+      <input type="hidden" name="subject" value="New tour request from the museum website">
       <p class="form__status" role="alert" data-form-status></p>
 
       <fieldset>

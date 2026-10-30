@@ -139,18 +139,15 @@
 
     <div>
       <h2 id="contact-form">Send us a message</h2>
-      <div class="notice" role="note">
-      <p><strong>This form is not connected yet.</strong> It is part of a site rebuild and does not send
-        anywhere. To reach us today, call
-        <a href="tel:+13308562120">(330) 856-2120</a> or email
-        <a class="" href="https://mail.google.com/mail/?view=cm&fs=1&to=info%40medicimuseum.art" target="_blank" rel="noopener"><span>info@medicimuseum.art</span><span class="visually-hidden"> (opens Gmail in a new tab)</span></a>.</p>
-    </div>
+      
       <p>Fields marked <span class="req">*</span> are required.</p>
 
-      <form class="form" data-validate method="post" action="#"
+      <form class="form" data-validate method="post" action="https://api.web3forms.com/submit"
             data-sent="Thank you. Your message has been sent, and we will reply by email.">
-        <div style="display:none"><label>Leave this empty <input type="text" name="_gotcha" tabindex="-1" autocomplete="off"></label></div>
-        <input type="hidden" name="_subject" value="New message from the museum website">
+        <input type="hidden" name="access_key" value="40518d98-8e82-4a11-8840-93afa2b2eedc">
+      <input type="hidden" name="from_name" value="Medici Museum of Art website">
+      <div style="display:none"><label>Leave this empty <input type="checkbox" name="botcheck" tabindex="-1"></label></div>
+        <input type="hidden" name="subject" value="New message from the museum website">
         <p class="form__status" role="alert" data-form-status></p>
 
         <fieldset>
@@ -183,7 +180,7 @@
           <legend>Your message</legend>
           <div class="field">
             <label for="c-subject">Subject <span class="req" aria-hidden="true">*</span></label>
-            <input id="c-subject" name="subject" type="text" required aria-describedby="c-subject-error">
+            <input id="c-subject" name="messageSubject" type="text" required aria-describedby="c-subject-error">
             <p class="field__error" id="c-subject-error"></p>
           </div>
 
@@ -323,7 +320,7 @@
   </footer>
 
 <script src="../assets/js/data.js?v=72b3cff4"></script>
-<script src="../assets/js/search-index.js?v=47cef76c"></script>
-<script src="../assets/js/site.js?v=26b6ba17"></script>
+<script src="../assets/js/search-index.js?v=4412ecbe"></script>
+<script src="../assets/js/site.js?v=912f0c2f"></script>
 </body>
 </html>

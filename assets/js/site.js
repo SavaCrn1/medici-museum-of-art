@@ -1221,10 +1221,15 @@
     if (button) button.disabled = true;
     if (status) status.textContent = 'Sending…';
 
+    // Sent as JSON, the way Web3Forms documents it: posted as form data it
+    // answers with its own HTML success page rather than JSON.
+    var data = {};
+    new FormData(form).forEach(function (value, key) { data[key] = value; });
+
     fetch(action, {
       method: 'POST',
-      body: new FormData(form),
-      headers: { Accept: 'application/json' },
+      body: JSON.stringify(data),
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     })
       .then(function (response) {
         if (!response.ok) throw new Error('HTTP ' + response.status);

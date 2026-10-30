@@ -72,18 +72,16 @@ const site = {
     { name: 'Instagram', href: 'https://www.instagram.com/medicimuseum.art/' },
   ],
 
-  // Where each form sends: a Formspree form URL, https://formspree.io/f/xxxxxxxx.
-  // The inbox a form delivers to is set in the Formspree dashboard, not here.
-  // Handing the site over therefore means either changing that inbox in
-  // Formspree, or replacing these URLs with forms on the museum's own account.
-  // While a value is null the form shows a "not connected yet" notice and
-  // does not send.
-  forms: {
-    contact: null,
-    tours: null,
-    rentals: null,
-    subscribe: null,
-  },
+  // The Web3Forms access key every form sends with (web3forms.com). A key is
+  // requested with an email address and delivers to that inbox; each form's
+  // subject line says which form a message came from. The key is public by
+  // design, so it is safe in the page source.
+  //
+  // This is the developer's own key, for testing during the rebuild. At
+  // handover the museum requests its own key at web3forms.com with its own
+  // address and replaces this one. While it is null every form shows a
+  // "not connected yet" notice and does not send.
+  formsKey: '40518d98-8e82-4a11-8840-93afa2b2eedc',
 
   external: {
     eventbrite: 'https://www.medicimuseum.eventbrite.com/',

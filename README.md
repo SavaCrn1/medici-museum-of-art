@@ -104,13 +104,12 @@ These need the museum, not the code:
 4. **Confirm `info@medicimuseum.art` is monitored.** The old footer displayed that address but
    linked to two named staff inboxes.
 5. **Publish current events.** Nothing has been listed since 17 January 2026.
-6. **Connect the forms, then hand them over.** The Contact, Tours, Rentals and Subscribe forms
-   send through [Formspree](https://formspree.io): paste each form's URL into `forms` in
-   `src/site.config.js` and rebuild. A form with no URL says it is not connected and sends
-   nothing. The inbox each form delivers to is set in the Formspree dashboard, not in the site.
-   During the build they are tested against the developer's own inbox, so **at handover** either
-   change each form's inbox in Formspree to the museum's address, or have the museum create its
-   own Formspree forms and replace the four URLs.
+6. **Hand the forms over.** The Contact, Tours, Rentals and Subscribe forms send through
+   [Web3Forms](https://web3forms.com) with the access key in `formsKey` in `src/site.config.js`.
+   A key delivers to the inbox that requested it, and during the build that is the
+   developer's own. **At handover** the museum enters its own address at web3forms.com, gets a
+   key by email, and replaces `formsKey` with it; rebuild and send one test message. With no key
+   every form says it is not connected and sends nothing.
 7. **Document the building's accessibility** on `/visit`. Left blank on purpose rather than
    guessed — see ACCESSIBILITY.md.
 

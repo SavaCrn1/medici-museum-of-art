@@ -781,20 +781,15 @@ function headlineExhibition() {
 }
 
 /**
- * Forms send to Formspree, one form each, set in site.forms. A form whose
- * endpoint is not set yet must not look as if it sends, because silently
- * discarding a message is worse than no form at all: it says so and offers the
- * phone and email that do work. Once its endpoint is set the notice goes.
+ * Forms send to Web3Forms with the access key in site.formsKey. Until a key is
+ * set, a form must not look as if it sends, because silently discarding a
+ * message is worse than no form at all: it says so and offers the phone and
+ * email that do work. Once the key is set the notice goes.
  */
-function formEndpoint(name) {
-  if (!(name in site.forms)) {
-    throw new Error(`Unknown form "${name}": add it to forms in src/site.config.js`);
-  }
-  return site.forms[name];
-}
+const FORMS_ENDPOINT = 'https://api.web3forms.com/submit';
 
-function formNotice(name) {
-  if (formEndpoint(name)) return '';
+function formNotice() {
+  if (site.formsKey) return '';
   return `<div class="notice" role="note">
       <p><strong>This form is not connected yet.</strong> It is part of a site rebuild and does not send
         anywhere. To reach us today, call
@@ -803,9 +798,12 @@ function formNotice(name) {
     </div>`;
 }
 
-// Formspree discards any submission that fills in `_gotcha`. People never see
-// the field; form-filling bots do, and fill it.
-const FORM_TRAP = `<div style="display:none"><label>Leave this empty <input type="text" name="_gotcha" tabindex="-1" autocomplete="off"></label></div>`;
+// The hidden fields every form sends: the access key, the sender name the
+// email arrives under, and a trap. Web3Forms discards any submission that ticks
+// `botcheck`; people never see the box, form-filling bots do, and tick it.
+const FORM_FIELDS = `<input type="hidden" name="access_key" value="${esc(site.formsKey || '')}">
+      <input type="hidden" name="from_name" value="${esc(site.name)} website">
+      <div style="display:none"><label>Leave this empty <input type="checkbox" name="botcheck" tabindex="-1"></label></div>`;
 
 /* ---------------------------------------------------------------------------
    Structured data — helps search engines and voice assistants answer
@@ -959,10 +957,9 @@ function render(template, page) {
     .replace(/\{\{contactPhoneEmail\}\}/g, () => contactBlock({ heading: false, parts: ['phone', 'email'] }))
     .replace(/\{\{hoursTable\}\}/g, () => hoursTable())
     .replace(/\{\{calendar\}\}/g, () => calendarBlock())
-    // {{formNotice:<name>}}, {{formAction:<name>}} — <name> is a key of site.forms.
-    .replace(/\{\{formNotice:(\w+)\}\}/g, (_, name) => formNotice(name))
-    .replace(/\{\{formAction:(\w+)\}\}/g, (_, name) => formEndpoint(name) || '#')
-    .replace(/\{\{formTrap\}\}/g, FORM_TRAP)
+    .replace(/\{\{formNotice\}\}/g, formNotice)
+    .replace(/\{\{formAction\}\}/g, site.formsKey ? FORMS_ENDPOINT : '#')
+    .replace(/\{\{formFields\}\}/g, FORM_FIELDS)
     .replace(/\{\{exhibitionsGrid\}\}/g, () => exhibitionsGrid())
     .replace(/\{\{permanentTiles\}\}/g, () => permanentTiles())
     .replace(/\{\{headlineExhibition\}\}/g, () => headlineExhibition())

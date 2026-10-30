@@ -15,13 +15,13 @@
 
     <div>
       <h2 id="contact-form">Send us a message</h2>
-      {{formNotice:contact}}
+      {{formNotice}}
       <p>Fields marked <span class="req">*</span> are required.</p>
 
-      <form class="form" data-validate method="post" action="{{formAction:contact}}"
+      <form class="form" data-validate method="post" action="{{formAction}}"
             data-sent="Thank you. Your message has been sent, and we will reply by email.">
-        {{formTrap}}
-        <input type="hidden" name="_subject" value="New message from the museum website">
+        {{formFields}}
+        <input type="hidden" name="subject" value="New message from the museum website">
         <p class="form__status" role="alert" data-form-status></p>
 
         <fieldset>
@@ -54,7 +54,7 @@
           <legend>Your message</legend>
           <div class="field">
             <label for="c-subject">Subject <span class="req" aria-hidden="true">*</span></label>
-            <input id="c-subject" name="subject" type="text" required aria-describedby="c-subject-error">
+            <input id="c-subject" name="messageSubject" type="text" required aria-describedby="c-subject-error">
             <p class="field__error" id="c-subject-error"></p>
           </div>
 

@@ -79,13 +79,13 @@
 <section class="band band--warm" aria-labelledby="rental-form">
   <div class="shell">
     <h2 id="rental-form">Event enquiry</h2>
-    {{formNotice:rentals}}
+    {{formNotice}}
     <p>Fields marked <span class="req">*</span> are required.</p>
 
-    <form class="form" data-validate method="post" action="{{formAction:rentals}}"
+    <form class="form" data-validate method="post" action="{{formAction}}"
           data-sent="Thank you. Your enquiry has been sent, and we will be in touch about your event.">
-      {{formTrap}}
-      <input type="hidden" name="_subject" value="New event enquiry from the museum website">
+      {{formFields}}
+      <input type="hidden" name="subject" value="New event enquiry from the museum website">
       <p class="form__status" role="alert" data-form-status></p>
 
       <fieldset>
