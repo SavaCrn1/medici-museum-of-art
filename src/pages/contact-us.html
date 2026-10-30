@@ -6,104 +6,74 @@
   </div>
 </section>
 
-<section class="band band--warm band--tight" aria-labelledby="reach-us">
+<section class="band band--tight">
   <div class="shell split">
     <div>
       <h2 id="reach-us">Reach us directly</h2>
-      {{contactNoHeading}}
+      {{contactPhoneEmail}}
     </div>
+
     <div>
-      <h2>Which route is quickest</h2>
-      <dl class="contact-list">
+      <h2 id="contact-form">Send us a message</h2>
+      {{formNotice:contact}}
+      <p>Fields marked <span class="req">*</span> are required.</p>
+
+      <form class="form" data-validate method="post" action="{{formAction:contact}}"
+            data-sent="Thank you. Your message has been sent, and we will reply by email.">
+        {{formTrap}}
+        <input type="hidden" name="_subject" value="New message from the museum website">
+        <p class="form__status" role="alert" data-form-status></p>
+
+        <fieldset>
+          <legend>Your details</legend>
+          <div class="form-row">
+            <div class="field">
+              <label for="c-first">First name <span class="req" aria-hidden="true">*</span></label>
+              <input id="c-first" name="firstName" type="text" autocomplete="given-name" required
+                     aria-describedby="c-first-error">
+              <p class="field__error" id="c-first-error"></p>
+            </div>
+            <div class="field">
+              <label for="c-last">Last name <span class="req" aria-hidden="true">*</span></label>
+              <input id="c-last" name="lastName" type="text" autocomplete="family-name" required
+                     aria-describedby="c-last-error">
+              <p class="field__error" id="c-last-error"></p>
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:1.35rem">
+            <label for="c-email">Email <span class="req" aria-hidden="true">*</span></label>
+            <input id="c-email" name="email" type="email" autocomplete="email" required
+                   aria-describedby="c-email-hint c-email-error">
+            <p class="hint" id="c-email-hint">So we can reply. We do not share it.</p>
+            <p class="field__error" id="c-email-error"></p>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Your message</legend>
+          <div class="field">
+            <label for="c-subject">Subject <span class="req" aria-hidden="true">*</span></label>
+            <input id="c-subject" name="subject" type="text" required aria-describedby="c-subject-error">
+            <p class="field__error" id="c-subject-error"></p>
+          </div>
+
+          <div class="field" style="margin-top:1.35rem">
+            <label for="c-message">Message <span class="req" aria-hidden="true">*</span></label>
+            <textarea id="c-message" name="message" required aria-describedby="c-message-error"></textarea>
+            <p class="field__error" id="c-message-error"></p>
+          </div>
+
+          <div class="checkbox" style="margin-top:1.35rem">
+            <input id="c-news" name="newsletter" type="checkbox">
+            <label for="c-news">Sign me up for news and updates</label>
+          </div>
+        </fieldset>
+
         <div>
-          <dt>Tours and school groups</dt>
-          <dd>Use the <a href="{{base}}tours/">tour request form</a>, or call during opening hours.</dd>
+          <button class="btn" type="submit">Send message</button>
         </div>
-        <div>
-          <dt>Weddings and private hire</dt>
-          <dd>Use the <a href="{{base}}rentals/">event enquiry form</a>.</dd>
-        </div>
-        <div>
-          <dt>Volunteering</dt>
-          <dd>See <a href="{{base}}volunteer/">Volunteer</a> for the application form.</dd>
-        </div>
-        <div>
-          <dt>Press, image rights and reproductions</dt>
-          <!-- The old site linked to /rights-and-reproductions here and in the
-               footer of every page. That URL already returns an error on the
-               live Squarespace site, so it points at the people who can answer
-               instead of at a 404. Restore the link once the policy is written:
-               see external.rightsAndReproductions in src/site.config.js. -->
-          <dd>Contact us for permission to reproduce an image from the collection.</dd>
-        </div>
-        <div>
-          <dt>Accessibility</dt>
-          <dd>Tell us what you need for your visit, or report a problem with this website, and we will put it
-            right.</dd>
-        </div>
-      </dl>
+      </form>
     </div>
-  </div>
-</section>
-
-<section class="band" aria-labelledby="contact-form">
-  <div class="shell">
-    <h2 id="contact-form">Send a message</h2>
-    {{formNotice}}
-    <p>Fields marked <span class="req">*</span> are required.</p>
-
-    <form class="form" data-validate method="post" action="#">
-      <p class="form__status" role="alert" data-form-status></p>
-
-      <fieldset>
-        <legend>Your details</legend>
-        <div class="form-row">
-          <div class="field">
-            <label for="c-first">First name <span class="req" aria-hidden="true">*</span></label>
-            <input id="c-first" name="firstName" type="text" autocomplete="given-name" required
-                   aria-describedby="c-first-error">
-            <p class="field__error" id="c-first-error"></p>
-          </div>
-          <div class="field">
-            <label for="c-last">Last name <span class="req" aria-hidden="true">*</span></label>
-            <input id="c-last" name="lastName" type="text" autocomplete="family-name" required
-                   aria-describedby="c-last-error">
-            <p class="field__error" id="c-last-error"></p>
-          </div>
-        </div>
-
-        <div class="field" style="margin-top:1.35rem">
-          <label for="c-email">Email <span class="req" aria-hidden="true">*</span></label>
-          <input id="c-email" name="email" type="email" autocomplete="email" required
-                 aria-describedby="c-email-hint c-email-error">
-          <p class="hint" id="c-email-hint">So we can reply. We do not share it.</p>
-          <p class="field__error" id="c-email-error"></p>
-        </div>
-      </fieldset>
-
-      <fieldset>
-        <legend>Your message</legend>
-        <div class="field">
-          <label for="c-subject">Subject <span class="req" aria-hidden="true">*</span></label>
-          <input id="c-subject" name="subject" type="text" required aria-describedby="c-subject-error">
-          <p class="field__error" id="c-subject-error"></p>
-        </div>
-
-        <div class="field" style="margin-top:1.35rem">
-          <label for="c-message">Message <span class="req" aria-hidden="true">*</span></label>
-          <textarea id="c-message" name="message" required aria-describedby="c-message-error"></textarea>
-          <p class="field__error" id="c-message-error"></p>
-        </div>
-
-        <div class="checkbox" style="margin-top:1.35rem">
-          <input id="c-news" name="newsletter" type="checkbox">
-          <label for="c-news">Sign me up for news and updates</label>
-        </div>
-      </fieldset>
-
-      <div>
-        <button class="btn" type="submit">Send message</button>
-      </div>
-    </form>
   </div>
 </section>

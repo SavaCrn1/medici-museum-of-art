@@ -20,8 +20,11 @@
 
     <div>
       <h2 id="signup">Join the list</h2>
-      {{formNotice}}
-      <form class="form" data-validate method="post" action="#" aria-labelledby="signup">
+      {{formNotice:subscribe}}
+      <form class="form" data-validate method="post" action="{{formAction:subscribe}}" aria-labelledby="signup"
+            data-sent="Thank you. You are on the list.">
+        {{formTrap}}
+        <input type="hidden" name="_subject" value="New newsletter sign-up from the museum website">
         <p class="form__status" role="alert" data-form-status></p>
 
         <div class="form-row">

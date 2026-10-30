@@ -6,7 +6,8 @@
 
 #### About us (4)
 
-* Mission and Vision = AboutUs\_MissionAndVision\_images option06
+* Page background = \AboutUs_MissionAndVision_images option04 
+Mision and Vision = AboutUs\_MissionAndVision\_images option06
 * See what is on view = \\AboutUs\_SeeWhatIsOnView\_images option06
 * Plan a visit = \\AboutUs\_PlanAVisit\_images option05
 * Get Involved = \\AboutUs\_GetInvolved\_images option06
@@ -25,10 +26,16 @@
 
 #### Tours (2)
 
-* Book a tour
 * Tour options
+* Page Background = \Tours_TourOptions_images DJI_20251028141319_0027_D.mp4 (video without sound, 0:17 - 1:00)
 
-  * maybe specific pictures for each option? (4)
+* General Museum Tour = \Tours_TourOptions_images Install-8
+
+* Special Exhibition tour = Tours_BookATour_images option04
+
+* Themed tours = \Tours_TourOptions_images 20230120_125136.jpg
+
+* School and Group tours = \Tours_TourOptions_images option01
 
 
 
@@ -40,7 +47,7 @@
 
 #### Volunteer (2)
 
-* Volunteer opportunities carousel option_2 and option_4
+* Volunteer opportunities carousel option_2 and option_4 and IMG_2803.jpeg
 * Apply = install-23.jpg
 
 
@@ -61,9 +68,7 @@
 
 #### Events and Classes
 
-* Upcoming events and classes (1) or carousel (5+)
-* 
-
+* Upcoming events and classes = carousel with options 2, 4, 7, 8
 
 
 

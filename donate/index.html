@@ -14,12 +14,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&display=swap">
-<link rel="stylesheet" href="../assets/css/site.css?v=98f68514">
+<link rel="stylesheet" href="../assets/css/site.css?v=47b961b2">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Museum","name":"Medici Museum of Art","url":"https://medicimuseum.art","telephone":"+1-330-856-2120","email":"info@medicimuseum.art","address":{"@type":"PostalAddress","streetAddress":"9350 East Market St.","addressLocality":"Warren","addressRegion":"OH","postalCode":"44484","addressCountry":"US"},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["https://schema.org/Wednesday","https://schema.org/Thursday","https://schema.org/Friday","https://schema.org/Saturday","https://schema.org/Sunday"],"opens":"11:00","closes":"16:00"}],"isAccessibleForFree":true,"sameAs":["https://www.facebook.com/medicimuseumofart/","https://www.instagram.com/medicimuseum.art/"]}</script>
 </head>
-<body data-base="../">
+<body data-base="../" class="has-backdrop">
 <a class="skip-link" href="#main">Skip to main content</a>
-
+<div class="page-backdrop">
+  <img src="../assets/img/donate-gallery-rockwell.webp"
+       alt="A gallery hung with a row of framed paintings of Boy Scouts along a pale wall, a dark leather bench in the foreground.">
+</div>
 
   <header class="site-header">
     <div class="shell site-header__inner">
@@ -114,9 +117,13 @@
   </div>
 </section>
 
+<!-- The two photographs behind the text are decoration, so they carry empty
+     alt text, as on the Volunteer page's Apply box. -->
 <section class="band band--tight">
   <div class="shell split">
-    <div>
+    <div class="notice notice--photo band--night">
+      <img class="notice__photo" src="../assets/img/donate-walkway-sculpture.webp" width="800" height="1200"
+           loading="lazy" alt="">
       <p>Your gift helps the museum maintain free general admission, offer engaging public programs, present
         thought-provoking exhibitions, and provide community outreach. Please help us strengthen and enhance MMA
         for this and future generations. All donations are tax deductible.</p>
@@ -127,20 +134,97 @@
         for free.</p>
     </div>
     <div>
-      <div class="notice">
+      <div class="notice notice--photo band--night">
+        <img class="notice__photo" src="../assets/img/donate-expansion-model.webp" width="1600" height="1200"
+             loading="lazy" alt="">
         <h2 style="margin-top:0">Give today</h2>
-        <!-- TO BE COMPLETED BY MUSEUM STAFF: point this at the museum's own
-             donation platform. It is deliberately left as a contact route
-             rather than a dead button. -->
-        <p>To make a gift, or to discuss a larger donation, sponsorship or a bequest, contact us directly and we
-          will take it from there.</p>
-        <p><a class="action-link" href="tel:+13308562120"><span>(330) 856-2120</span></a></p>
-        <p><a class="action-link" href="https://mail.google.com/mail/?view=cm&fs=1&to=info%40medicimuseum.art" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5z"/></svg><span>info@medicimuseum.art</span><span class="visually-hidden"> (opens Gmail in a new tab)</span></a></p>
+        <p>Every gift goes toward free admission, exhibitions and programs for the whole community.</p>
+        <!-- Without JavaScript this is a plain link to the current donation
+             page; site.js turns it into the button that opens the dialog below. -->
+        <p><a class="btn btn--night" href="https://www.medicimuseum.art/donate#block-4015b40c8a4afb697a69" data-donate-open>Donate</a></p>
         <p><small>Medici Museum of Art is a nonprofit museum. Donations are tax deductible.</small></p>
       </div>
     </div>
   </div>
 </section>
+
+<!-- The donation dialog. Step one collects the gift; step two is the payment
+     itself, which is the payment provider's own form embedded in the dialog
+     (site.config.js → external.donateEmbed). Card details are never collected
+     by this site. -->
+<dialog class="donate-dialog" id="donate-dialog" aria-labelledby="donate-dialog-title"
+        data-embed="" data-fallback="https://www.medicimuseum.art/donate#block-4015b40c8a4afb697a69">
+  <button type="button" class="donate-dialog__close" data-donate-close aria-label="Close">&times;</button>
+
+  <div data-donate-step="gift">
+    <h2 id="donate-dialog-title">Make a donation</h2>
+    <form class="form" data-validate data-donate-form>
+      <p class="form__status" data-form-status role="alert"></p>
+
+      <fieldset>
+        <legend>Gift amount</legend>
+        <div class="amount-options">
+          <label><input type="radio" name="amount" value="25"><span>$25</span></label>
+          <label><input type="radio" name="amount" value="50" checked><span>$50</span></label>
+          <label><input type="radio" name="amount" value="100"><span>$100</span></label>
+          <label><input type="radio" name="amount" value="250"><span>$250</span></label>
+          <label><input type="radio" name="amount" value="other"><span>Other</span></label>
+        </div>
+        <div class="field" data-donate-other hidden style="margin-top:1rem">
+          <label for="d-other">Other amount, in US dollars</label>
+          <input id="d-other" name="otherAmount" type="number" min="1" step="1" inputmode="numeric"
+                 aria-describedby="d-other-error">
+          <p class="field__error" id="d-other-error"></p>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>How often</legend>
+        <div class="amount-options">
+          <label><input type="radio" name="frequency" value="once" checked><span>One time</span></label>
+          <label><input type="radio" name="frequency" value="monthly"><span>Monthly</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Your details</legend>
+        <div class="form-row">
+          <div class="field">
+            <label for="d-first">First name <span class="req" aria-hidden="true">*</span></label>
+            <input id="d-first" name="firstName" type="text" autocomplete="given-name" required
+                   aria-describedby="d-first-error">
+            <p class="field__error" id="d-first-error"></p>
+          </div>
+          <div class="field">
+            <label for="d-last">Last name <span class="req" aria-hidden="true">*</span></label>
+            <input id="d-last" name="lastName" type="text" autocomplete="family-name" required
+                   aria-describedby="d-last-error">
+            <p class="field__error" id="d-last-error"></p>
+          </div>
+        </div>
+        <div class="field" style="margin-top:1.35rem">
+          <label for="d-email">Email <span class="req" aria-hidden="true">*</span></label>
+          <input id="d-email" name="email" type="email" autocomplete="email" required
+                 aria-describedby="d-email-hint d-email-error">
+          <p class="hint" id="d-email-hint">For your tax receipt.</p>
+          <p class="field__error" id="d-email-error"></p>
+        </div>
+      </fieldset>
+
+      <p><button type="submit" class="btn">Continue to payment</button></p>
+    </form>
+  </div>
+
+  <div data-donate-step="pay" hidden>
+    <h2 tabindex="-1" data-donate-pay-heading>Payment</h2>
+    <p class="lede" data-donate-summary></p>
+    <div class="donate-dialog__embed" data-donate-embed></div>
+    <p data-donate-pending hidden>Secure online card payment is being connected to this page. In the meantime
+      you can complete your gift on our <a href="https://www.medicimuseum.art/donate#block-4015b40c8a4afb697a69" target="_blank" rel="noopener">current donation
+      page<span class="visually-hidden"> (opens in a new tab)</span></a>.</p>
+    <p><button type="button" class="btn btn--ghost" data-donate-back>Back</button></p>
+  </div>
+</dialog>
 
 </main>
 
@@ -258,7 +342,7 @@
   </footer>
 
 <script src="../assets/js/data.js?v=72b3cff4"></script>
-<script src="../assets/js/search-index.js?v=a1484ee8"></script>
-<script src="../assets/js/site.js?v=d287eabb"></script>
+<script src="../assets/js/search-index.js?v=47cef76c"></script>
+<script src="../assets/js/site.js?v=26b6ba17"></script>
 </body>
 </html>

@@ -72,8 +72,35 @@ const site = {
     { name: 'Instagram', href: 'https://www.instagram.com/medicimuseum.art/' },
   ],
 
+  // Where each form sends: a Formspree form URL, https://formspree.io/f/xxxxxxxx.
+  // The inbox a form delivers to is set in the Formspree dashboard, not here.
+  // Handing the site over therefore means either changing that inbox in
+  // Formspree, or replacing these URLs with forms on the museum's own account.
+  // While a value is null the form shows a "not connected yet" notice and
+  // does not send.
+  forms: {
+    contact: null,
+    tours: null,
+    rentals: null,
+    subscribe: null,
+  },
+
   external: {
     eventbrite: 'https://www.medicimuseum.eventbrite.com/',
+
+    // The Donate button on the Squarespace site is a donation widget that
+    // opens its own payment form, so it cannot be linked to directly; the
+    // fragment lands the visitor on that button. If this rebuild replaces the
+    // Squarespace site at the same address, this link would point back at
+    // ourselves: swap it for the museum's donation platform before launch.
+    donate: 'https://www.medicimuseum.art/donate#block-4015b40c8a4afb697a69',
+
+    // The payment step of the Donate dialog: the embeddable form URL from the
+    // museum's payment provider (for example a Givebutter, Zeffy or Donorbox
+    // embed link). It is shown in an iframe inside the dialog, so the visitor
+    // never leaves the page. While it is null the dialog explains that online
+    // payment is being connected and links to `donate` above instead.
+    donateEmbed: null,
 
     // Served from this repository rather than from Squarespace, so it survives
     // the move off that platform. Replace the file in place to update it.

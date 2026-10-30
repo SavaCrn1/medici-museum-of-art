@@ -1029,7 +1029,7 @@
      for an auto-rotating carousel.
 
      The live region is the subtle part. While the carousel rotates by itself
-     it is aria-live="off", because announcing a new picture every four seconds
+     it is aria-live="off", because announcing a new picture every three seconds
      to a screen reader user who did not ask for it is noise. The moment
      someone drives it with the buttons, it becomes aria-live="polite" so their
      own action is confirmed. Rotation then stays off: a carousel that resumes
@@ -1048,7 +1048,7 @@
       var next = root.querySelector('[data-carousel-next]');
       var toggle = root.querySelector('[data-carousel-toggle]');
       var toggleLabel = root.querySelector('[data-carousel-toggle-label]');
-      var interval = parseInt(root.getAttribute('data-interval'), 10) || 4000;
+      var interval = parseInt(root.getAttribute('data-interval'), 10) || 3000;
 
       var current = 0;
       var timer = null;
@@ -1105,7 +1105,7 @@
 
       // Announce slide changes only once someone is driving. Left polite while
       // the carousel rotates on its own, a screen reader would be interrupted
-      // every four seconds by something nobody asked for.
+      // every three seconds by something nobody asked for.
       function setLive(mode) {
         if (status) status.setAttribute('aria-live', mode);
       }
@@ -1203,13 +1203,198 @@
         }
 
         if (status) status.textContent = '';
+
+        // A form with a real endpoint is sent from here, so the visitor stays
+        // on the page and hears the outcome in the status box. One still
+        // pointing at "#" is not connected and is left alone.
+        var action = form.getAttribute('action') || '';
+        if (/^https:\/\//.test(action)) {
+          event.preventDefault();
+          send(form, action, status);
+        }
       });
     });
+  }
+
+  function send(form, action, status) {
+    var button = form.querySelector('button[type="submit"]');
+    if (button) button.disabled = true;
+    if (status) status.textContent = 'Sending…';
+
+    fetch(action, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { Accept: 'application/json' },
+    })
+      .then(function (response) {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        form.reset();
+        if (status) status.textContent = form.getAttribute('data-sent') || 'Thank you. Your message has been sent.';
+      })
+      .catch(function () {
+        if (status) {
+          status.textContent =
+            'Sorry, this could not be sent. Please try again, or use the phone number or email address at the foot of this page.';
+        }
+      })
+      .then(function () {
+        if (button) button.disabled = false;
+      });
   }
 
   function describe(field) {
     var label = field.form.querySelector('label[for="' + field.id + '"]');
     return label ? label.textContent.replace('(required)', '').trim() : 'This field';
+  }
+
+  /* ---------------------------------------------------------------------------
+     Video backdrop
+     The video is started here rather than by an autoplay attribute, so a
+     visitor who has asked for reduced motion gets the still poster and a play
+     button instead. The button is revealed only once this script is running,
+     since without it there is nothing for the button to do.
+     --------------------------------------------------------------------------- */
+
+  function initBackdropVideo() {
+    var video = document.querySelector('[data-backdrop-video]');
+    var toggle = document.querySelector('[data-backdrop-toggle]');
+    if (!video || !toggle) return;
+
+    var label = toggle.querySelector('[data-backdrop-toggle-label]');
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function render() {
+      var playing = !video.paused;
+      toggle.classList.toggle('is-paused', !playing);
+      label.textContent = playing ? 'Pause the background video' : 'Play the background video';
+    }
+
+    function play() {
+      // play() can be refused (data saver, low-power mode). The poster stays
+      // and the button offers play, which is the honest state.
+      var attempt = video.play();
+      if (attempt && attempt.catch) attempt.catch(render);
+    }
+
+    video.addEventListener('play', render);
+    video.addEventListener('pause', render);
+    toggle.addEventListener('click', function () {
+      if (video.paused) play();
+      else video.pause();
+    });
+
+    toggle.hidden = false;
+    render();
+    if (!reduce) play();
+  }
+
+  /* ---------------------------------------------------------------------------
+     Donation dialog
+     The Donate link opens a native <dialog>, which brings focus trapping,
+     Escape to close and an inert page behind it for free. Step one is the gift;
+     step two is the payment provider's own form in an iframe, so the visitor
+     stays on this page and card details never touch this site. Without
+     showModal support the link simply goes to the donation page.
+     --------------------------------------------------------------------------- */
+
+  function initDonate() {
+    var dialog = document.getElementById('donate-dialog');
+    if (!dialog || typeof dialog.showModal !== 'function') return;
+
+    // The dialog is drawn on paper, but Donate sits on a backdrop photograph,
+    // and the dark-ground rules (.has-backdrop main …) would repaint its hints,
+    // errors and buttons light on light. Out of <main> they cannot reach it.
+    // Only this script ever opens it, so without the script nothing changes.
+    document.body.appendChild(dialog);
+
+    var form = dialog.querySelector('[data-donate-form]');
+    var giftStep = dialog.querySelector('[data-donate-step="gift"]');
+    var payStep = dialog.querySelector('[data-donate-step="pay"]');
+    var other = dialog.querySelector('[data-donate-other]');
+    var otherInput = other.querySelector('input');
+    var otherError = document.getElementById(otherInput.id + '-error');
+    var embedUrl = dialog.getAttribute('data-embed');
+
+    document.querySelectorAll('[data-donate-open]').forEach(function (link) {
+      link.setAttribute('role', 'button');
+      link.setAttribute('aria-haspopup', 'dialog');
+      link.addEventListener('click', function (event) {
+        event.preventDefault();
+        showStep('gift');
+        dialog.showModal();
+      });
+      // role="button" promises Space works as well as Enter.
+      link.addEventListener('keydown', function (event) {
+        if (event.key === ' ') {
+          event.preventDefault();
+          link.click();
+        }
+      });
+    });
+
+    dialog.querySelector('[data-donate-close]').addEventListener('click', function () {
+      dialog.close();
+    });
+
+    // A click on the backdrop lands on the dialog element itself.
+    dialog.addEventListener('click', function (event) {
+      if (event.target === dialog) dialog.close();
+    });
+
+    form.addEventListener('change', function (event) {
+      if (event.target.name !== 'amount') return;
+      var isOther = event.target.value === 'other';
+      other.hidden = !isOther;
+      if (isOther) otherInput.focus();
+    });
+
+    // Runs after initForms' handler, which has already checked the name and
+    // email fields and cancelled the submit if either was wrong.
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      var amount = form.elements.amount.value;
+      if (amount === 'other') {
+        amount = otherInput.value.trim();
+        var ok = /^\d+(\.\d{1,2})?$/.test(amount) && Number(amount) >= 1;
+        otherError.textContent = ok ? '' : 'Enter an amount of at least $1.';
+        otherInput.setAttribute('aria-invalid', ok ? 'false' : 'true');
+        // It sits above the name fields, so it is the first problem to fix.
+        if (!ok) {
+          otherInput.focus();
+          return;
+        }
+      }
+      if (form.querySelector('[aria-invalid="true"]')) return;
+
+      var monthly = form.elements.frequency.value === 'monthly';
+      dialog.querySelector('[data-donate-summary]').textContent =
+        'Your gift: $' + Number(amount).toLocaleString('en-US') + (monthly ? ' every month' : ', one time') + '.';
+
+      var embed = dialog.querySelector('[data-donate-embed]');
+      embed.innerHTML = '';
+      if (embedUrl) {
+        var frame = document.createElement('iframe');
+        frame.src = embedUrl;
+        frame.title = 'Secure payment';
+        frame.setAttribute('allow', 'payment');
+        embed.appendChild(frame);
+      }
+      dialog.querySelector('[data-donate-pending]').hidden = !!embedUrl;
+
+      showStep('pay');
+      dialog.querySelector('[data-donate-pay-heading]').focus();
+    });
+
+    dialog.querySelector('[data-donate-back]').addEventListener('click', function () {
+      showStep('gift');
+      form.querySelector('button[type="submit"]').focus();
+    });
+
+    function showStep(name) {
+      giftStep.hidden = name !== 'gift';
+      payStep.hidden = name !== 'pay';
+    }
   }
 
   /* ------------------------------------------------------------------------- */
@@ -1224,7 +1409,9 @@
     initScenicScroll();
     initSnapGuard();
     initCarousels();
+    initBackdropVideo();
     initForms();
+    initDonate(); // after initForms: its submit handler must run first
   }
 
   if (document.readyState === 'loading') {

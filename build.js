@@ -279,10 +279,12 @@ ${rows}
  * The contact block. Every detail is an action: the phone number dials, the
  * email opens a message to the address actually shown, and the address opens
  * directions. On the old site all three were inert text.
+ *
+ * `parts` picks which rows to show, in the order given.
  */
-function contactBlock({ heading = true } = {}) {
-  return `${heading ? '<h2>Visit &amp; contact</h2>' : ''}
-    <dl class="contact-list">
+function contactBlock({ heading = true, parts = ['address', 'phone', 'email', 'hours'] } = {}) {
+  const rows = {
+    address: `
       <div>
         <dt>Address</dt>
         <dd>
@@ -292,7 +294,8 @@ function contactBlock({ heading = true } = {}) {
           </address>
           ${mapLink(site.address.mapQuery, { label: 'Get directions' })}
         </dd>
-      </div>
+      </div>`,
+    phone: `
       <div>
         <dt>Phone</dt>
         <dd>
@@ -300,20 +303,25 @@ function contactBlock({ heading = true } = {}) {
             ${icons.phone}<span>${esc(site.phone.display)}</span>
           </a>
         </dd>
-      </div>
+      </div>`,
+    email: `
       <div>
         <dt>Email</dt>
         <dd>
           ${emailLink(site.email.href, { label: site.email.display })}
         </dd>
-      </div>
+      </div>`,
+    hours: `
       <div>
         <dt>Hours</dt>
         <dd>
           <p class="status-pill" data-open-status hidden></p>
           ${hoursTable()}
         </dd>
-      </div>
+      </div>`,
+  };
+  return `${heading ? '<h2>Visit &amp; contact</h2>' : ''}
+    <dl class="contact-list">${parts.map((part) => rows[part]).join('')}
     </dl>`;
 }
 
@@ -773,12 +781,20 @@ function headlineExhibition() {
 }
 
 /**
- * Forms in this rebuild are not wired to a delivery service yet. A form that
- * looks like it sends but silently discards a message is worse than no form at
- * all, so every form says so and offers the phone and email that do work.
- * Delete this block (and the {{formNotice}} tokens) once an endpoint is set.
+ * Forms send to Formspree, one form each, set in site.forms. A form whose
+ * endpoint is not set yet must not look as if it sends, because silently
+ * discarding a message is worse than no form at all: it says so and offers the
+ * phone and email that do work. Once its endpoint is set the notice goes.
  */
-function formNotice() {
+function formEndpoint(name) {
+  if (!(name in site.forms)) {
+    throw new Error(`Unknown form "${name}": add it to forms in src/site.config.js`);
+  }
+  return site.forms[name];
+}
+
+function formNotice(name) {
+  if (formEndpoint(name)) return '';
   return `<div class="notice" role="note">
       <p><strong>This form is not connected yet.</strong> It is part of a site rebuild and does not send
         anywhere. To reach us today, call
@@ -786,6 +802,10 @@ function formNotice() {
         ${emailLink(site.email.href, { cls: '', label: site.email.display })}.</p>
     </div>`;
 }
+
+// Formspree discards any submission that fills in `_gotcha`. People never see
+// the field; form-filling bots do, and fill it.
+const FORM_TRAP = `<div style="display:none"><label>Leave this empty <input type="text" name="_gotcha" tabindex="-1" autocomplete="off"></label></div>`;
 
 /* ---------------------------------------------------------------------------
    Structured data — helps search engines and voice assistants answer
@@ -825,10 +845,61 @@ function jsonLd() {
    Layout
    --------------------------------------------------------------------------- */
 
+// Pages that sit on a single fixed photograph or video, keyed by slug.
+// `position` is the object-position of the crop, for pictures whose subject is
+// off centre. A `video` backdrop is decoration: it carries no alt text, shows
+// its `poster` until site.js starts it, and gets a pause button.
+const BACKDROPS = {
+  '': {
+    src: 'museum-lawn-sculpture.webp',
+    alt: 'The museum from the lawn: a long, low white building under a wide summer sky, with a large bronze head on a black plinth at the centre of a planted bed, framed by slender columnar trees.',
+  },
+  'about-us-1': {
+    src: 'about-group-sculpture.webp',
+    position: '40% 50%',
+    alt: 'Ten people stand in a row on the plaza in front of a gilded sculpture of a woman seated cross-legged on a mirrored sphere, with tall trees behind them.',
+  },
+  visit: {
+    src: 'visit-gallery-window.webp',
+    position: '60% 50%',
+    alt: 'A corner of the museum at dusk: through a tall glass wall, a lit gallery shows a mosaic version of Starry Night and a row of small framed works.',
+  },
+  tours: {
+    video: 'tours-gallery-flythrough.mp4',
+    poster: 'tours-video-poster.webp',
+  },
+  donate: {
+    src: 'donate-gallery-rockwell.webp',
+    alt: 'A gallery hung with a row of framed paintings of Boy Scouts along a pale wall, a dark leather bench in the foreground.',
+  },
+};
+
+function backdropHtml(backdrop, base) {
+  if (!backdrop) return '';
+  if (backdrop.video) {
+    // No autoplay attribute: site.js starts it, unless the visitor has asked
+    // for reduced motion. Without the script the poster stands in.
+    return `<div class="page-backdrop">
+  <video src="${base}assets/video/${backdrop.video}" poster="${base}assets/img/${backdrop.poster}"
+         muted loop playsinline preload="metadata" aria-hidden="true" data-backdrop-video></video>
+</div>
+<button type="button" class="carousel__btn backdrop-toggle" data-backdrop-toggle hidden>
+  <span class="visually-hidden" data-backdrop-toggle-label>Pause the background video</span>
+  <span class="carousel__glyph" aria-hidden="true"></span>
+</button>`;
+  }
+  return `<div class="page-backdrop">
+  <img src="${base}assets/img/${backdrop.src}"${backdrop.position ? ` style="object-position:${backdrop.position}"` : ''}
+       alt="${esc(backdrop.alt)}">
+</div>`;
+}
+
 function layout(page, content) {
   const base = baseFor(page.slug);
   const canonical = page.slug === '' ? `${site.url}/` : `${site.url}/${page.slug}`;
   const fullTitle = page.slug === '' ? site.name : `${page.title} — ${site.name}`;
+  const backdrop = BACKDROPS[page.slug];
+  const bodyClass = [page.slug === '' && 'page-home', backdrop && 'has-backdrop'].filter(Boolean).join(' ');
 
   return `<!DOCTYPE html>
 <html lang="en-US">
@@ -849,19 +920,14 @@ function layout(page, content) {
 <link rel="stylesheet" href="${base}assets/css/site.css?v=${assetVersion.css}">
 <script type="application/ld+json">${jsonLd()}</script>
 </head>
-<body data-base="${base}"${page.slug === '' ? ' class="page-home"' : ''}>
+<body data-base="${base}"${bodyClass ? ` class="${bodyClass}"` : ''}>
 <a class="skip-link" href="#main">Skip to main content</a>
 ${
-  // The homepage sits on one fixed photograph. It is a separate layer rather
-  // than a background-image because background-attachment: fixed is unreliable
-  // on iOS, and because an <img> can carry alt text — the building is worth
-  // describing, not decoration.
-  page.slug === ''
-    ? `<div class="page-backdrop">
-  <img src="${base}assets/img/museum-lawn-sculpture.webp"
-       alt="The museum from the lawn: a long, low white building under a wide summer sky, with a large bronze head on a black plinth at the centre of a planted bed, framed by slender columnar trees.">
-</div>`
-    : ''
+  // A page with a backdrop sits on one fixed photograph or video. It is a
+  // separate layer rather than a background-image because
+  // background-attachment: fixed is unreliable on iOS, and because an <img>
+  // can carry alt text — the building is worth describing, not decoration.
+  backdropHtml(backdrop, base)
 }
 ${buildNav(base, page.slug)}
 
@@ -890,9 +956,13 @@ function render(template, page) {
   return template
     .replace(/\{\{contact\}\}/g, () => contactBlock())
     .replace(/\{\{contactNoHeading\}\}/g, () => contactBlock({ heading: false }))
+    .replace(/\{\{contactPhoneEmail\}\}/g, () => contactBlock({ heading: false, parts: ['phone', 'email'] }))
     .replace(/\{\{hoursTable\}\}/g, () => hoursTable())
     .replace(/\{\{calendar\}\}/g, () => calendarBlock())
-    .replace(/\{\{formNotice\}\}/g, () => formNotice())
+    // {{formNotice:<name>}}, {{formAction:<name>}} — <name> is a key of site.forms.
+    .replace(/\{\{formNotice:(\w+)\}\}/g, (_, name) => formNotice(name))
+    .replace(/\{\{formAction:(\w+)\}\}/g, (_, name) => formEndpoint(name) || '#')
+    .replace(/\{\{formTrap\}\}/g, FORM_TRAP)
     .replace(/\{\{exhibitionsGrid\}\}/g, () => exhibitionsGrid())
     .replace(/\{\{permanentTiles\}\}/g, () => permanentTiles())
     .replace(/\{\{headlineExhibition\}\}/g, () => headlineExhibition())
@@ -914,6 +984,8 @@ function render(template, page) {
     .replace(/\{\{hoursTime\}\}/g, esc(site.hours.time))
     .replace(/\{\{eventbrite\}\}/g, site.external.eventbrite)
     .replace(/\{\{volunteerApplication\}\}/g, site.external.volunteerApplication)
+    .replace(/\{\{donateEmbed\}\}/g, site.external.donateEmbed || '')
+    .replace(/\{\{donate\}\}/g, site.external.donate)
     // {{map:<query>|<label>|<class>|<context>}} — query "SELF" means the museum.
     .replace(/\{\{map:([^}]*)\}\}/g, (_, args) => {
       const [rawQuery, label, cls, context] = args.split('|').map((s) => (s || '').trim());

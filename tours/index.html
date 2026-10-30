@@ -14,12 +14,19 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&display=swap">
-<link rel="stylesheet" href="../assets/css/site.css?v=98f68514">
+<link rel="stylesheet" href="../assets/css/site.css?v=47b961b2">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Museum","name":"Medici Museum of Art","url":"https://medicimuseum.art","telephone":"+1-330-856-2120","email":"info@medicimuseum.art","address":{"@type":"PostalAddress","streetAddress":"9350 East Market St.","addressLocality":"Warren","addressRegion":"OH","postalCode":"44484","addressCountry":"US"},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["https://schema.org/Wednesday","https://schema.org/Thursday","https://schema.org/Friday","https://schema.org/Saturday","https://schema.org/Sunday"],"opens":"11:00","closes":"16:00"}],"isAccessibleForFree":true,"sameAs":["https://www.facebook.com/medicimuseumofart/","https://www.instagram.com/medicimuseum.art/"]}</script>
 </head>
-<body data-base="../">
+<body data-base="../" class="has-backdrop">
 <a class="skip-link" href="#main">Skip to main content</a>
-
+<div class="page-backdrop">
+  <video src="../assets/video/tours-gallery-flythrough.mp4" poster="../assets/img/tours-video-poster.webp"
+         muted loop playsinline preload="metadata" aria-hidden="true" data-backdrop-video></video>
+</div>
+<button type="button" class="carousel__btn backdrop-toggle" data-backdrop-toggle hidden>
+  <span class="visually-hidden" data-backdrop-toggle-label>Pause the background video</span>
+  <span class="carousel__glyph" aria-hidden="true"></span>
+</button>
 
   <header class="site-header">
     <div class="shell site-header__inner">
@@ -115,28 +122,38 @@
   </div>
 </section>
 
+<!-- The photographs are backgrounds under the text, so they carry empty alt
+     text, like the photo boxes on Donate and Volunteer. -->
 <section class="band band--tight" aria-labelledby="options">
   <div class="shell">
     <h2 id="options">Tour options</h2>
-    <ul class="card-grid">
-      <li class="card">
-        <h3>General Museum Tour</h3>
-        <p>Highlights from our permanent collection. 30&ndash;60 minutes.</p>
-      </li>
-      <li class="card">
-        <h3>Special Exhibition Tour</h3>
-        <p>A deeper look at the latest featured exhibition. 30&ndash;60 minutes.</p>
-      </li>
-      <li class="card">
-        <h3>Themed Tours</h3>
-        <p>Focused on specific art movements, artists or historical periods. 45 minutes.</p>
-      </li>
-      <li class="card">
-        <h3>School &amp; Group Tours</h3>
-        <p>Tailored experiences for student groups or private events. Customisable.</p>
-      </li>
-    </ul>
   </div>
+  <ul class="photo-grid">
+    <li class="photo-card">
+      <img class="photo-card__img" src="../assets/img/tours-general.webp" width="1600" height="1067"
+           loading="lazy" alt="">
+      <h3>General Museum Tour</h3>
+      <p>Highlights from our permanent collection. 30&ndash;60 minutes.</p>
+    </li>
+    <li class="photo-card">
+      <img class="photo-card__img" src="../assets/img/tours-special-exhibition.webp" width="1200" height="1600"
+           loading="lazy" alt="" style="object-position:50% 60%">
+      <h3>Special Exhibition Tour</h3>
+      <p>A deeper look at the latest featured exhibition. 30&ndash;60 minutes.</p>
+    </li>
+    <li class="photo-card">
+      <img class="photo-card__img" src="../assets/img/tours-themed.webp" width="1600" height="721"
+           loading="lazy" alt="">
+      <h3>Themed Tours</h3>
+      <p>Focused on specific art movements, artists or historical periods. 45 minutes.</p>
+    </li>
+    <li class="photo-card">
+      <img class="photo-card__img" src="../assets/img/tours-school-group.webp" width="1600" height="1200"
+           loading="lazy" alt="">
+      <h3>School &amp; Group Tours</h3>
+      <p>Tailored experiences for student groups or private events. Customisable.</p>
+    </li>
+  </ul>
 </section>
 
 <section class="band band--warm band--tight" aria-labelledby="how-to-book">
@@ -170,7 +187,10 @@
     </div>
     <p>Tell us a little more and we will be in touch. Fields marked <span class="req">*</span> are required.</p>
 
-    <form class="form" data-validate method="post" action="#">
+    <form class="form" data-validate method="post" action="#"
+          data-sent="Thank you. Your tour request has been sent, and we will be in touch to confirm.">
+      <div style="display:none"><label>Leave this empty <input type="text" name="_gotcha" tabindex="-1" autocomplete="off"></label></div>
+      <input type="hidden" name="_subject" value="New tour request from the museum website">
       <p class="form__status" role="alert" data-form-status></p>
 
       <fieldset>
@@ -393,7 +413,7 @@
   </footer>
 
 <script src="../assets/js/data.js?v=72b3cff4"></script>
-<script src="../assets/js/search-index.js?v=a1484ee8"></script>
-<script src="../assets/js/site.js?v=d287eabb"></script>
+<script src="../assets/js/search-index.js?v=47cef76c"></script>
+<script src="../assets/js/site.js?v=26b6ba17"></script>
 </body>
 </html>
