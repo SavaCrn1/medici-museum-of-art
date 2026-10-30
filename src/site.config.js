@@ -91,14 +91,8 @@ const site = {
     // fragment lands the visitor on that button. If this rebuild replaces the
     // Squarespace site at the same address, this link would point back at
     // ourselves: swap it for the museum's donation platform before launch.
+    // The Donate dialog's "Continue" button goes here.
     donate: 'https://www.medicimuseum.art/donate#block-4015b40c8a4afb697a69',
-
-    // The payment step of the Donate dialog: the embeddable form URL from the
-    // museum's payment provider (for example a Givebutter, Zeffy or Donorbox
-    // embed link). It is shown in an iframe inside the dialog, so the visitor
-    // never leaves the page. While it is null the dialog explains that online
-    // payment is being connected and links to `donate` above instead.
-    donateEmbed: null,
 
     // Served from this repository rather than from Squarespace, so it survives
     // the move off that platform. Replace the file in place to update it.

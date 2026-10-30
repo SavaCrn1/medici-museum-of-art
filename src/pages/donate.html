@@ -37,80 +37,18 @@
   </div>
 </section>
 
-<!-- The donation dialog. Step one collects the gift; step two is the payment
-     itself, which is the payment provider's own form embedded in the dialog
-     (site.config.js → external.donateEmbed). Card details are never collected
-     by this site. -->
+<!-- The donation dialog only confirms the hand-off: the amount, the donor's
+     details and the payment are all taken on the museum's donation page
+     (site.config.js → external.donate), so nothing is asked twice. Card
+     details are never collected by this site. -->
 <dialog class="donate-dialog" id="donate-dialog" aria-labelledby="donate-dialog-title"
-        data-embed="{{donateEmbed}}" data-fallback="{{donate}}">
+        aria-describedby="donate-dialog-text">
   <button type="button" class="donate-dialog__close" data-donate-close aria-label="Close">&times;</button>
-
-  <div data-donate-step="gift">
-    <h2 id="donate-dialog-title">Make a donation</h2>
-    <form class="form" data-validate data-donate-form>
-      <p class="form__status" data-form-status role="alert"></p>
-
-      <fieldset>
-        <legend>Gift amount</legend>
-        <div class="amount-options">
-          <label><input type="radio" name="amount" value="25"><span>$25</span></label>
-          <label><input type="radio" name="amount" value="50" checked><span>$50</span></label>
-          <label><input type="radio" name="amount" value="100"><span>$100</span></label>
-          <label><input type="radio" name="amount" value="250"><span>$250</span></label>
-          <label><input type="radio" name="amount" value="other"><span>Other</span></label>
-        </div>
-        <div class="field" data-donate-other hidden style="margin-top:1rem">
-          <label for="d-other">Other amount, in US dollars</label>
-          <input id="d-other" name="otherAmount" type="number" min="1" step="1" inputmode="numeric"
-                 aria-describedby="d-other-error">
-          <p class="field__error" id="d-other-error"></p>
-        </div>
-      </fieldset>
-
-      <fieldset>
-        <legend>How often</legend>
-        <div class="amount-options">
-          <label><input type="radio" name="frequency" value="once" checked><span>One time</span></label>
-          <label><input type="radio" name="frequency" value="monthly"><span>Monthly</span></label>
-        </div>
-      </fieldset>
-
-      <fieldset>
-        <legend>Your details</legend>
-        <div class="form-row">
-          <div class="field">
-            <label for="d-first">First name <span class="req" aria-hidden="true">*</span></label>
-            <input id="d-first" name="firstName" type="text" autocomplete="given-name" required
-                   aria-describedby="d-first-error">
-            <p class="field__error" id="d-first-error"></p>
-          </div>
-          <div class="field">
-            <label for="d-last">Last name <span class="req" aria-hidden="true">*</span></label>
-            <input id="d-last" name="lastName" type="text" autocomplete="family-name" required
-                   aria-describedby="d-last-error">
-            <p class="field__error" id="d-last-error"></p>
-          </div>
-        </div>
-        <div class="field" style="margin-top:1.35rem">
-          <label for="d-email">Email <span class="req" aria-hidden="true">*</span></label>
-          <input id="d-email" name="email" type="email" autocomplete="email" required
-                 aria-describedby="d-email-hint d-email-error">
-          <p class="hint" id="d-email-hint">For your tax receipt.</p>
-          <p class="field__error" id="d-email-error"></p>
-        </div>
-      </fieldset>
-
-      <p><button type="submit" class="btn">Continue to payment</button></p>
-    </form>
-  </div>
-
-  <div data-donate-step="pay" hidden>
-    <h2 tabindex="-1" data-donate-pay-heading>Payment</h2>
-    <p class="lede" data-donate-summary></p>
-    <div class="donate-dialog__embed" data-donate-embed></div>
-    <p data-donate-pending hidden>Secure online card payment is being connected to this page. In the meantime
-      you can complete your gift on our <a href="{{donate}}" target="_blank" rel="noopener">current donation
-      page<span class="visually-hidden"> (opens in a new tab)</span></a>.</p>
-    <p><button type="button" class="btn btn--ghost" data-donate-back>Back</button></p>
+  <h2 id="donate-dialog-title">Continue to our donation page?</h2>
+  <p id="donate-dialog-text">Donations are processed securely on the museum&rsquo;s donation page. There you
+    choose your amount, enter your details once and pay.</p>
+  <div class="donate-dialog__actions">
+    <a class="btn" href="{{donate}}">Continue to donation page</a>
+    <button type="button" class="btn btn--ghost" data-donate-close>Cancel</button>
   </div>
 </dialog>

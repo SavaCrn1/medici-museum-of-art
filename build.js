@@ -1013,7 +1013,6 @@ function render(template, page) {
     .replace(/\{\{hoursTime\}\}/g, esc(site.hours.time))
     .replace(/\{\{eventbrite\}\}/g, site.external.eventbrite)
     .replace(/\{\{volunteerApplication\}\}/g, site.external.volunteerApplication)
-    .replace(/\{\{donateEmbed\}\}/g, site.external.donateEmbed || '')
     .replace(/\{\{donate\}\}/g, site.external.donate)
     // {{map:<query>|<label>|<class>|<context>}} — query "SELF" means the museum.
     .replace(/\{\{map:([^}]*)\}\}/g, (_, args) => {

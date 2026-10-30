@@ -1303,10 +1303,10 @@
   /* ---------------------------------------------------------------------------
      Donation dialog
      The Donate link opens a native <dialog>, which brings focus trapping,
-     Escape to close and an inert page behind it for free. Step one is the gift;
-     step two is the payment provider's own form in an iframe, so the visitor
-     stays on this page and card details never touch this site. Without
-     showModal support the link simply goes to the donation page.
+     Escape to close and an inert page behind it for free. It only asks
+     whether to continue to the museum's donation page, which takes the gift,
+     the donor's details and the payment. Without showModal support the link
+     simply goes to the donation page.
      --------------------------------------------------------------------------- */
 
   function initDonate() {
@@ -1314,25 +1314,16 @@
     if (!dialog || typeof dialog.showModal !== 'function') return;
 
     // The dialog is drawn on paper, but Donate sits on a backdrop photograph,
-    // and the dark-ground rules (.has-backdrop main …) would repaint its hints,
-    // errors and buttons light on light. Out of <main> they cannot reach it.
+    // and the dark-ground rules (.has-backdrop main …) would repaint its
+    // buttons light on light. Out of <main> they cannot reach it.
     // Only this script ever opens it, so without the script nothing changes.
     document.body.appendChild(dialog);
-
-    var form = dialog.querySelector('[data-donate-form]');
-    var giftStep = dialog.querySelector('[data-donate-step="gift"]');
-    var payStep = dialog.querySelector('[data-donate-step="pay"]');
-    var other = dialog.querySelector('[data-donate-other]');
-    var otherInput = other.querySelector('input');
-    var otherError = document.getElementById(otherInput.id + '-error');
-    var embedUrl = dialog.getAttribute('data-embed');
 
     document.querySelectorAll('[data-donate-open]').forEach(function (link) {
       link.setAttribute('role', 'button');
       link.setAttribute('aria-haspopup', 'dialog');
       link.addEventListener('click', function (event) {
         event.preventDefault();
-        showStep('gift');
         dialog.showModal();
       });
       // role="button" promises Space works as well as Enter.
@@ -1344,69 +1335,16 @@
       });
     });
 
-    dialog.querySelector('[data-donate-close]').addEventListener('click', function () {
-      dialog.close();
+    dialog.querySelectorAll('[data-donate-close]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        dialog.close();
+      });
     });
 
     // A click on the backdrop lands on the dialog element itself.
     dialog.addEventListener('click', function (event) {
       if (event.target === dialog) dialog.close();
     });
-
-    form.addEventListener('change', function (event) {
-      if (event.target.name !== 'amount') return;
-      var isOther = event.target.value === 'other';
-      other.hidden = !isOther;
-      if (isOther) otherInput.focus();
-    });
-
-    // Runs after initForms' handler, which has already checked the name and
-    // email fields and cancelled the submit if either was wrong.
-    form.addEventListener('submit', function (event) {
-      event.preventDefault();
-
-      var amount = form.elements.amount.value;
-      if (amount === 'other') {
-        amount = otherInput.value.trim();
-        var ok = /^\d+(\.\d{1,2})?$/.test(amount) && Number(amount) >= 1;
-        otherError.textContent = ok ? '' : 'Enter an amount of at least $1.';
-        otherInput.setAttribute('aria-invalid', ok ? 'false' : 'true');
-        // It sits above the name fields, so it is the first problem to fix.
-        if (!ok) {
-          otherInput.focus();
-          return;
-        }
-      }
-      if (form.querySelector('[aria-invalid="true"]')) return;
-
-      var monthly = form.elements.frequency.value === 'monthly';
-      dialog.querySelector('[data-donate-summary]').textContent =
-        'Your gift: $' + Number(amount).toLocaleString('en-US') + (monthly ? ' every month' : ', one time') + '.';
-
-      var embed = dialog.querySelector('[data-donate-embed]');
-      embed.innerHTML = '';
-      if (embedUrl) {
-        var frame = document.createElement('iframe');
-        frame.src = embedUrl;
-        frame.title = 'Secure payment';
-        frame.setAttribute('allow', 'payment');
-        embed.appendChild(frame);
-      }
-      dialog.querySelector('[data-donate-pending]').hidden = !!embedUrl;
-
-      showStep('pay');
-      dialog.querySelector('[data-donate-pay-heading]').focus();
-    });
-
-    dialog.querySelector('[data-donate-back]').addEventListener('click', function () {
-      showStep('gift');
-      form.querySelector('button[type="submit"]').focus();
-    });
-
-    function showStep(name) {
-      giftStep.hidden = name !== 'gift';
-      payStep.hidden = name !== 'pay';
-    }
   }
 
   /* ------------------------------------------------------------------------- */
@@ -1423,7 +1361,7 @@
     initCarousels();
     initBackdropVideo();
     initForms();
-    initDonate(); // after initForms: its submit handler must run first
+    initDonate();
   }
 
   if (document.readyState === 'loading') {
